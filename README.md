@@ -1,6 +1,8 @@
 # GiNGR Framework
 GiNGR: Generalized Iterative Non-Rigid Point Cloud and Surface Registration Using Gaussian Process Regression. 
 
+[Link to the paper](https://arxiv.org/pdf/2203.09986.pdf).
+
 BibTex:
 ```bibtex
 @article{madsen2022gingr,
