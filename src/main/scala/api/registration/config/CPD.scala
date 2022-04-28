@@ -17,16 +17,15 @@
 
 package api.registration.config
 
-import java.io.File
-
 import api.registration.utils.PointSequenceConverter
-import api.GingrAlgorithm
-import api.{CorrespondencePairs, GeneralRegistrationState, GingrConfig, GingrRegistrationState}
-import breeze.linalg.{sum, tile, Axis, DenseMatrix, DenseVector}
-import scalismo.common.{DiscreteField, DiscreteField3D, PointId, UnstructuredPointsDomain}
+import api._
+import breeze.linalg.{Axis, DenseMatrix, DenseVector, sum, tile}
+import scalismo.common.PointId
 import scalismo.geometry.Point.Point3DVectorizer
-import scalismo.geometry.{_3D, EuclideanVector, Point}
+import scalismo.geometry.{Point, _3D}
 import scalismo.statisticalmodel.MultivariateNormalDistribution
+
+import scala.collection.parallel.CollectionConverters.ImmutableSeqIsParallelizable
 
 object CPDCorrespondence {
   val vectorizer: Point.Point3DVectorizer.type = Point3DVectorizer

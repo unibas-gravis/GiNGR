@@ -17,7 +17,6 @@
 
 package apps.registration
 
-import api.RigidTransforms
 import apps.DemoDatasetLoader
 
 object DemoLandmarks extends App {

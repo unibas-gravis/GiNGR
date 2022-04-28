@@ -18,7 +18,6 @@
 package api.sampling.generators
 
 import api.GingrRegistrationState
-import scalismo.sampling.{ProposalGenerator, TransitionProbability}
 import scalismo.utils.Random
 
 case class GeneratorWrapperDeterministic[State <: GingrRegistrationState[State]](update: (State, Boolean) => State, generatedBy: String = "Deterministic")(implicit rnd: Random)

@@ -18,10 +18,10 @@
 package api
 
 import breeze.linalg.DenseVector
-import scalismo.geometry.{_3D, EuclideanVector, Point}
+import scalismo.geometry.{EuclideanVector, Point, _3D}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.PointDistributionModel
-import scalismo.transformations.{Rotation, Scaling, Scaling3D, Translation, TranslationAfterRotation, TranslationAfterScalingAfterRotation}
+import scalismo.transformations._
 
 case class ScaleParameter(s: Double) {
   def parameters: DenseVector[Double] = DenseVector(s)

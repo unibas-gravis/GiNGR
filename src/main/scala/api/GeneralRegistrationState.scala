@@ -19,7 +19,7 @@ package api
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.common.PointId
-import scalismo.geometry.{_3D, EuclideanVector, Landmark, Point}
+import scalismo.geometry.{EuclideanVector, Landmark, Point, _3D}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.{MultivariateNormalDistribution, PointDistributionModel}
 import scalismo.transformations._

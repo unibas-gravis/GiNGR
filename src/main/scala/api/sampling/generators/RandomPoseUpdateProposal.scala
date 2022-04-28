@@ -18,7 +18,6 @@
 package api.sampling.generators
 
 import api.{EulerRotation, GingrRegistrationState}
-import scalismo.sampling.{ProposalGenerator, TransitionProbability}
 
 sealed trait RotationAxis
 

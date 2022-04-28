@@ -18,7 +18,7 @@
 package api.registration.utils
 
 import breeze.linalg.DenseMatrix
-import scalismo.geometry.{_2D, _3D, Point, SquareMatrix}
+import scalismo.geometry.{Point, SquareMatrix, _2D, _3D}
 import scalismo.registration.LandmarkRegistration
 import scalismo.transformations._
 

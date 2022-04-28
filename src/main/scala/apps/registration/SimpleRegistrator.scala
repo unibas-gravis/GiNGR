@@ -17,12 +17,12 @@
 
 package apps.registration
 
+import api._
 import api.helper.{CallBackFunctions, RegistrationComparison}
 import api.registration.config.StateHandler
 import api.sampling.IndependtPoints
 import api.sampling.evaluators.{EvaluationMode, ModelToTargetEvaluation}
 import api.sampling.loggers.JSONStateLogger
-import api._
 import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.geometry.{Landmark, _3D}
 import scalismo.mesh.TriangleMesh

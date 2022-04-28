@@ -17,23 +17,18 @@
 
 package api.sampling.loggers
 
-import api.{EulerAngles, EulerRotation, GeneralRegistrationState, GingrRegistrationState, ModelFittingParameters, PoseParameters, ScaleParameter, ShapeParameters}
-import spray.json.DefaultJsonProtocol.jsonFormat10
-import spray.json.RootJsonFormat
-import spray.json.DefaultJsonProtocol._
-import spray.json._
-import scalismo.sampling.{DistributionEvaluator, ProposalGenerator}
-import scalismo.sampling.loggers.AcceptRejectLogger
-
-import java.io.{BufferedWriter, File, FileOutputStream, IOException, OutputStreamWriter}
-import java.text.SimpleDateFormat
-import java.util.Calendar
+import api._
 import api.sampling.Evaluator
 import breeze.linalg.DenseVector
-import scalismo.geometry.{EuclideanVector, Point, _3D}
-import scalismo.mesh.TriangleMesh
-import scalismo.statisticalmodel.PointDistributionModel
+import scalismo.geometry.{EuclideanVector, Point}
+import scalismo.sampling.loggers.AcceptRejectLogger
+import scalismo.sampling.{DistributionEvaluator, ProposalGenerator}
+import spray.json.DefaultJsonProtocol._
+import spray.json.{RootJsonFormat, _}
 
+import java.io._
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import scala.collection.SortedSet
 import scala.collection.mutable.ListBuffer
 import scala.io.Source

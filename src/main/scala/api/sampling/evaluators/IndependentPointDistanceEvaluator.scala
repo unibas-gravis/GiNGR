@@ -19,9 +19,9 @@ package api.sampling.evaluators
 
 import api.GingrRegistrationState
 import breeze.stats.distributions.ContinuousDistr
-import scalismo.common.{DomainWarp, PointId}
-import scalismo.geometry.{_3D, Point}
-import scalismo.mesh.{TriangleMesh, TriangleMesh3D}
+import scalismo.common.PointId
+import scalismo.geometry.{Point, _3D}
+import scalismo.mesh.TriangleMesh3D
 import scalismo.sampling.DistributionEvaluator
 
 trait EvaluationMode

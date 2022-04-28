@@ -18,7 +18,7 @@
 package other.algorithms.cpd
 
 import api.registration.utils.PointSequenceConverter
-import breeze.linalg.{det, diag, kron, pinv, sum, svd, tile, trace, Axis, DenseMatrix, DenseVector}
+import breeze.linalg.{Axis, DenseMatrix, DenseVector, det, diag, kron, pinv, sum, svd, tile, trace}
 import breeze.numerics.{abs, digamma}
 import scalismo.common.Vectorizer
 import scalismo.geometry.{NDSpace, Point}

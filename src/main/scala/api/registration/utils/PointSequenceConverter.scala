@@ -22,6 +22,8 @@ import scalismo.common.{PointId, Vectorizer}
 import scalismo.geometry.Point.{Point1DVectorizer, Point2DVectorizer, Point3DVectorizer}
 import scalismo.geometry._
 
+import scala.collection.parallel.CollectionConverters.ImmutableSeqIsParallelizable
+
 trait PointSequenceConverter[D] {
   def toPointSequence(m: DenseMatrix[Double])(implicit vectorizer: Vectorizer[Point[D]]): Seq[Point[D]]
   def toPointSequence(v: DenseVector[Double])(implicit vectorizer: Vectorizer[Point[D]]): Seq[Point[D]]

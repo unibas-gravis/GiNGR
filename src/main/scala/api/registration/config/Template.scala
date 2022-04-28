@@ -17,7 +17,7 @@
 
 package api.registration.config
 
-import api.{CorrespondencePairs, GeneralRegistrationState, GingrAlgorithm, GingrConfig, GingrRegistrationState}
+import api._
 import breeze.linalg.{DenseMatrix, DenseVector}
 import scalismo.common.PointId
 import scalismo.statisticalmodel.MultivariateNormalDistribution

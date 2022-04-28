@@ -18,8 +18,8 @@
 package api.sampling.loggers
 
 import api.GingrRegistrationState
-import scalismo.sampling.{DistributionEvaluator, ProposalGenerator}
 import scalismo.sampling.loggers.{AcceptRejectLogger, ChainStateLogger}
+import scalismo.sampling.{DistributionEvaluator, ProposalGenerator}
 
 case class EmptyChainStateLogger[State <: GingrRegistrationState[State]]() extends ChainStateLogger[State] {
   override def logState(sample: State): Unit = {}
