@@ -17,16 +17,14 @@
 
 package api.gpmm
 
-import breeze.linalg.{diag, sum, trace, DenseMatrix}
+import breeze.linalg.sum
 import scalismo.common.DiscreteField.ScalarMeshField
-import scalismo.common.interpolation.{NearestNeighborInterpolator, TriangleMeshInterpolator3D}
-import scalismo.common.{DiscreteDomain, PointId, PointSet, ScalarMeshField, UnstructuredPoints, UnstructuredPointsDomain}
-import scalismo.geometry.{_1D, _2D, _3D, EuclideanVector, NDSpace}
+import scalismo.common._
+import scalismo.common.interpolation.NearestNeighborInterpolator
+import scalismo.geometry.{EuclideanVector, _1D, _2D, _3D}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, MatrixValuedPDKernel}
 import scalismo.mesh.TriangleMesh
-import scalismo.numerics.PivotedCholesky
-import scalismo.numerics.PivotedCholesky.NumberOfEigenfunctions
-import scalismo.statisticalmodel.{DiscreteLowRankGaussianProcess, GaussianProcess, LowRankGaussianProcess, PointDistributionModel}
+import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, PointDistributionModel}
 
 trait GPMM[D, DDomain[D] <: DiscreteDomain[D]] {
   def construct(reference: DDomain[D], kernel: MatrixValuedPDKernel[D], relativeTolerance: Double = 0.01): PointDistributionModel[D, DDomain]
@@ -133,12 +131,10 @@ case class GPMMTriangleMesh3D(reference: TriangleMesh[_3D], relativeTolerance: D
     val refPoints = reference.pointSet
     val psHelper = PointSetHelper[_3D, TriangleMesh](reference)
     val maxDist = psHelper.maximumPointDistance(refPoints)
-//    val minDist = psHelper.minimumPointDistance(refPoints)
     GaussianMixture(
       Seq(
         GaussianKernelParameters(maxDist / 4.0, maxDist / 8.0),
         GaussianKernelParameters(maxDist / 8.0, maxDist / 16.0)
-//        GaussianKernelParameters(maxDist/16.0, maxDist/32.0),
       ))
   }
 

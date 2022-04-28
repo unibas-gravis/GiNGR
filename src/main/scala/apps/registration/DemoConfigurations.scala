@@ -17,9 +17,9 @@
 
 package apps.registration
 
+import api.registration.config._
 import api.{GeneralRegistrationState, GlobalTranformationType, NoTransforms, RigidTransforms}
-import api.registration.config.{CpdConfiguration, CpdRegistration, CpdRegistrationState, IcpConfiguration, IcpRegistration, IcpRegistrationState}
-import scalismo.geometry.{_3D, Landmark}
+import scalismo.geometry.{Landmark, _3D}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.PointDistributionModel
 import scalismo.utils.Random.implicits.randomGenerator

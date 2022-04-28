@@ -17,12 +17,10 @@
 
 package apps.registration
 
-import java.io.File
-
-import api.{NoTransforms, RigidTransforms}
+import api.NoTransforms
 import apps.DemoDatasetLoader
-import scalismo.geometry.{EuclideanVector, Point}
-import scalismo.transformations.{Rotation, Translation, TranslationAfterRotation}
+
+import java.io.File
 
 object DemoCPD extends App {
   scalismo.initialize()

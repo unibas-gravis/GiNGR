@@ -17,9 +17,9 @@
 
 package api.gpmm
 
-import breeze.linalg.{sum, DenseMatrix, DenseVector}
+import breeze.linalg.DenseMatrix
 import scalismo.common.EuclideanSpace
-import scalismo.geometry.{_3D, Point}
+import scalismo.geometry.{Point, _3D}
 import scalismo.kernels.{DiagonalKernel, MatrixValuedPDKernel, PDKernel}
 import scalismo.mesh.TriangleMesh
 

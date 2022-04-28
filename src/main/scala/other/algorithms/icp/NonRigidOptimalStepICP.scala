@@ -18,7 +18,7 @@
 package other.algorithms.icp
 
 import api.registration.utils.{NonRigidClosestPointRegistrator, PointSequenceConverter}
-import breeze.linalg.{diag, CSCMatrix, DenseMatrix, SparseVector}
+import breeze.linalg.{CSCMatrix, SparseVector, diag}
 import other.utils.CSCHelper
 import scalismo.common.{DomainWarp, PointId, UnstructuredPoints3D, Vectorizer}
 import scalismo.geometry._

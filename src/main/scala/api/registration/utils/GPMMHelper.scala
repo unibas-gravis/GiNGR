@@ -17,16 +17,12 @@
 
 package api.registration.utils
 
-import java.io.File
-
+import scalismo.common.UnstructuredPoints
 import scalismo.common.interpolation.TriangleMeshInterpolator3D
-import scalismo.common.{EuclideanSpace, Field, UnstructuredPoints}
-import scalismo.geometry.{EuclideanVector, Point, _3D}
-import scalismo.io.MeshIO
+import scalismo.geometry.{EuclideanVector, _3D}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, PointDistributionModel}
-import scalismo.ui.api.ScalismoUI
 
 object GPMMHelper {
   // Todo: use implicit to build any kind of model based on the pointSet

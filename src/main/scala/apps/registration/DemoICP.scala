@@ -19,9 +19,6 @@ package apps.registration
 
 import api.NoTransforms
 import apps.DemoDatasetLoader
-import scalismo.geometry.{EuclideanVector, Point}
-import scalismo.transformations.{Rotation, Translation, TranslationAfterRotation}
-import scalismo.utils.Random.implicits.randomGenerator
 
 import java.io.File
 

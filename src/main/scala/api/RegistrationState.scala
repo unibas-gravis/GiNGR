@@ -17,11 +17,10 @@
 
 package api
 
-import breeze.linalg.DenseVector
-import scalismo.geometry.{_3D, EuclideanVector, EuclideanVector3D, Landmark, Point}
+import scalismo.geometry.{EuclideanVector, Landmark, _3D}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.PointDistributionModel
-import scalismo.transformations.{Rotation, RotationSpace3D, Translation, TranslationAfterRotation}
+import scalismo.transformations.Rotation
 
 trait RegistrationState[T] {
   def model(): PointDistributionModel[_3D, TriangleMesh] // Prior statistical mesh model

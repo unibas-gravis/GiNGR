@@ -18,7 +18,6 @@
 package api.sampling.generators
 
 import api.{GingrRegistrationState, ShapeParameters}
-import scalismo.sampling.{ProposalGenerator, TransitionProbability}
 import scalismo.utils.Random
 
 case class RandomShapeUpdateProposal[State <: GingrRegistrationState[State]](stdev: Double, generatedBy: String = "RandomShapeUpdateProposal")(implicit random: Random)

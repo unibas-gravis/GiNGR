@@ -22,7 +22,6 @@ import api.helper.{LogHelper, PosteriorHelper}
 import api.sampling.loggers.JSONStateLogger
 import apps.DemoDatasetLoader
 import scalismo.ui.api.ScalismoUI
-import scalismo.utils.Random.implicits.randomGenerator
 
 import java.awt.Color
 import java.io.File

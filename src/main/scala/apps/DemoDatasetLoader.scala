@@ -17,15 +17,15 @@
 
 package apps
 
-import apps.gpmm.{GaussDotKernel, GaussKernel, GaussMirrorKernel, GaussMixKernel, InvLapDotKernel, InvLapKernel, SimpleTriangleModels3D, WhichKernel}
-import java.io.File
-
+import apps.gpmm._
 import scalismo.common.interpolation.TriangleMeshInterpolator3D
-import scalismo.geometry.{_3D, Landmark, Point}
+import scalismo.geometry.{Landmark, Point, _3D}
 import scalismo.io.{LandmarkIO, MeshIO, StatisticalModelIO}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.PointDistributionModel
 import scalismo.transformations.{TranslationAfterRotation, TranslationAfterRotationSpace3D}
+
+import java.io.File
 
 trait DataSetLoader {
   def name: String

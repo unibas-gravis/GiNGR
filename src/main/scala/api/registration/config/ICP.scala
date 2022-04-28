@@ -17,13 +17,10 @@
 
 package api.registration.config
 
-import java.io.File
-
-import api.registration.utils.NonRigidClosestPointRegistrator.ClosestPointTriangleMesh3D
 import api._
+import api.registration.utils.NonRigidClosestPointRegistrator.ClosestPointTriangleMesh3D
 import breeze.linalg.{DenseMatrix, DenseVector}
-import scalismo.common.{DiscreteField, DiscreteField3D, PointId, UnstructuredPointsDomain}
-import scalismo.geometry.{_3D, EuclideanVector}
+import scalismo.common.PointId
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 
 object ICPCorrespondence {

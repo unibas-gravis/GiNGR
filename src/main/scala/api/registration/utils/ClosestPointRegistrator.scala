@@ -17,8 +17,8 @@
 
 package api.registration.utils
 
-import scalismo.common.{DiscreteDomain, PointId, UnstructuredPoints, UnstructuredPointsDomain}
-import scalismo.geometry.{_1D, _2D, _3D, EuclideanVector, Point}
+import scalismo.common.{DiscreteDomain, PointId, UnstructuredPointsDomain}
+import scalismo.geometry._
 import scalismo.mesh.TriangleMesh
 
 trait ClosestPointRegistrator[D, DDomain[D] <: DiscreteDomain[D]] {

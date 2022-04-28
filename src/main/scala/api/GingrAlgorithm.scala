@@ -17,17 +17,17 @@
 
 package api
 
-import api.sampling.{AcceptAll, Evaluator, Generator}
 import api.sampling.evaluators.EvaluatorWrapper
-import api.sampling.loggers.{BestAndCurrentSampleLogger, EmptyAcceptRejectLogger, EmptyChainStateLogger}
 import api.sampling.generators.{GeneratorWrapperDeterministic, GeneratorWrapperStochastic}
+import api.sampling.loggers.{BestAndCurrentSampleLogger, EmptyAcceptRejectLogger, EmptyChainStateLogger}
+import api.sampling.{AcceptAll, Evaluator, Generator}
 import scalismo.common.PointId
-import scalismo.geometry.{_3D, Point}
+import scalismo.geometry.{Point, _3D}
 import scalismo.mesh.TriangleMesh
 import scalismo.registration.LandmarkRegistration
 import scalismo.sampling.algorithms.MetropolisHastings
-import scalismo.sampling.loggers.{AcceptRejectLogger, ChainStateLogger, ChainStateLoggerContainer}
 import scalismo.sampling.loggers.ChainStateLogger.implicits._
+import scalismo.sampling.loggers.{AcceptRejectLogger, ChainStateLogger, ChainStateLoggerContainer}
 import scalismo.sampling.proposals.MixtureProposal
 import scalismo.sampling.proposals.MixtureProposal.implicits._
 import scalismo.sampling.{ProposalGenerator, TransitionProbability}

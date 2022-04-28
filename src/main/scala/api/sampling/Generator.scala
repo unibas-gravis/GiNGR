@@ -18,11 +18,11 @@
 package api.sampling
 
 import api.GingrRegistrationState
-import api.sampling.generators.{GaussianAxisRotationProposal, GaussianAxisTranslationProposal, PitchAxis, RandomShapeUpdateProposal, RollAxis, YawAxis}
-import scalismo.sampling.{ProposalGenerator, TransitionProbability}
+import api.sampling.generators._
 import scalismo.sampling.proposals.MixtureProposal
-import scalismo.utils.Random
 import scalismo.sampling.proposals.MixtureProposal.implicits._
+import scalismo.sampling.{ProposalGenerator, TransitionProbability}
+import scalismo.utils.Random
 
 class Generator[State <: GingrRegistrationState[State]](implicit rnd: Random) {
 

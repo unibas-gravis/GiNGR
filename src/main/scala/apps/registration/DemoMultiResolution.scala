@@ -20,7 +20,7 @@ package apps.registration
 import api.GeneralRegistrationState
 import api.registration.config._
 import apps.DemoDatasetLoader
-import scalismo.geometry.{_3D, EuclideanVector, Point}
+import scalismo.geometry.{EuclideanVector, Point, _3D}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.PointDistributionModel
 import scalismo.transformations.{Rotation, Translation, TranslationAfterRotation}

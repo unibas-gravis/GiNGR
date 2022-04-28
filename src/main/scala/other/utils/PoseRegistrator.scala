@@ -18,7 +18,7 @@
 package other.utils
 
 import scalismo.common.UnstructuredPoints
-import scalismo.geometry.{_2D, _3D, Point}
+import scalismo.geometry.{Point, _2D, _3D}
 import scalismo.registration.LandmarkRegistration
 
 trait Registrator[D] {

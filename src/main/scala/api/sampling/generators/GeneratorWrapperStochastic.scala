@@ -20,7 +20,6 @@ package api.sampling.generators
 import api.GingrRegistrationState
 import scalismo.geometry._3D
 import scalismo.mesh.TriangleMesh
-import scalismo.sampling.{ProposalGenerator, TransitionProbability}
 import scalismo.statisticalmodel.PointDistributionModel
 import scalismo.utils.{Memoize, Random}
 

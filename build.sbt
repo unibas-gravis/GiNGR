@@ -1,12 +1,12 @@
 import sbt.Resolver
 
-organization := "anonymous"
+organization := "ch.unibas.cs.gravis"
 
 name := "GiNGR"
 
 version := "0.1"
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.13.8"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
