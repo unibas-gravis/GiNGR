@@ -18,7 +18,7 @@
 package api.sampling.generators
 
 import api.{EulerRotation, GingrRegistrationState}
-
+import breeze.stats.distributions.Rand.FixedSeed.randBasis
 sealed trait RotationAxis
 
 case object RollAxis extends RotationAxis

@@ -17,11 +17,14 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "ch.unibas.cs.gravis" % "scalismo-native-all" % "4.0.+",
-  "ch.unibas.cs.gravis" %% "scalismo-ui" % "0.90.+",
-  "io.github.cibotech" %% "evilplot" % "0.8.+",
+  "ch.unibas.cs.gravis" %% "scalismo-ui" % "0.91-RC4",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.+"
 )
+
+libraryDependencies ++= (scalaBinaryVersion.value match {
+  case "2.13" => Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0")
+  case _      => Seq()
+})
 
 assemblyMergeStrategy in assembly := {
   case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard

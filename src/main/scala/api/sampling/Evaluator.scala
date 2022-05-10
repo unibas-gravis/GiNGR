@@ -19,6 +19,7 @@ package api.sampling
 
 import api.GingrRegistrationState
 import api.sampling.evaluators._
+import breeze.stats.distributions.Rand.FixedSeed.randBasis
 import scalismo.sampling.DistributionEvaluator
 import scalismo.sampling.evaluators.ProductEvaluator
 

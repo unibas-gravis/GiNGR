@@ -25,7 +25,7 @@ import scalismo.geometry.Point.Point3DVectorizer
 import scalismo.geometry.{Point, _3D}
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 
-import scala.collection.parallel.CollectionConverters.ImmutableSeqIsParallelizable
+import scala.collection.parallel.CollectionConverters._
 
 object CPDCorrespondence {
   val vectorizer: Point.Point3DVectorizer.type = Point3DVectorizer
