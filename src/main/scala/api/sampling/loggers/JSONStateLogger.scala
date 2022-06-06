@@ -29,7 +29,7 @@ import spray.json.{RootJsonFormat, _}
 import java.io._
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import scala.collection.SortedSet
+import scala.collection.immutable.SortedSet
 import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
