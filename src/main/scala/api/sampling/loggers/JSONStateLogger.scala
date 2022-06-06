@@ -34,30 +34,33 @@ import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
 case class jsonLogFormat(
-  index: Int,
-  name: String,
-  logvalue: Map[String, Double],
-  status: Boolean,
-  modelParameters: Seq[Double],
-  translation: Seq[Double],
-  rotation: Seq[Double],
-  rotationCenter: Seq[Double],
-  scaling: Double,
-  datetime: String
+    index: Int,
+    name: String,
+    logvalue: Map[String, Double],
+    status: Boolean,
+    modelParameters: Seq[Double],
+    translation: Seq[Double],
+    rotation: Seq[Double],
+    rotationCenter: Seq[Double],
+    scaling: Double,
+    datetime: String
 )
 
 object JsonLoggerProtocol {
   implicit val myJsonFormatLogger: RootJsonFormat[jsonLogFormat] = jsonFormat10(jsonLogFormat.apply)
 }
 
-case class JSONStateLogger[State <: GingrRegistrationState[State]](evaluators: Evaluator[State], filePath: Option[File] = None) extends AcceptRejectLogger[State] {
+case class JSONStateLogger[State <: GingrRegistrationState[State]](
+    evaluators: Evaluator[State],
+    filePath: Option[File] = None
+) extends AcceptRejectLogger[State] {
   import JsonLoggerProtocol._
 
-  private var numOfRejected: Int = 0
-  private var numOfAccepted: Int = 0
+  private var numOfRejected: Int             = 0
+  private var numOfAccepted: Int             = 0
   private var generatedBy: SortedSet[String] = SortedSet()
-  private val datetimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-  private val productEvaluator = evaluators.productEvaluator()
+  private val datetimeFormat                 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+  private val productEvaluator               = evaluators.productEvaluator()
 
   filePath.map { f =>
     if (f.getParentFile != null) {
@@ -95,7 +98,12 @@ case class JSONStateLogger[State <: GingrRegistrationState[State]](evaluators: E
     evals + ("product" -> productEvaluator.logValue(sample))
   }
 
-  override def accept(current: State, sample: State, generator: ProposalGenerator[State], evaluator: DistributionEvaluator[State]): Unit = {
+  override def accept(
+      current: State,
+      sample: State,
+      generator: ProposalGenerator[State],
+      evaluator: DistributionEvaluator[State]
+  ): Unit = {
     val evalValue = mapEvaluators(sample)
     log += jsonLogFormat(
       totalSamples,
@@ -113,7 +121,12 @@ case class JSONStateLogger[State <: GingrRegistrationState[State]](evaluators: E
   }
 
   // The rejected state will contain the same parameters as the previous accepted state, so no need to double store all the information
-  override def reject(current: State, sample: State, generator: ProposalGenerator[State], evaluator: DistributionEvaluator[State]): Unit = {
+  override def reject(
+      current: State,
+      sample: State,
+      generator: ProposalGenerator[State],
+      evaluator: DistributionEvaluator[State]
+  ): Unit = {
     val evalValue = mapEvaluators(sample)
     log += jsonLogFormat(
       totalSamples,
@@ -130,12 +143,13 @@ case class JSONStateLogger[State <: GingrRegistrationState[State]](evaluators: E
     numOfRejected += 1
   }
 
-  def percentRejected: Double = BigDecimal(numOfRejected.toDouble / totalSamples.toDouble).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+  def percentRejected: Double =
+    BigDecimal(numOfRejected.toDouble / totalSamples.toDouble).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
 
   def percentAccepted: Double = 1.0 - percentRejected
 
   def writeLog(): Unit = {
-    filePath match{
+    filePath match {
       case Some(file) =>
         val content = log.toIndexedSeq
         try {
@@ -159,7 +173,9 @@ case class JSONStateLogger[State <: GingrRegistrationState[State]](evaluators: E
     }
     if (log.length > lastX) {
       val logLastX = log.takeRight(lastX)
-      println(s"${id} Last ${lastX} samples accepted (${lastX}): ${logLastX.map(f => if (f.status) 1.0 else .0).sum / lastX.toDouble}")
+      println(
+        s"${id} Last ${lastX} samples accepted (${lastX}): ${logLastX.map(f => if (f.status) 1.0 else .0).sum / lastX.toDouble}"
+      )
       generatedBy.filter(_.nonEmpty).foreach { name =>
         println(s"${id} ${name}: ${percentAcceptedOfTypeLocal(name, logLastX)}")
       }
@@ -192,13 +208,13 @@ object JSONStateLogger {
 
   def loadLog(filePath: File): IndexedSeq[jsonLogFormat] = {
     println(s"Loading JSON log file: ${filePath.toString}")
-    val src = Source.fromFile(filePath.toString)
+    val src  = Source.fromFile(filePath.toString)
     val data = src.mkString.parseJson.convertTo[IndexedSeq[jsonLogFormat]]
     src.close()
     data
   }
 
-  def jsonFormatToModelFittingParameters(jsonFormat: jsonLogFormat): ModelFittingParameters =  {
+  def jsonFormatToModelFittingParameters(jsonFormat: jsonLogFormat): ModelFittingParameters = {
     require(jsonFormat.rotation.length == 3 && jsonFormat.rotationCenter.length == 3)
     ModelFittingParameters(
       scale = ScaleParameter(jsonFormat.scaling),
@@ -206,10 +222,10 @@ object JSONStateLogger {
         translation = EuclideanVector(jsonFormat.translation.toArray),
         rotation = EulerRotation(
           angles = EulerAngles(jsonFormat.rotation(0), jsonFormat.rotation(1), jsonFormat.rotation(2)),
-          center = Point.fromBreezeVector(DenseVector(jsonFormat.rotationCenter.toArray)),
+          center = Point.fromBreezeVector(DenseVector(jsonFormat.rotationCenter.toArray))
         )
       ),
-      shape = ShapeParameters(DenseVector(jsonFormat.modelParameters.toArray)),
+      shape = ShapeParameters(DenseVector(jsonFormat.modelParameters.toArray))
     )
   }
 

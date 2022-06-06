@@ -26,7 +26,7 @@ class BestAndCurrentSampleLogger[A](evaluator: DistributionEvaluator[A]) extends
   private case class EvaluatedSample(sample: A, value: Double)
 
   private var bestState: Option[EvaluatedSample] = None
-  private var currentState: Option[A] = None
+  private var currentState: Option[A]            = None
 
   override def logState(sample: A): Unit = {
     val value = evaluator.logValue(sample)

@@ -32,7 +32,7 @@ case class EulerAngles(phi: Double, theta: Double, psi: Double) {
 }
 
 case class EulerRotation(angles: EulerAngles, center: Point[_3D]) {
-  val rotation: Rotation[_3D] = Rotation(angles.phi, angles.theta, angles.psi, center)
+  val rotation: Rotation[_3D]         = Rotation(angles.phi, angles.theta, angles.psi, center)
   def parameters: DenseVector[Double] = DenseVector.vertcat(angles.parameters, center.toBreezeVector)
 }
 
@@ -54,14 +54,14 @@ case class ModelFittingParameters(scale: ScaleParameter, pose: PoseParameters, s
 
   def rigidTransform: TranslationAfterRotation[_3D] = {
     val translation = Translation(pose.translation)
-    val rotation = pose.rotation.rotation
+    val rotation    = pose.rotation.rotation
     TranslationAfterRotation(translation, rotation)
   }
 
   def similarityTransform: TranslationAfterScalingAfterRotation[_3D] = {
     val translation = Translation(pose.translation)
-    val rotation = pose.rotation.rotation
-    val scaling = Scaling[_3D](scale.s)
+    val rotation    = pose.rotation.rotation
+    val scaling     = Scaling[_3D](scale.s)
     TranslationAfterScalingAfterRotation(translation, scaling, rotation)
   }
 
@@ -70,13 +70,19 @@ case class ModelFittingParameters(scale: ScaleParameter, pose: PoseParameters, s
 
 object ModelFittingParameters {
   def apply(modelRank: Int): ModelFittingParameters = {
-    val pose = PoseParameters(translation = EuclideanVector(0, 0, 0), rotation = EulerRotation(EulerAngles(0, 0, 0), Point(0, 0, 0)))
+    val pose = PoseParameters(
+      translation = EuclideanVector(0, 0, 0),
+      rotation = EulerRotation(EulerAngles(0, 0, 0), Point(0, 0, 0))
+    )
     val shape = ShapeParameters(DenseVector.zeros[Double](modelRank))
     ModelFittingParameters(ScaleParameter(1.0), pose, shape)
   }
 
   def apply(shape: ShapeParameters): ModelFittingParameters = {
-    val pose = PoseParameters(translation = EuclideanVector(0, 0, 0), rotation = EulerRotation(EulerAngles(0, 0, 0), Point(0, 0, 0)))
+    val pose = PoseParameters(
+      translation = EuclideanVector(0, 0, 0),
+      rotation = EulerRotation(EulerAngles(0, 0, 0), Point(0, 0, 0))
+    )
     ModelFittingParameters(ScaleParameter(1.0), pose, shape)
   }
 
@@ -84,11 +90,17 @@ object ModelFittingParameters {
     ModelFittingParameters(ScaleParameter(1.0), pose, shape)
   }
 
-  def modelInstanceShapePose(model: PointDistributionModel[_3D, TriangleMesh], pars: ModelFittingParameters): TriangleMesh[_3D] = {
+  def modelInstanceShapePose(
+      model: PointDistributionModel[_3D, TriangleMesh],
+      pars: ModelFittingParameters
+  ): TriangleMesh[_3D] = {
     model.instance(pars.shape.parameters).transform(pars.rigidTransform)
   }
 
-  def modelInstanceShapePoseScale(model: PointDistributionModel[_3D, TriangleMesh], pars: ModelFittingParameters): TriangleMesh[_3D] = {
+  def modelInstanceShapePoseScale(
+      model: PointDistributionModel[_3D, TriangleMesh],
+      pars: ModelFittingParameters
+  ): TriangleMesh[_3D] = {
     val instance = modelInstanceShapePose(model, pars)
     instance.transform(pars.scaleTransform)
   }

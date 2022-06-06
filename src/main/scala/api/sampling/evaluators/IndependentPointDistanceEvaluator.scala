@@ -33,22 +33,23 @@ case object TargetToModelEvaluation extends EvaluationMode
 case object SymmetricEvaluation extends EvaluationMode
 
 case class IndependentPointDistanceEvaluator[State <: GingrRegistrationState[State]](
-  sample: State,
-  likelihoodModel: ContinuousDistr[Double],
-  evaluationMode: EvaluationMode,
-  numberOfPointsForComparison: Option[Int]
-) extends DistributionEvaluator[State] with EvaluationCaching[State] {
+    sample: State,
+    likelihoodModel: ContinuousDistr[Double],
+    evaluationMode: EvaluationMode,
+    numberOfPointsForComparison: Option[Int]
+) extends DistributionEvaluator[State]
+    with EvaluationCaching[State] {
 
   private val instance = sample.general.fit
-  private val target = sample.general.target
+  private val target   = sample.general.target
 
   private val (instanceDecimated, targetDecimated) = numberOfPointsForComparison match {
     case Some(num) => (instance.operations.decimate(num), target.operations.decimate(num))
-    case _ => (instance, target)
+    case _         => (instance, target)
   }
 
   private val randomPointsOnTarget: IndexedSeq[Point[_3D]] = targetDecimated.pointSet.points.toIndexedSeq
-  private val randomPointIdsOnModel: IndexedSeq[PointId] = instanceDecimated.pointSet.pointIds.toIndexedSeq
+  private val randomPointIdsOnModel: IndexedSeq[PointId]   = instanceDecimated.pointSet.pointIds.toIndexedSeq
 
   def distModelToTarget(modelSample: TriangleMesh3D): Double = {
     val pointsOnSample = randomPointIdsOnModel.map(modelSample.pointSet.point)
@@ -71,7 +72,7 @@ case class IndependentPointDistanceEvaluator[State <: GingrRegistrationState[Sta
     val dist = evaluationMode match {
       case ModelToTargetEvaluation => distModelToTarget(currentSample)
       case TargetToModelEvaluation => distTargetToModel(currentSample)
-      case SymmetricEvaluation => 0.5 * distModelToTarget(currentSample) + 0.5 * distTargetToModel(currentSample)
+      case SymmetricEvaluation     => 0.5 * distModelToTarget(currentSample) + 0.5 * distTargetToModel(currentSample)
     }
     dist
   }

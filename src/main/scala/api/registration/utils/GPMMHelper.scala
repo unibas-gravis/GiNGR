@@ -34,19 +34,22 @@ object GPMMHelper {
   }
 
   private def minimumPointDistance(template: UnstructuredPoints[_3D]): Double = {
-    template.points.toSeq.map { p => (template.findNClosestPoints(p,2).last.point - p).norm }.min
+    template.points.toSeq.map { p => (template.findNClosestPoints(p, 2).last.point - p).norm }.min
   }
 
-  def automaticGPMMfromTemplate(template: TriangleMesh[_3D], relativeTolerance: Double = 0.1): PointDistributionModel[_3D, TriangleMesh] = {
+  def automaticGPMMfromTemplate(
+      template: TriangleMesh[_3D],
+      relativeTolerance: Double = 0.1
+  ): PointDistributionModel[_3D, TriangleMesh] = {
     println("Constructing GPMM from template")
     val maxDist = maximumPointDistance(template.pointSet)
     val minDist = minimumPointDistance(template.pointSet)
-    val sigma1 = maxDist/4
-    val sigma2 = maxDist/8
-    val sigma3 = minDist*5
-    val scale1 = sigma1/2
-    val scale2 = sigma2/2
-    val scale3 = sigma3/2
+    val sigma1  = maxDist / 4
+    val sigma2  = maxDist / 8
+    val sigma3  = minDist * 5
+    val scale1  = sigma1 / 2
+    val scale2  = sigma2 / 2
+    val scale3  = sigma3 / 2
 
     println(s"Maximum distance: ${maxDist}, minimum distance: ${minDist}")
     val k = DiagonalKernel(GaussianKernel[_3D](sigma1) * scale1, 3) +
@@ -55,7 +58,12 @@ object GPMMHelper {
 
     val gp = GaussianProcess[_3D, EuclideanVector[_3D]](k)
 
-    val lowRankGP = LowRankGaussianProcess.approximateGPCholesky(template, gp, relativeTolerance = relativeTolerance, interpolator = TriangleMeshInterpolator3D[EuclideanVector[_3D]]())
+    val lowRankGP = LowRankGaussianProcess.approximateGPCholesky(
+      template,
+      gp,
+      relativeTolerance = relativeTolerance,
+      interpolator = TriangleMeshInterpolator3D[EuclideanVector[_3D]]()
+    )
     println(s"GPMM rank: ${lowRankGP.rank}")
 
     PointDistributionModel[_3D, TriangleMesh](template, lowRankGP)

@@ -30,7 +30,7 @@ trait PointSequenceConverter[D] {
 
   def toMatrix(points: Seq[Point[D]])(implicit vectorizer: Vectorizer[Point[D]]): DenseMatrix[Double] = {
     val dim: Int = vectorizer.dim
-    val m = DenseMatrix.zeros[Double](points.length, dim)
+    val m        = DenseMatrix.zeros[Double](points.length, dim)
     points.zipWithIndex.par.foreach { case (p, i) =>
       m(i, ::) := vectorizer.vectorize(p).t
     }
@@ -44,10 +44,12 @@ trait PointSequenceConverter[D] {
     }.toArray)
   }
 
-  def toLMMatrix(points: Seq[Point[D]], pointIds: Seq[PointId], n: Int)(implicit vectorizer: Vectorizer[Point[D]]): CSCMatrix[Double] = {
-    val nPoints = points.size
+  def toLMMatrix(points: Seq[Point[D]], pointIds: Seq[PointId], n: Int)(implicit
+      vectorizer: Vectorizer[Point[D]]
+  ): CSCMatrix[Double] = {
+    val nPoints  = points.size
     val dim: Int = vectorizer.dim
-    val csc = CSCMatrix.zeros[Double](nPoints, dim)
+    val csc      = CSCMatrix.zeros[Double](nPoints, dim)
     points.zip(pointIds).zipWithIndex.foreach { case ((p, pid), i) =>
       val v = vectorizer.vectorize(p)
       for (j <- 0 until dim) {
@@ -81,7 +83,8 @@ object PointSequenceConverter {
   def vectorTo1Dpoints(v: DenseVector[Double]): IndexedSeq[Point[_1D]] = {
     v.map { i =>
       Point1D(i)
-    }.toArray.toIndexedSeq
+    }.toArray
+      .toIndexedSeq
   }
 
   def vectorTo2Dpoints(v: DenseVector[Double]): IndexedSeq[Point[_2D]] = {
@@ -99,11 +102,15 @@ object PointSequenceConverter {
   implicit object denseMatrixToPoint1DSequence extends PointSequenceConverter[_1D] {
     implicit val vectorizer: Point.Point1DVectorizer.type = Point1DVectorizer
 
-    override def toPointSequence(m: DenseMatrix[Double])(implicit vectorizer: Vectorizer[Point[_1D]]): Seq[Point[_1D]] = {
+    override def toPointSequence(
+        m: DenseMatrix[Double]
+    )(implicit vectorizer: Vectorizer[Point[_1D]]): Seq[Point[_1D]] = {
       matrixTo1Dpoints(m)
     }
 
-    override def toPointSequence(v: DenseVector[Double])(implicit vectorizer: Vectorizer[Point[_1D]]): Seq[Point[_1D]] = {
+    override def toPointSequence(
+        v: DenseVector[Double]
+    )(implicit vectorizer: Vectorizer[Point[_1D]]): Seq[Point[_1D]] = {
       vectorTo1Dpoints(v)
     }
   }
@@ -111,11 +118,15 @@ object PointSequenceConverter {
   implicit object denseMatrixToPoint2DSequence extends PointSequenceConverter[_2D] {
     implicit val vectorizer: Point.Point2DVectorizer.type = Point2DVectorizer
 
-    override def toPointSequence(m: DenseMatrix[Double])(implicit vectorizer: Vectorizer[Point[_2D]]): Seq[Point[_2D]] = {
+    override def toPointSequence(
+        m: DenseMatrix[Double]
+    )(implicit vectorizer: Vectorizer[Point[_2D]]): Seq[Point[_2D]] = {
       matrixTo2Dpoints(m)
     }
 
-    override def toPointSequence(v: DenseVector[Double])(implicit vectorizer: Vectorizer[Point[_2D]]): Seq[Point[_2D]] = {
+    override def toPointSequence(
+        v: DenseVector[Double]
+    )(implicit vectorizer: Vectorizer[Point[_2D]]): Seq[Point[_2D]] = {
       vectorTo2Dpoints(v)
     }
   }
@@ -123,11 +134,15 @@ object PointSequenceConverter {
   implicit object denseMatrixToPoint3DSequence extends PointSequenceConverter[_3D] {
     implicit val vectorizer: Point.Point3DVectorizer.type = Point3DVectorizer
 
-    override def toPointSequence(m: DenseMatrix[Double])(implicit vectorizer: Vectorizer[Point[_3D]]): Seq[Point[_3D]] = {
+    override def toPointSequence(
+        m: DenseMatrix[Double]
+    )(implicit vectorizer: Vectorizer[Point[_3D]]): Seq[Point[_3D]] = {
       matrixTo3Dpoints(m)
     }
 
-    override def toPointSequence(v: DenseVector[Double])(implicit vectorizer: Vectorizer[Point[_3D]]): Seq[Point[_3D]] = {
+    override def toPointSequence(
+        v: DenseVector[Double]
+    )(implicit vectorizer: Vectorizer[Point[_3D]]): Seq[Point[_3D]] = {
       vectorTo3Dpoints(v)
     }
   }

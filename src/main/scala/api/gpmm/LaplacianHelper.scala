@@ -25,10 +25,11 @@ import scalismo.mesh.TriangleMesh
 
 case class LaplacianHelper(template: TriangleMesh[_3D]) {
   private val n = template.pointSet.numberOfPoints
-  val m = DenseMatrix.zeros[Double](n, n)
+  val m         = DenseMatrix.zeros[Double](n, n)
 
   def deg(i: Int): Int = template.triangulation.adjacentPointsForPoint(PointId(i)).length // get degree of i
-  def adj(i: Int, j: Int): Boolean = template.triangulation.adjacentPointsForPoint(PointId(j)).contains(PointId(i)) // Check if i is adjecent to j
+  def adj(i: Int, j: Int): Boolean =
+    template.triangulation.adjacentPointsForPoint(PointId(j)).contains(PointId(i)) // Check if i is adjecent to j
 
   def laplacianMatrix(inverse: Boolean = false): DenseMatrix[Double] = {
     (0 until n).map { i =>

@@ -20,7 +20,7 @@ package apps.registration
 import api._
 import api.helper.{CallBackFunctions, RegistrationComparison}
 import api.registration.config.StateHandler
-import api.sampling.IndependtPoints
+import api.sampling.IndependentPoints
 import api.sampling.evaluators.{EvaluationMode, ModelToTargetEvaluation}
 import api.sampling.loggers.JSONStateLogger
 import scalismo.common.interpolation.NearestNeighborInterpolator
@@ -83,7 +83,7 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Algorithm <: Gin
   def run(state: State = initialState, probabilistic: Boolean = false, randomMixture: Double = 0.5): State = {
     modelView.shapeModelTransformationView.shapeTransformationView.coefficients = state.general.modelParameters.shape.parameters
     modelView.shapeModelTransformationView.poseTransformationView.transformation = state.general.modelParameters.rigidTransform
-    val evaluator: IndependtPoints[State] = IndependtPoints(
+    val evaluator: IndependentPoints[State] = IndependentPoints(
       state = state,
       uncertainty = evaluatorUncertainty,
       mode = evaluationMode,

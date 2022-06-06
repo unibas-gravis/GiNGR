@@ -38,18 +38,21 @@ case class AcceptAll[State <: GingrRegistrationState[State]]() extends Evaluator
   }
 }
 
-case class IndependtPoints[State <: GingrRegistrationState[State]](
-  state: State,
-  uncertainty: Double,
-  mode: EvaluationMode = ModelToTargetEvaluation,
-  evaluatedPoints: Option[Int] = None)
-  extends Evaluator[State] {
+case class IndependentPoints[State <: GingrRegistrationState[State]](
+    state: State,
+    uncertainty: Double,
+    mode: EvaluationMode = ModelToTargetEvaluation,
+    evaluatedPoints: Option[Int] = None
+) extends Evaluator[State] {
   private val likelihoodModel = breeze.stats.distributions.Gaussian(0, uncertainty)
 
   override def evaluator: Seq[EvaluatorIdentifier[State]] = {
     Seq(
       EvaluatorIdentifier(name = "Prior", evaluator = ModelEvaluator[State](state.general.model.rank)),
-      EvaluatorIdentifier(name = "Distance", evaluator = IndependentPointDistanceEvaluator[State](state, likelihoodModel, mode, evaluatedPoints))
+      EvaluatorIdentifier(
+        name = "Distance",
+        evaluator = IndependentPointDistanceEvaluator[State](state, likelihoodModel, mode, evaluatedPoints)
+      )
     )
   }
 }

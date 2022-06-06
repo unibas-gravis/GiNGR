@@ -24,10 +24,11 @@ import scalismo.statisticalmodel.PointDistributionModel
 import scalismo.utils.{Memoize, Random}
 
 case class GeneratorWrapperStochastic[State <: GingrRegistrationState[State]](
-  update: (State, Boolean) => State,
-  cashedPosterior: Memoize[State, PointDistributionModel[_3D, TriangleMesh]],
-  generatedBy: String = "InformedProposal")(implicit rnd: Random)
-  extends GingrGeneratorWrapper[State] {
+    update: (State, Boolean) => State,
+    cashedPosterior: Memoize[State, PointDistributionModel[_3D, TriangleMesh]],
+    generatedBy: String = "InformedProposal"
+)(implicit rnd: Random)
+    extends GingrGeneratorWrapper[State] {
   override def gingrPropose(current: State): State = {
     val newState = update(current, true)
     newState.updateGeneral(newState.general.updateGeneratedBy(generatedBy))
