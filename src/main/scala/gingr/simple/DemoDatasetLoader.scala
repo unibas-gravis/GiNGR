@@ -118,6 +118,7 @@ trait DataSetLoader {
 }
 
 object DemoDatasetLoader {
+  scalismo.initialize()
   val dataPath = new File("data")
   case object femur extends DataSetLoader {
     override def name: String        = "femur"
