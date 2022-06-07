@@ -9,6 +9,30 @@ lazy val root = (project in file("."))
       ScmInfo(url("https://github.com/unibas-gravis/GiNGR"), "git@github.com:unibas-gravis/GiNGR.git")
     ),
     crossScalaVersions := Seq("2.13.6", "3.1.0"),
+    scalacOptions ++= {
+      Seq(
+        "-encoding",
+        "UTF-8",
+        "-feature",
+        "-language:implicitConversions"
+        // disabled during the migration
+        // "-Xfatal-warnings"
+      ) ++
+        (CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((3, _)) =>
+            Seq(
+              "-unchecked",
+              "-source:3.0-migration"
+            )
+          case _ =>
+            Seq(
+              "-deprecation",
+              "-Xfatal-warnings",
+              "-Wunused:imports,privates,locals",
+              "-Wvalue-discard"
+            )
+        })
+    },
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     libraryDependencies ++= Seq(
       "ch.unibas.cs.gravis"        %% "scalismo-ui"   % "0.91.+",
