@@ -15,12 +15,20 @@
  *
  */
 
-package api.registration.utils
+package gingr.api.registration.utils
 
 import breeze.linalg.DenseMatrix
 import scalismo.geometry.{Point, SquareMatrix, _2D, _3D}
 import scalismo.registration.LandmarkRegistration
-import scalismo.transformations.*
+import scalismo.transformations.{
+  Scaling,
+  Rotation,
+  Rotation2D,
+  Rotation3D,
+  Translation,
+  TranslationAfterRotation,
+  TranslationAfterScalingAfterRotation
+}
 
 case class SimilarityTransformParameters[D](s: Scaling[D], t: Translation[D], R: Rotation[D]) {
   val simTransform: TranslationAfterScalingAfterRotation[D] = TranslationAfterScalingAfterRotation(t, s, R)

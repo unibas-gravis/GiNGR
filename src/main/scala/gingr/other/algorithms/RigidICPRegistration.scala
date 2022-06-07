@@ -19,8 +19,8 @@ package gingr.other.algorithms
 
 import gingr.other.algorithms.icp.ICPFactory
 import gingr.other.utils.Registrator
+import scalismo.common.{DiscreteDomain, DiscreteField, DomainWarp, UnstructuredPoints, Vectorizer}
 import scalismo.common.UnstructuredPoints.Create
-import scalismo.common.*
 import scalismo.geometry.{NDSpace, Point}
 
 class RigidICPRegistration[D: NDSpace, DDomain[A] <: DiscreteDomain[A]](

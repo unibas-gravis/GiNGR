@@ -17,17 +17,33 @@
 
 package gingr.simple
 
+import gingr.api.{
+  GeneralRegistrationState,
+  GingrAlgorithm,
+  GingrConfig,
+  GingrRegistrationState,
+  GlobalTranformationType,
+  ModelFittingParameters,
+  ProbabilisticSettings,
+  RigidTransforms
+}
 import gingr.api.helper.{CallBackFunctions, RegistrationComparison}
 import gingr.api.registration.config.StateHandler
 import gingr.api.sampling.IndependentPoints
 import gingr.api.sampling.evaluators.{EvaluationMode, ModelToTargetEvaluation}
 import gingr.api.sampling.loggers.JSONStateLogger
-import gingr.api.*
 import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.geometry.{Landmark, _3D}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.PointDistributionModel
-import scalismo.ui.api.*
+import scalismo.ui.api.{
+  PointDistributionModelViewControlsTriangleMesh3D,
+  ScalismoUI,
+  ScalismoUIHeadless,
+  SimpleAPI,
+  SimpleAPIDefaultImpl,
+  TriangleMeshView
+}
 import scalismo.utils.Random
 
 import java.io.File
