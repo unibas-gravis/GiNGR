@@ -15,7 +15,7 @@
  *
  */
 
-package api.registration.utils
+package gingr.api.registration.utils
 
 import breeze.linalg.DenseMatrix
 import scalismo.common.{

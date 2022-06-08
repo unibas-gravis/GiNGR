@@ -17,7 +17,7 @@
 
 package gingr.other.algorithms.cpd
 
-import api.registration.utils.PointSequenceConverter
+import gingr.api.registration.utils.PointSequenceConverter
 import breeze.linalg.{Axis, DenseMatrix, DenseVector, diag, inv, sum}
 import scalismo.common.Vectorizer
 import scalismo.geometry.{NDSpace, Point}

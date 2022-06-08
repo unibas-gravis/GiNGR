@@ -15,7 +15,7 @@
  *
  */
 
-package api.registration.utils
+package gingr.api.registration.utils
 
 import scalismo.common.{DiscreteDomain, PointId, UnstructuredPointsDomain}
 import scalismo.geometry._

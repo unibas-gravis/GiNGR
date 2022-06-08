@@ -17,7 +17,7 @@
 
 package gingr.other.algorithms
 
-import api.registration.utils.PointSequenceConverter
+import gingr.api.registration.utils.PointSequenceConverter
 import gingr.other.algorithms.cpd.CPDFactory
 import scalismo.common.{DiscreteDomain, DiscreteField, DomainWarp, Vectorizer}
 import scalismo.geometry.{NDSpace, Point}

@@ -17,8 +17,8 @@
 
 package gingr.api.registration.config
 
-import api.*
-import api.registration.utils.PointSequenceConverter
+import gingr.api.*
+import gingr.api.registration.utils.PointSequenceConverter
 import breeze.linalg.{Axis, DenseMatrix, DenseVector, sum, tile}
 import gingr.api.{CorrespondencePairs, GeneralRegistrationState, GingrAlgorithm, GingrConfig, GingrRegistrationState}
 import scalismo.common.PointId

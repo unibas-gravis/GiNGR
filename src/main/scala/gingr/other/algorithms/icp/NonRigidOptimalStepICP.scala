@@ -17,7 +17,7 @@
 
 package gingr.other.algorithms.icp
 
-import api.registration.utils.{NonRigidClosestPointRegistrator, PointSequenceConverter}
+import gingr.api.registration.utils.{NonRigidClosestPointRegistrator, PointSequenceConverter}
 import breeze.linalg.{CSCMatrix, SparseVector, diag}
 import gingr.other.utils.CSCHelper
 import scalismo.common.{DomainWarp, PointId, UnstructuredPoints, UnstructuredPoints3D, Vectorizer}

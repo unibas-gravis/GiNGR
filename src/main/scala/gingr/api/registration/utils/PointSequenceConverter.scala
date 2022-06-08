@@ -15,7 +15,7 @@
  *
  */
 
-package api.registration.utils
+package gingr.api.registration.utils
 
 import breeze.linalg.{CSCMatrix, DenseMatrix, DenseVector}
 import scalismo.common.{PointId, Vectorizer}

@@ -17,7 +17,7 @@
 
 package gingr.api.registration.config
 
-import api.registration.utils.NonRigidClosestPointRegistrator.ClosestPointTriangleMesh3D
+import gingr.api.registration.utils.NonRigidClosestPointRegistrator.ClosestPointTriangleMesh3D
 import breeze.linalg.{DenseMatrix, DenseVector}
 import gingr.api.{CorrespondencePairs, GeneralRegistrationState, GingrAlgorithm, GingrConfig, GingrRegistrationState}
 import scalismo.common.PointId
