@@ -17,14 +17,7 @@
 
 package gingr.simple
 
-import gingr.api.registration.config.{
-  CpdConfiguration,
-  CpdRegistration,
-  CpdRegistrationState,
-  IcpConfiguration,
-  IcpRegistration,
-  IcpRegistrationState
-}
+import gingr.api.registration.config.*
 import gingr.api.{GeneralRegistrationState, GlobalTranformationType, NoTransforms, RigidTransforms}
 import scalismo.geometry.{Landmark, _3D}
 import scalismo.mesh.TriangleMesh
@@ -33,7 +26,7 @@ import scalismo.utils.Random.implicits.randomGenerator
 
 import java.io.File
 
-class DemoConfigurations(
+class SimpleConfigurations(
     model: PointDistributionModel[_3D, TriangleMesh],
     target: TriangleMesh[_3D],
     modelLandmarks: Option[Seq[Landmark[_3D]]] = None,
