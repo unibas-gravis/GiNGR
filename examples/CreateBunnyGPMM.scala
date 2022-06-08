@@ -8,7 +8,6 @@ import scalismo.ui.api.ScalismoUI
 @main def hello() =
  scalismo.initialize()
 
- // Reduce decimation points for lower-appromation and faster computation
  val (model, _) = DemoDatasetLoader.bunny.modelGauss()
 
  val ui = ScalismoUI()
