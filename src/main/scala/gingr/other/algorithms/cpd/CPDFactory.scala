@@ -17,29 +17,28 @@
 
 package gingr.other.algorithms.cpd
 
-import gingr.api.registration.utils.PointSequenceConverter
+import gingr.api.registration.utils.{DiscreteDomainConverter, PointSequenceConverter}
 import breeze.linalg.DenseMatrix
 import scalismo.common.Vectorizer
-import scalismo.geometry.{NDSpace, Point}
+import scalismo.geometry.{NDSpace, Point, _3D}
 
 /*
  Implementation of Point Set Registration: Coherent Point Drift
  In this script, only the non-rigid algorithm is implemented. Paper: https://arxiv.org/pdf/0905.2635.pdf
  A python implementation already exists from where parts of the implementation is from: https://github.com/siavashk/pycpd
  */
-class CPDFactory[D: NDSpace](
-    val templatePoints: Seq[Point[D]],
+class CPDFactory(
+    val templatePoints: Seq[Point[_3D]],
     val lambda: Double = 2,
     val beta: Double = 2,
     val w: Double = 0
 )(implicit
-    val vectorizer: Vectorizer[Point[D]],
-    dataConverter: PointSequenceConverter[D]
+    val vectorizer: Vectorizer[Point[_3D]]
 ) {
   val M: Int                        = templatePoints.length // num of reference points
   val dim: Int                      = vectorizer.dim        // dimension
   val G: DenseMatrix[Double]        = initializeKernelMatrixG(templatePoints, beta)
-  val template: DenseMatrix[Double] = dataConverter.toMatrix(templatePoints)
+  val template: DenseMatrix[Double] = PointSequenceConverter.toMatrix(templatePoints)
 
   require(0.0 <= w && w <= 1.0)
   require(beta > 0)
@@ -52,7 +51,7 @@ class CPDFactory[D: NDSpace](
     * @return
     */
   private def initializeKernelMatrixG(
-      points: Seq[Point[D]],
+      points: Seq[Point[_3D]],
       beta: Double
   ): DenseMatrix[Double] = {
     val M                      = points.length
@@ -65,16 +64,16 @@ class CPDFactory[D: NDSpace](
     G
   }
 
-  def registerRigidly(targetPoints: Seq[Point[D]]): RigidCPD[D] = {
-    new RigidCPD[D](targetPoints, this)
+  def registerRigidly(targetPoints: Seq[Point[_3D]]): RigidCPD = {
+    new RigidCPD(targetPoints, this)
   }
 
-  def registerNonRigidly(targetPoints: Seq[Point[D]]): RigidCPD[D] = {
-    new NonRigidCPD[D](targetPoints, this)
+  def registerNonRigidly(targetPoints: Seq[Point[_3D]]): RigidCPD = {
+    new NonRigidCPD(targetPoints, this)
   }
 
-  def registerAffine(targetPoints: Seq[Point[D]]): RigidCPD[D] = {
-    new AffineCPD[D](targetPoints, this)
+  def registerAffine(targetPoints: Seq[Point[_3D]]): RigidCPD = {
+    new AffineCPD(targetPoints, this)
   }
 
 }

@@ -48,10 +48,10 @@ case class ProbabilisticSettings[State <: GingrRegistrationState[State]](
 }
 
 trait GingrConfig {
-  def maxIterations(): Int
-  def threshold(): Double
+  def maxIterations: Int
+  def threshold: Double
   def converged: (GeneralRegistrationState, GeneralRegistrationState, Double) => Boolean
-  def useLandmarkCorrespondence(): Boolean
+  def useLandmarkCorrespondence: Boolean
 }
 
 trait GingrRegistrationState[State] {
@@ -73,7 +73,7 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State]] {
       (pid, point, uncertainty)
     }
 
-    val observationsWithUncertainty = if (current.config.useLandmarkCorrespondence()) {
+    val observationsWithUncertainty = if (current.config.useLandmarkCorrespondence) {
       // note: I would propose to remove the estimated correspondences for given landmarks
       val landmarksToUse = current.general.landmarkCorrespondences.map(_._1).toSet
       val filteredCorrespondencesWithUncertainty = correspondencesWithUncertainty.filter { case (pid, _, _) =>
@@ -227,11 +227,11 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State]] {
     // we need to query if there is a next element, otherwise due to laziness the chain is not calculated
     var currentState: Option[GeneralRegistrationState] = None
     states
-      .take(initialState.config.maxIterations())
+      .take(initialState.config.maxIterations)
       .dropWhile { state =>
         if (probabilisticSettings.isEmpty) {
           val converged =
-            if (currentState.nonEmpty) state.config.converged(currentState.get, state.general, state.config.threshold())
+            if (currentState.nonEmpty) state.config.converged(currentState.get, state.general, state.config.threshold)
             else false
           currentState = Some(state.general)
           if (converged) println(s"Registration converged")

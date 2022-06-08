@@ -21,29 +21,28 @@ import gingr.api.registration.utils.PointSequenceConverter
 import breeze.linalg.{Axis, DenseMatrix, DenseVector, det, diag, norm, svd, tile, trace, *}
 import breeze.numerics.{abs, pow}
 import scalismo.common.Vectorizer
-import scalismo.geometry.{NDSpace, Point}
+import scalismo.geometry.{NDSpace, Point, _3D}
 
 /*
  Implementation of Point Set Registration: Coherent Point Drift (CPD) - Rigid algorithm
  Paper: https://arxiv.org/pdf/0905.2635.pdf
  */
-private[cpd] class RigidCPD[D: NDSpace](
-    val targetPoints: Seq[Point[D]],
-    val cpd: CPDFactory[D]
+private[cpd] class RigidCPD(
+    val targetPoints: Seq[Point[_3D]],
+    val cpd: CPDFactory
 )(implicit
-    val vectorizer: Vectorizer[Point[D]],
-    dataConverter: PointSequenceConverter[D]
+    val vectorizer: Vectorizer[Point[_3D]]
 ) {
   import cpd._
   val N: Int                      = targetPoints.length
-  val target: DenseMatrix[Double] = dataConverter.toMatrix(targetPoints)(vectorizer)
+  val target: DenseMatrix[Double] = PointSequenceConverter.toMatrix(targetPoints)(vectorizer)
 
   /** Initialize sigma2 - formula in paper fig. 4
     * @param Y
     * @param X
     * @return
     */
-  private def initializeGaussianKernel(Y: Seq[Point[D]], X: Seq[Point[D]]): Double = {
+  private def initializeGaussianKernel(Y: Seq[Point[_3D]], X: Seq[Point[_3D]]): Double = {
     val M   = Y.length
     val N   = X.length
     val dim = vectorizer.dim
@@ -55,7 +54,7 @@ private[cpd] class RigidCPD[D: NDSpace](
     s / (dim * N * M)
   }
 
-  def Registration(max_iteration: Int, tolerance: Double = 0.001): Seq[Point[D]] = {
+  def Registration(max_iteration: Int, tolerance: Double = 0.001): Seq[Point[_3D]] = {
     val sigmaInit = initializeGaussianKernel(templatePoints, targetPoints)
 
     val fit = (0 until max_iteration).foldLeft((cpd.template, sigmaInit)) { (it, i) =>
@@ -67,12 +66,12 @@ private[cpd] class RigidCPD[D: NDSpace](
       val diff      = abs(newSigma2 - currentSigma2)
       if (diff < tolerance) {
         println("Converged")
-        return dataConverter.toPointSequence(TY)(vectorizer)
+        return PointSequenceConverter.toPointSequence(TY)(vectorizer)
       } else {
         iter
       }
     }
-    dataConverter.toPointSequence(fit._1)(vectorizer)
+    PointSequenceConverter.toPointSequence(fit._1)(vectorizer)
   }
 
   def Iteration(X: DenseMatrix[Double], Y: DenseMatrix[Double], sigma2: Double): (DenseMatrix[Double], Double) = {

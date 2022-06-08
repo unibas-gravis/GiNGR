@@ -26,17 +26,17 @@ import scalismo.kernels.{DiagonalKernel, GaussianKernel, MatrixValuedPDKernel}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, PointDistributionModel}
 
-trait GPMM[D, DDomain[D] <: DiscreteDomain[D]] {
+trait GPMM[DDomain[_3D] <: DiscreteDomain[_3D]] {
   def construct(
-      reference: DDomain[D],
-      kernel: MatrixValuedPDKernel[D],
+      reference: DDomain[_3D],
+      kernel: MatrixValuedPDKernel[_3D],
       relativeTolerance: Double = 0.01
-  ): PointDistributionModel[D, DDomain]
+  ): PointDistributionModel[_3D, DDomain]
 }
 
 object GPMM {
 
-  implicit object gpmm3Dtriangle extends GPMM[_3D, TriangleMesh] {
+  implicit object gpmm3Dtriangle extends GPMM[TriangleMesh] {
     override def construct(
         reference: TriangleMesh[_3D],
         kernel: MatrixValuedPDKernel[_3D],
@@ -53,58 +53,7 @@ object GPMM {
     }
   }
 
-  implicit object gpmm2Dtriangle extends GPMM[_2D, TriangleMesh] {
-    override def construct(
-        reference: TriangleMesh[_2D],
-        kernel: MatrixValuedPDKernel[_2D],
-        relativeTolerance: Double
-    ): PointDistributionModel[_2D, TriangleMesh] = {
-      val gp = GaussianProcess[_2D, EuclideanVector[_2D]](kernel)
-      val lowRankGP = LowRankGaussianProcess.approximateGPCholesky(
-        reference,
-        gp,
-        relativeTolerance = relativeTolerance,
-        interpolator = NearestNeighborInterpolator()
-      )
-      PointDistributionModel[_2D, TriangleMesh](reference, lowRankGP)
-    }
-  }
-
-  implicit object gpmm1Dpoints extends GPMM[_1D, UnstructuredPointsDomain] {
-    override def construct(
-        reference: UnstructuredPointsDomain[_1D],
-        kernel: MatrixValuedPDKernel[_1D],
-        relativeTolerance: Double
-    ): PointDistributionModel[_1D, UnstructuredPointsDomain] = {
-      val gp = GaussianProcess[_1D, EuclideanVector[_1D]](kernel)
-      val lowRankGP = LowRankGaussianProcess.approximateGPCholesky(
-        reference,
-        gp,
-        relativeTolerance = relativeTolerance,
-        interpolator = NearestNeighborInterpolator()
-      )
-      PointDistributionModel[_1D, UnstructuredPointsDomain](reference, lowRankGP)
-    }
-  }
-
-  implicit object gpmm2Dpoints extends GPMM[_2D, UnstructuredPointsDomain] {
-    override def construct(
-        reference: UnstructuredPointsDomain[_2D],
-        kernel: MatrixValuedPDKernel[_2D],
-        relativeTolerance: Double
-    ): PointDistributionModel[_2D, UnstructuredPointsDomain] = {
-      val gp = GaussianProcess[_2D, EuclideanVector[_2D]](kernel)
-      val lowRankGP = LowRankGaussianProcess.approximateGPCholesky(
-        reference,
-        gp,
-        relativeTolerance = relativeTolerance,
-        interpolator = NearestNeighborInterpolator()
-      )
-      PointDistributionModel[_2D, UnstructuredPointsDomain](reference, lowRankGP)
-    }
-  }
-
-  implicit object gpmm3Dpoints extends GPMM[_3D, UnstructuredPointsDomain] {
+  implicit object gpmm3Dpoints extends GPMM[UnstructuredPointsDomain] {
     override def construct(
         reference: UnstructuredPointsDomain[_3D],
         kernel: MatrixValuedPDKernel[_3D],
@@ -123,21 +72,21 @@ object GPMM {
 
 }
 
-case class PointSetHelper[D, DDomain[D] <: DiscreteDomain[D]](reference: DDomain[D]) {
+case class PointSetHelper[DDomain[_3D] <: DiscreteDomain[_3D]](reference: DDomain[_3D]) {
 
   // TODO: Need to compute these valus faster for large pointsets
-  def maximumPointDistance(pointSet: PointSet[D]): Double = {
+  def maximumPointDistance(pointSet: PointSet[_3D]): Double = {
     val p = pointSet.points.toSeq
     p.flatMap { p1 =>
       p.map { p2 => (p1 - p2).norm }
     }.max
   }
 
-  def minimumPointDistance(pointSet: PointSet[D]): Double = {
+  def minimumPointDistance(pointSet: PointSet[_3D]): Double = {
     pointSet.points.toSeq.map { p => (pointSet.findNClosestPoints(p, 2).last.point - p).norm }.min
   }
 
-  def boundingBoxSize(pointSet: PointSet[D]): Double = {
+  def boundingBoxSize(pointSet: PointSet[_3D]): Double = {
     pointSet.boundingBox.volume
   }
 }
@@ -145,14 +94,14 @@ case class PointSetHelper[D, DDomain[D] <: DiscreteDomain[D]](reference: DDomain
 case class GaussianKernelParameters(sigma: Double, scaling: Double)
 
 case class GPMMTriangleMesh3D(reference: TriangleMesh[_3D], relativeTolerance: Double)(implicit
-    gpmm: GPMM[_3D, TriangleMesh]
+    gpmm: GPMM[TriangleMesh]
 ) {
   def Gaussian(sigma: Double, scaling: Double): PointDistributionModel[_3D, TriangleMesh] = {
     val kernel = GaussianKernel[_3D](sigma) * scaling
     gpmm.construct(reference, DiagonalKernel(kernel, 3), relativeTolerance)
   }
   def GaussianDot(sigma: Double, scaling: Double): PointDistributionModel[_3D, TriangleMesh] = {
-    val kernel = DotProductKernel[_3D](GaussianKernel[_3D](sigma), 1.0) * scaling
+    val kernel = DotProductKernel(GaussianKernel[_3D](sigma), 1.0) * scaling
     gpmm.construct(reference, DiagonalKernel(kernel, 3), relativeTolerance)
   }
   def GaussianSymmetry(sigma: Double, scaling: Double): PointDistributionModel[_3D, TriangleMesh] = {
@@ -169,7 +118,7 @@ case class GPMMTriangleMesh3D(reference: TriangleMesh[_3D], relativeTolerance: D
 
   def AutomaticGaussian(): PointDistributionModel[_3D, TriangleMesh] = {
     val refPoints = reference.pointSet
-    val psHelper  = PointSetHelper[_3D, TriangleMesh](reference)
+    val psHelper  = PointSetHelper[TriangleMesh](reference)
     val maxDist   = psHelper.maximumPointDistance(refPoints)
     GaussianMixture(
       Seq(

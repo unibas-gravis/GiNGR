@@ -27,7 +27,6 @@ case class SimilarityTransformParameters(s: Scaling[_3D], t: Translation[_3D], R
   val rigidTransform: TranslationAfterRotation[_3D]           = TranslationAfterRotation(t, R)
   val invSimTransform                                         = simTransform.inverse
   val invRigidTransform                                       = rigidTransform.inverse
-
-  def transform(points: Seq[Point[_3D]]): Seq[Point[_3D]]    = points.map(simTransform)
-  def invTransform(points: Seq[Point[_3D]]): Seq[Point[_3D]] = points.map(invSimTransform)
+  def transform(points: Seq[Point[_3D]]): Seq[Point[_3D]]     = points.map(simTransform)
+  def invTransform(points: Seq[Point[_3D]]): Seq[Point[_3D]]  = points.map(invSimTransform)
 }

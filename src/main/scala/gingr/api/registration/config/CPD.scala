@@ -127,15 +127,14 @@ class CpdRegistration(
         )
       }
 ) extends GingrAlgorithm[CpdRegistrationState] {
-  def name                                       = "CPD"
-  val dataConverter: PointSequenceConverter[_3D] = PointSequenceConverter.denseMatrixToPoint3DSequence
+  def name = "CPD"
 
   // possibility to override the update function, or just use the base class method?
   override def updateSigma2(current: CpdRegistrationState): Double = {
     val meanUpdate = current.general.fit.pointSet.points.toSeq
     val P          = current.P
-    val X          = dataConverter.toMatrix(current.general.target.pointSet.points.toSeq)
-    val TY         = dataConverter.toMatrix(meanUpdate)
+    val X          = PointSequenceConverter.toMatrix(current.general.target.pointSet.points.toSeq)
+    val TY         = PointSequenceConverter.toMatrix(meanUpdate)
     val P1         = sum(P, Axis._1)
     val Pt1        = sum(P, Axis._0)
     val Np         = sum(P1)

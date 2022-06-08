@@ -20,22 +20,21 @@ package gingr.other.algorithms.cpd
 import gingr.api.registration.utils.PointSequenceConverter
 import breeze.linalg.{Axis, DenseMatrix, DenseVector, diag, inv, sum}
 import scalismo.common.Vectorizer
-import scalismo.geometry.{NDSpace, Point}
+import scalismo.geometry.{NDSpace, Point, _3D}
 
 /*
  Implementation of Point Set Registration: Coherent Point Drift (CPD) - Non-Rigid algorithm
  Paper: https://arxiv.org/pdf/0905.2635.pdf
  */
-private[cpd] class NonRigidCPD[D: NDSpace](
-    override val targetPoints: Seq[Point[D]],
-    override val cpd: CPDFactory[D]
+private[cpd] class NonRigidCPD(
+    override val targetPoints: Seq[Point[_3D]],
+    override val cpd: CPDFactory
 )(implicit
-    vectorizer: Vectorizer[Point[D]],
-    dataConverter: PointSequenceConverter[D]
-) extends RigidCPD[D](targetPoints, cpd) {
+    vectorizer: Vectorizer[Point[_3D]]
+) extends RigidCPD(targetPoints, cpd) {
   import cpd._
 
-  def computeSigma2(template: Seq[Point[D]], target: Seq[Point[D]]): Double = {
+  def computeSigma2(template: Seq[Point[_3D]], target: Seq[Point[_3D]]): Double = {
     val sumDist = template.toIndexedSeq.flatMap { pm =>
       target.toIndexedSeq.map { pn =>
         (pn - pm).norm2
@@ -82,7 +81,7 @@ private[cpd] class NonRigidCPD[D: NDSpace](
 
     val updatedSigma2 = (xPx - 2 * trPXY + yPy) / (Np * dim)
 
-//    val Xtarget: Seq[Point[D]] = dataConverter.toPointSequence(X)(vectorizer)
+//    val Xtarget: Seq[Point[_3D]] = dataConverter.toPointSequence(X)(vectorizer)
 //    val Ytemp   = dataConverter.toPointSequence(TY)(vectorizer)
 //
 //    val updatedSigma2 = computeSigma2(Xtarget, Ytemp)

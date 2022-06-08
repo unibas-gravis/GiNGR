@@ -36,7 +36,6 @@ abstract class NonRigidOptimalStepICP(
     gamma: Double = 1.0
 )(implicit
     vectorizer: Vectorizer[Point[_3D]],
-    dataConverter: PointSequenceConverter[_3D],
     warper: DomainWarp[_3D, TriangleMesh]
 ) {
   require(gamma >= 0)
@@ -52,7 +51,7 @@ abstract class NonRigidOptimalStepICP(
     commonLmNames
       .map(name => targetLandmarks.find(_.id == name).get)
       .map(lm => targetMesh.pointSet.findClosestPoint(lm.point).point)
-  val UL: CSCMatrix[Double] = CSCHelper.DenseMatrix2CSCMatrix(dataConverter.toMatrix(lmPointsOnTarget))
+  val UL: CSCMatrix[Double] = CSCHelper.DenseMatrix2CSCMatrix(PointSequenceConverter.toMatrix(lmPointsOnTarget))
 
   private val edges   = trianglesToEdges(templateMesh.triangulation.triangles)
   val numOfEdges: Int = edges.length
@@ -145,7 +144,6 @@ class NonRigidOptimalStepICP_T(
     gamma: Double = 1.0
 )(implicit
     vectorizer: Vectorizer[Point[_3D]],
-    dataConverter: PointSequenceConverter[_3D],
     warper: DomainWarp[_3D, TriangleMesh]
 ) extends NonRigidOptimalStepICP(templateMesh, targetMesh, templateLandmarks, targetLandmarks, gamma) {
   val B1: CSCMatrix[Double] = CSCMatrix.zeros[Double](numOfEdges, dim)
@@ -164,11 +162,11 @@ class NonRigidOptimalStepICP_T(
     val W = diag(SparseVector(w: _*))
 
     val lmPointsOnTemplate = lmIdsOnTemplate.map(id => template.pointSet.point(id))
-    val VL                 = CSCHelper.DenseMatrix2CSCMatrix(dataConverter.toMatrix(lmPointsOnTemplate))
+    val VL                 = CSCHelper.DenseMatrix2CSCMatrix(PointSequenceConverter.toMatrix(lmPointsOnTemplate))
 
-    val U = CSCHelper.DenseMatrix2CSCMatrix(dataConverter.toMatrix(cp))
+    val U = CSCHelper.DenseMatrix2CSCMatrix(PointSequenceConverter.toMatrix(cp))
     // N-ICP-T
-    val V                     = CSCHelper.DenseMatrix2CSCMatrix(dataConverter.toMatrix(template.pointSet.points.toSeq))
+    val V                     = CSCHelper.DenseMatrix2CSCMatrix(PointSequenceConverter.toMatrix(template.pointSet.points.toSeq))
     val A1: CSCMatrix[Double] = M * alpha
     val A2: CSCMatrix[Double] = W * CSCHelper.eye(template.pointSet.numberOfPoints)
     val A3: CSCMatrix[Double] = CSCMatrix.zeros[Double](lmPointsOnTemplate.length, M.cols)
@@ -182,7 +180,9 @@ class NonRigidOptimalStepICP_T(
     val X = (A \ B).toDenseMatrix
 
     val updatedPoints =
-      dataConverter.toPointSequence(dataConverter.toMatrix(template.pointSet.points.toSeq) + X).toIndexedSeq
+      PointSequenceConverter
+        .toPointSequence(PointSequenceConverter.toMatrix(template.pointSet.points.toSeq) + X)
+        .toIndexedSeq
 
     (template.copy(pointSet = UnstructuredPoints(updatedPoints)), dist, IndexedSeq[Point[_3D]]())
   }
@@ -200,7 +200,6 @@ class NonRigidOptimalStepICP_A(
     gamma: Double = 1.0
 )(implicit
     vectorizer: Vectorizer[Point[_3D]],
-    dataConverter: PointSequenceConverter[_3D],
     warper: DomainWarp[_3D, TriangleMesh]
 ) extends NonRigidOptimalStepICP(templateMesh, targetMesh, templateLandmarks, targetLandmarks, gamma) {
 
@@ -259,7 +258,7 @@ class NonRigidOptimalStepICP_A(
 
     val DL = ComputeMatrixDL(template)
 
-    val U = CSCHelper.DenseMatrix2CSCMatrix(dataConverter.toMatrix(cp))
+    val U = CSCHelper.DenseMatrix2CSCMatrix(PointSequenceConverter.toMatrix(cp))
 
     val A1: CSCMatrix[Double] = kronMG * alpha
     val A2: CSCMatrix[Double] = W * D
@@ -272,12 +271,12 @@ class NonRigidOptimalStepICP_A(
     val B = CSCHelper.vertcat(B1, B2, B3)
     val X = (A \ B).toDenseMatrix
 
-    val updatedPoints = dataConverter.toPointSequence(D * X).toIndexedSeq
+    val updatedPoints = PointSequenceConverter.toPointSequence(D * X).toIndexedSeq
 
     (
       template.copy(pointSet = UnstructuredPoints(updatedPoints)),
       dist,
-      dataConverter.toPointSequence(DL * X).toIndexedSeq
+      PointSequenceConverter.toPointSequence(DL * X).toIndexedSeq
     ) // Note: return also the transformed landmarks. They seem to be placed at the correct location
   }
 }

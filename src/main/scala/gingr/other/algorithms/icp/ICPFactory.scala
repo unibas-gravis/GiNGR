@@ -19,20 +19,20 @@ package gingr.other.algorithms.icp
 
 import gingr.other.utils.Registrator
 import scalismo.common.{UnstructuredPoints, Vectorizer}
-import scalismo.geometry.{NDSpace, Point}
+import scalismo.geometry.{NDSpace, Point, _3D}
 
 /*
  Implementation of Point Set Registration: Iterative closest points todo: check and update rest of the comment
  In this script, only the non-rigid algorithm is implemented. Paper: https://arxiv.org/pdf/0905.2635.pdf
  A python implementation already exists from where parts of the implementation is from: https://github.com/siavashk/pycpd
  */
-class ICPFactory[D: NDSpace](
-    val templatePoints: UnstructuredPoints[D]
+class ICPFactory(
+    val templatePoints: UnstructuredPoints[_3D]
 )(implicit
-    val vectorizer: Vectorizer[Point[D]],
-    registrator: Registrator[D]
+    val vectorizer: Vectorizer[Point[_3D]],
+    registrator: Registrator
 ) {
-  def registerRigidly(targetPoints: UnstructuredPoints[D]): RigidICP[D] = {
-    new RigidICP[D](targetPoints, this)
+  def registerRigidly(targetPoints: UnstructuredPoints[_3D]): RigidICP = {
+    new RigidICP(targetPoints, this)
   }
 }

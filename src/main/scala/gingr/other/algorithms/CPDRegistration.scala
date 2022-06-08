@@ -20,24 +20,23 @@ package gingr.other.algorithms
 import gingr.api.registration.utils.PointSequenceConverter
 import gingr.other.algorithms.cpd.CPDFactory
 import scalismo.common.{DiscreteDomain, DiscreteField, DomainWarp, Vectorizer}
-import scalismo.geometry.{NDSpace, Point}
+import scalismo.geometry.{NDSpace, Point, _3D}
 
-class RigidCPDRegistration[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](
-    template: DDomain[D],
+class RigidCPDRegistration[DDomain[_3D] <: DiscreteDomain[_3D]](
+    template: DDomain[_3D],
     lambda: Double = 2,
     beta: Double = 2,
     w: Double = 0,
     max_iterations: Int = 100
 )(implicit
-    warper: DomainWarp[D, DDomain],
-    vectorizer: Vectorizer[Point[D]],
-    pointSequenceConverter: PointSequenceConverter[D]
+    warper: DomainWarp[_3D, DDomain],
+    vectorizer: Vectorizer[Point[_3D]]
 ) {
   val cpd = new CPDFactory(template.pointSet.points.toSeq, lambda, beta, w)
 
-  def registrationMethod(targetPoints: Seq[Point[D]]) = cpd.registerRigidly(targetPoints)
+  def registrationMethod(targetPoints: Seq[Point[_3D]]) = cpd.registerRigidly(targetPoints)
 
-  def register(target: DDomain[D]): DDomain[D] = {
+  def register(target: DDomain[_3D]): DDomain[_3D] = {
     val registrationTask = registrationMethod(target.pointSet.points.toSeq)
     val registration     = registrationTask.Registration(max_iterations)
     val warpField =
@@ -46,32 +45,30 @@ class RigidCPDRegistration[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](
   }
 }
 
-class NonRigidCPDRegistration[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](
-    template: DDomain[D],
+class NonRigidCPDRegistration[DDomain[_3D] <: DiscreteDomain[_3D]](
+    template: DDomain[_3D],
     lambda: Double = 2,
     beta: Double = 2,
     w: Double = 0,
     max_iterations: Int = 100
 )(implicit
-    warper: DomainWarp[D, DDomain],
-    vectorizer: Vectorizer[Point[D]],
-    pointSequenceConverter: PointSequenceConverter[D]
-) extends RigidCPDRegistration[D, DDomain](template, lambda, beta, w, max_iterations) {
+    warper: DomainWarp[_3D, DDomain],
+    vectorizer: Vectorizer[Point[_3D]]
+) extends RigidCPDRegistration[DDomain](template, lambda, beta, w, max_iterations) {
 
-  override def registrationMethod(targetPoints: Seq[Point[D]]) = cpd.registerNonRigidly(targetPoints)
+  override def registrationMethod(targetPoints: Seq[Point[_3D]]) = cpd.registerNonRigidly(targetPoints)
 }
 
-class AffineCPDRegistration[D: NDSpace, DDomain[D] <: DiscreteDomain[D]](
-    template: DDomain[D],
+class AffineCPDRegistration[DDomain[_3D] <: DiscreteDomain[_3D]](
+    template: DDomain[_3D],
     lambda: Double = 2,
     beta: Double = 2,
     w: Double = 0,
     max_iterations: Int = 100
 )(implicit
-    warper: DomainWarp[D, DDomain],
-    vectorizer: Vectorizer[Point[D]],
-    pointSequenceConverter: PointSequenceConverter[D]
-) extends RigidCPDRegistration[D, DDomain](template, lambda, beta, w, max_iterations) {
+    warper: DomainWarp[_3D, DDomain],
+    vectorizer: Vectorizer[Point[_3D]]
+) extends RigidCPDRegistration[DDomain](template, lambda, beta, w, max_iterations) {
 
-  override def registrationMethod(targetPoints: Seq[Point[D]]) = cpd.registerAffine(targetPoints)
+  override def registrationMethod(targetPoints: Seq[Point[_3D]]) = cpd.registerAffine(targetPoints)
 }

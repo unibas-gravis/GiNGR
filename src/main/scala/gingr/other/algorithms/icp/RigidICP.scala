@@ -20,18 +20,18 @@ package gingr.other.algorithms.icp
 import breeze.numerics.abs
 import gingr.other.utils.Registrator
 import scalismo.common.{PointId, UnstructuredPoints, Vectorizer}
-import scalismo.geometry.{NDSpace, Point}
+import scalismo.geometry.{NDSpace, Point, _3D}
 
-private[icp] class RigidICP[D: NDSpace](
-    val targetPoints: UnstructuredPoints[D],
-    val icp: ICPFactory[D]
+private[icp] class RigidICP(
+    val targetPoints: UnstructuredPoints[_3D],
+    val icp: ICPFactory
 )(implicit
-    val vectorizer: Vectorizer[Point[D]],
-    registrator: Registrator[D]
+    val vectorizer: Vectorizer[Point[_3D]],
+    registrator: Registrator
 ) {
   require(vectorizer.dim == 2 || vectorizer.dim == 3)
 
-  def Registration(max_iteration: Int, tolerance: Double = 0.001): UnstructuredPoints[D] = {
+  def Registration(max_iteration: Int, tolerance: Double = 0.001): UnstructuredPoints[_3D] = {
     val sigmaInit = 0.0
 
     val fit = (0 until max_iteration).foldLeft((icp.templatePoints, sigmaInit)) { (it, i) =>
@@ -51,9 +51,9 @@ private[icp] class RigidICP[D: NDSpace](
   }
 
   private def attributeCorrespondences(
-      template: UnstructuredPoints[D],
-      target: UnstructuredPoints[D]
-  ): (Seq[(Point[D], Point[D])], Double) = {
+      template: UnstructuredPoints[_3D],
+      target: UnstructuredPoints[_3D]
+  ): (Seq[(Point[_3D], Point[_3D])], Double) = {
     val ptIds    = template.pointIds.toIndexedSeq
     var distance = 0.0
     val corr = ptIds.map { (id: PointId) =>
@@ -65,7 +65,10 @@ private[icp] class RigidICP[D: NDSpace](
     (corr, distance / ptIds.length)
   }
 
-  def Iteration(template: UnstructuredPoints[D], target: UnstructuredPoints[D]): (UnstructuredPoints[D], Double) = {
+  def Iteration(
+      template: UnstructuredPoints[_3D],
+      target: UnstructuredPoints[_3D]
+  ): (UnstructuredPoints[_3D], Double) = {
     val (correspondences, distance) = attributeCorrespondences(template, target)
     val registeredPoints            = registrator.register(correspondences)
     (registeredPoints, distance)

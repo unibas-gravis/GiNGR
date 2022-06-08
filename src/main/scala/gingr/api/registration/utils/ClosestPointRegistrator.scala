@@ -21,12 +21,15 @@ import scalismo.common.{DiscreteDomain, PointId, UnstructuredPointsDomain}
 import scalismo.geometry._
 import scalismo.mesh.TriangleMesh
 
-trait ClosestPointRegistrator[D, DDomain[D] <: DiscreteDomain[D]] {
+trait ClosestPointRegistrator[DDomain[_3D] <: DiscreteDomain[_3D]] {
   /*
   returns: Seq of point on template to corresponding point on target + a weight identifying the robustness of the closest point (1.0 = robust, 0.0 = not-robust)
            Additionally the average closest point distance is returned
    */
-  def closestPointCorrespondence(template: DDomain[D], target: DDomain[D]): (Seq[(PointId, Point[D], Double)], Double)
+  def closestPointCorrespondence(
+      template: DDomain[_3D],
+      target: DDomain[_3D]
+  ): (Seq[(PointId, Point[_3D], Double)], Double)
 }
 
 object NonRigidClosestPointRegistrator {
@@ -55,7 +58,7 @@ object NonRigidClosestPointRegistrator {
     (closestIntersectingPoint < (v).norm)
   }
 
-  object ClosestPointTriangleMesh3D extends ClosestPointRegistrator[_3D, TriangleMesh] {
+  object ClosestPointTriangleMesh3D extends ClosestPointRegistrator[TriangleMesh] {
     override def closestPointCorrespondence(
         template: TriangleMesh[_3D],
         target: TriangleMesh[_3D]
@@ -90,7 +93,7 @@ object NonRigidClosestPointRegistrator {
     }
   }
 
-  object ClosestPointAlongNormalTriangleMesh3D extends ClosestPointRegistrator[_3D, TriangleMesh] {
+  object ClosestPointAlongNormalTriangleMesh3D extends ClosestPointRegistrator[TriangleMesh] {
     override def closestPointCorrespondence(
         template: TriangleMesh[_3D],
         target: TriangleMesh[_3D]
@@ -125,45 +128,11 @@ object NonRigidClosestPointRegistrator {
     }
   }
 
-  object ClosestPointUnstructuredPointsDomain3D extends ClosestPointRegistrator[_3D, UnstructuredPointsDomain] {
+  object ClosestPointUnstructuredPointsDomain3D extends ClosestPointRegistrator[UnstructuredPointsDomain] {
     override def closestPointCorrespondence(
         template: UnstructuredPointsDomain[_3D],
         target: UnstructuredPointsDomain[_3D]
     ): (Seq[(PointId, Point[_3D], Double)], Double) = {
-      var distance = 0.0
-      val corr = template.pointSet.pointIds.toSeq.map { id =>
-        val p            = template.pointSet.point(id)
-        val closestPoint = target.pointSet.findClosestPoint(p)
-        val w            = 1.0
-        distance += (p - closestPoint.point).norm
-        (id, closestPoint.point, w)
-      }
-      (corr, distance / template.pointSet.numberOfPoints)
-    }
-  }
-
-  object ClosestPointUnstructuredPointsDomain2D extends ClosestPointRegistrator[_2D, UnstructuredPointsDomain] {
-    override def closestPointCorrespondence(
-        template: UnstructuredPointsDomain[_2D],
-        target: UnstructuredPointsDomain[_2D]
-    ): (Seq[(PointId, Point[_2D], Double)], Double) = {
-      var distance = 0.0
-      val corr = template.pointSet.pointIds.toSeq.map { id =>
-        val p            = template.pointSet.point(id)
-        val closestPoint = target.pointSet.findClosestPoint(p)
-        val w            = 1.0
-        distance += (p - closestPoint.point).norm
-        (id, closestPoint.point, w)
-      }
-      (corr, distance / template.pointSet.numberOfPoints)
-    }
-  }
-
-  object ClosestPointUnstructuredPointsDomain1D extends ClosestPointRegistrator[_1D, UnstructuredPointsDomain] {
-    override def closestPointCorrespondence(
-        template: UnstructuredPointsDomain[_1D],
-        target: UnstructuredPointsDomain[_1D]
-    ): (Seq[(PointId, Point[_1D], Double)], Double) = {
       var distance = 0.0
       val corr = template.pointSet.pointIds.toSeq.map { id =>
         val p            = template.pointSet.point(id)

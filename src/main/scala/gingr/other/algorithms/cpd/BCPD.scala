@@ -21,7 +21,7 @@ import gingr.api.registration.utils.PointSequenceConverter
 import breeze.linalg.{Axis, DenseMatrix, DenseVector, det, diag, kron, pinv, sum, svd, tile, trace}
 import breeze.numerics.{abs, digamma}
 import scalismo.common.Vectorizer
-import scalismo.geometry.{NDSpace, Point}
+import scalismo.geometry.{NDSpace, Point, _3D}
 import scalismo.kernels.PDKernel
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 
@@ -39,17 +39,16 @@ case class similarityTransformationParameters(
  Implementation of Bayesian Coherent Point Drift (BCPD)
  Paper: https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8985307
  */
-class BCPD[D: NDSpace](
-    val templatePoints: Seq[Point[D]],
-    val targetPoints: Seq[Point[D]],
+class BCPD(
+    val templatePoints: Seq[Point[_3D]],
+    val targetPoints: Seq[Point[_3D]],
     val w: Double,      // Outlier, [0,1]
     val lambda: Double, // Noise scaling, R+
     val gamma: Double,  // Initial noise scaling, R+
     val k: Double,
-    val kernel: PDKernel[D] // Positive semi-def kernel
+    val kernel: PDKernel[_3D] // Positive semi-def kernel
 )(implicit
-    val vectorizer: Vectorizer[Point[D]],
-    dataConverter: PointSequenceConverter[D]
+    val vectorizer: Vectorizer[Point[_3D]]
 ) {
   require(0.0 <= w && w <= 1.0)
   require(lambda > 0)
@@ -61,8 +60,8 @@ class BCPD[D: NDSpace](
   val G: DenseMatrix[Double]          = initializeKernelMatrixG(templatePoints, kernel)
   val Ginv: DenseMatrix[Double]       = pinv(G)
   val GinvLambda: DenseMatrix[Double] = lambda * Ginv
-  val X: DenseVector[Double]          = dataConverter.toVector(targetPoints)
-  val Y: DenseVector[Double]          = dataConverter.toVector(templatePoints)
+  val X: DenseVector[Double]          = PointSequenceConverter.toVector(targetPoints)
+  val Y: DenseVector[Double]          = PointSequenceConverter.toVector(templatePoints)
 
   // Helper unit matrices
   val D1Vec: DenseMatrix[Double] = DenseVector.ones[Double](dim).toDenseMatrix
@@ -75,8 +74,8 @@ class BCPD[D: NDSpace](
     * @return
     */
   private def initializeKernelMatrixG(
-      points: Seq[Point[D]],
-      kernel: PDKernel[D]
+      points: Seq[Point[_3D]],
+      kernel: PDKernel[_3D]
   ): DenseMatrix[Double] = {
     val G: DenseMatrix[Double] = DenseMatrix.zeros[Double](M, M)
     (0 until M).map { i =>
@@ -93,7 +92,7 @@ class BCPD[D: NDSpace](
     * @param X
     * @return
     */
-  private def computeSigma2init(Y: Seq[Point[D]], X: Seq[Point[D]]): Double = {
+  private def computeSigma2init(Y: Seq[Point[_3D]], X: Seq[Point[_3D]]): Double = {
     val M   = Y.length
     val N   = X.length
     val dim = vectorizer.dim
@@ -109,7 +108,7 @@ class BCPD[D: NDSpace](
     println(s"Final transformation, s: ${pars.s}, t: ${pars.t}, \n R: ${pars.R}")
   }
 
-  def Registration(max_iteration: Int, tolerance: Double = 0.000001): Seq[Point[D]] = {
+  def Registration(max_iteration: Int, tolerance: Double = 0.000001): Seq[Point[_3D]] = {
     val sigma2Init = gamma * computeSigma2init(templatePoints, targetPoints)
     val simParsInit = similarityTransformationParameters(
       sigma = DenseMatrix.eye[Double](M),
@@ -155,7 +154,7 @@ class BCPD[D: NDSpace](
       (sinv * (v + (kron(DenseVector.ones[Double](M).toDenseMatrix, pars.t.toDenseMatrix * (-1.0)).toDenseVector)))
   }
 
-  private def computeP(yPoints: Seq[Point[D]], pars: similarityTransformationParameters): DenseMatrix[Double] = {
+  private def computeP(yPoints: Seq[Point[_3D]], pars: similarityTransformationParameters): DenseMatrix[Double] = {
     val Phi = DenseMatrix.zeros[Double](M, N)
     (0 until M).map { m =>
       val mvnd =
@@ -183,9 +182,9 @@ class BCPD[D: NDSpace](
     * @return
     */
   def Iteration(
-      YhatPoints: Seq[Point[D]],
+      YhatPoints: Seq[Point[_3D]],
       pars: similarityTransformationParameters
-  ): (Seq[Point[D]], similarityTransformationParameters) = {
+  ): (Seq[Point[_3D]], similarityTransformationParameters) = {
     // Update P and related terms
     val P = computeP(YhatPoints, pars)
 
@@ -245,6 +244,6 @@ class BCPD[D: NDSpace](
     val newPars =
       similarityTransformationParameters(sigma = Sigma, s = s, R = R, t = t, sigma2 = newSigma2, alpha = alpha)
 
-    (dataConverter.toPointSequence(newYhat), newPars)
+    (PointSequenceConverter.toPointSequence(newYhat), newPars)
   }
 }
