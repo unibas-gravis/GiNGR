@@ -20,7 +20,7 @@ package gingr.other.algorithms.icp
 import gingr.api.registration.utils.{NonRigidClosestPointRegistrator, PointSequenceConverter}
 import breeze.linalg.{CSCMatrix, SparseVector, diag}
 import gingr.other.utils.CSCHelper
-import scalismo.common.{DomainWarp, PointId, UnstructuredPoints, UnstructuredPoints3D, Vectorizer}
+import scalismo.common.{DomainWarp, PointId, UnstructuredPoints, Vectorizer}
 import scalismo.geometry.{Landmark, Point, _3D}
 import scalismo.mesh.{TriangleCell, TriangleMesh}
 

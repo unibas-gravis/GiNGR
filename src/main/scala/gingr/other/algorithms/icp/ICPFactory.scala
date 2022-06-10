@@ -19,7 +19,7 @@ package gingr.other.algorithms.icp
 
 import gingr.other.utils.Registrator
 import scalismo.common.{UnstructuredPoints, Vectorizer}
-import scalismo.geometry.{NDSpace, Point, _3D}
+import scalismo.geometry.{Point, _3D}
 
 /*
  Implementation of Point Set Registration: Iterative closest points todo: check and update rest of the comment

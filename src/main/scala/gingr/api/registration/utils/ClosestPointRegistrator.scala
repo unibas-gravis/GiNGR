@@ -18,7 +18,7 @@
 package gingr.api.registration.utils
 
 import scalismo.common.{DiscreteDomain, PointId, UnstructuredPointsDomain}
-import scalismo.geometry._
+import scalismo.geometry.{EuclideanVector, Point, _3D}
 import scalismo.mesh.TriangleMesh
 
 trait ClosestPointRegistrator[DDomain[_3D] <: DiscreteDomain[_3D]] {
@@ -30,6 +30,17 @@ trait ClosestPointRegistrator[DDomain[_3D] <: DiscreteDomain[_3D]] {
       template: DDomain[_3D],
       target: DDomain[_3D]
   ): (Seq[(PointId, Point[_3D], Double)], Double)
+
+  def closestPointCorrespondenceReversal(
+      template: DDomain[_3D],
+      target: DDomain[_3D]
+  ): (Seq[(PointId, Point[_3D], Double)], Double) = {
+    val corr = closestPointCorrespondence(target, template)
+    val inverted = corr._1.map { case (id, p, w) =>
+      (template.pointSet.findClosestPoint(p).id, target.pointSet.point(id), w)
+    }
+    (inverted, corr._2)
+  }
 }
 
 object NonRigidClosestPointRegistrator {
@@ -79,17 +90,6 @@ object NonRigidClosestPointRegistrator {
         (id, closestPointOnSurface.point, w)
       }
       (corr, distance / template.pointSet.numberOfPoints)
-    }
-
-    def closestPointCorrespondenceTargetToTemplate(
-        template: TriangleMesh[_3D],
-        target: TriangleMesh[_3D]
-    ): (Seq[(PointId, Point[_3D], Double)], Double) = {
-      val corr = closestPointCorrespondence(target, template)
-      val inverted = corr._1.map { case (id, p, w) =>
-        (template.pointSet.findClosestPoint(p).id, target.pointSet.point(id), w)
-      }
-      (inverted, corr._2)
     }
   }
 
@@ -142,6 +142,18 @@ object NonRigidClosestPointRegistrator {
         (id, closestPoint.point, w)
       }
       (corr, distance / template.pointSet.numberOfPoints)
+    }
+  }
+
+  object ClosestPointTriangleMesh3DSimple extends ClosestPointRegistrator[TriangleMesh] {
+    override def closestPointCorrespondence(
+        template: TriangleMesh[_3D],
+        target: TriangleMesh[_3D]
+    ): (Seq[(PointId, Point[_3D], Double)], Double) = {
+      ClosestPointUnstructuredPointsDomain3D.closestPointCorrespondence(
+        UnstructuredPointsDomain(template.pointSet),
+        UnstructuredPointsDomain(target.pointSet)
+      )
     }
   }
 

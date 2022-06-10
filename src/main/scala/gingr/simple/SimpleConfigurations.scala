@@ -17,7 +17,14 @@
 
 package gingr.simple
 
-import gingr.api.registration.config.*
+import gingr.api.registration.config.{
+  CpdConfiguration,
+  CpdRegistration,
+  CpdRegistrationState,
+  IcpConfiguration,
+  IcpRegistration,
+  IcpRegistrationState
+}
 import gingr.api.{GeneralRegistrationState, GlobalTranformationType, NoTransforms, RigidTransforms}
 import scalismo.geometry.{Landmark, _3D}
 import scalismo.mesh.TriangleMesh

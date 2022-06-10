@@ -17,10 +17,10 @@
 
 package gingr.other.algorithms.cpd
 
-import gingr.api.registration.utils.{DiscreteDomainConverter, PointSequenceConverter}
+import gingr.api.registration.utils.PointSequenceConverter
 import breeze.linalg.DenseMatrix
 import scalismo.common.Vectorizer
-import scalismo.geometry.{NDSpace, Point, _3D}
+import scalismo.geometry.{Point, _3D}
 
 /*
  Implementation of Point Set Registration: Coherent Point Drift

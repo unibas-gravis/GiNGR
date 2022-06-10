@@ -17,10 +17,9 @@
 
 package gingr.other.algorithms
 
-import gingr.api.registration.utils.PointSequenceConverter
 import gingr.other.algorithms.cpd.CPDFactory
 import scalismo.common.{DiscreteDomain, DiscreteField, DomainWarp, Vectorizer}
-import scalismo.geometry.{NDSpace, Point, _3D}
+import scalismo.geometry.{Point, _3D}
 
 class RigidCPDRegistration[DDomain[_3D] <: DiscreteDomain[_3D]](
     template: DDomain[_3D],

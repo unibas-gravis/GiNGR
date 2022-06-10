@@ -21,7 +21,7 @@ import gingr.api.registration.utils.PointSequenceConverter
 import breeze.linalg.{Axis, DenseMatrix, DenseVector, det, diag, kron, pinv, sum, svd, tile, trace}
 import breeze.numerics.{abs, digamma}
 import scalismo.common.Vectorizer
-import scalismo.geometry.{NDSpace, Point, _3D}
+import scalismo.geometry.{Point, _3D}
 import scalismo.kernels.PDKernel
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 

@@ -20,7 +20,7 @@ package gingr.other.algorithms.icp
 import breeze.numerics.abs
 import gingr.other.utils.Registrator
 import scalismo.common.{PointId, UnstructuredPoints, Vectorizer}
-import scalismo.geometry.{NDSpace, Point, _3D}
+import scalismo.geometry.{Point, _3D}
 
 private[icp] class RigidICP(
     val targetPoints: UnstructuredPoints[_3D],

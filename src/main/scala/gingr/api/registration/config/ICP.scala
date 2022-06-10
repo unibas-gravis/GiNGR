@@ -17,21 +17,36 @@
 
 package gingr.api.registration.config
 
-import gingr.api.registration.utils.NonRigidClosestPointRegistrator.ClosestPointTriangleMesh3D
+import gingr.api.registration.utils.NonRigidClosestPointRegistrator.{
+  ClosestPointTriangleMesh3D,
+  ClosestPointAlongNormalTriangleMesh3D,
+  ClosestPointTriangleMesh3DSimple
+}
 import breeze.linalg.{DenseMatrix, DenseVector}
 import gingr.api.{CorrespondencePairs, GeneralRegistrationState, GingrAlgorithm, GingrConfig, GingrRegistrationState}
 import scalismo.common.PointId
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 
+sealed trait ICPCorrespondenceMethod
+
+case object TriangularClosestPoint  extends ICPCorrespondenceMethod
+case object AlongNormalClosestPoint extends ICPCorrespondenceMethod
+case object PointcloudClosestPoint  extends ICPCorrespondenceMethod
+
 object ICPCorrespondence {
   def estimate[T](state: IcpRegistrationState): CorrespondencePairs = {
     val source = state.general.fit
     val target = state.general.target
+    val method = state.config.correspondenceMethod match {
+      case TriangularClosestPoint  => ClosestPointTriangleMesh3D
+      case AlongNormalClosestPoint => ClosestPointAlongNormalTriangleMesh3D
+      case PointcloudClosestPoint  => ClosestPointTriangleMesh3DSimple
+    }
     val corr =
       if (state.config.reverseCorrespondenceDirection)
-        ClosestPointTriangleMesh3D.closestPointCorrespondenceTargetToTemplate(source, target)
+        method.closestPointCorrespondenceReversal(source, target)
       else
-        ClosestPointTriangleMesh3D.closestPointCorrespondence(source, target)
+        method.closestPointCorrespondence(source, target)
     CorrespondencePairs(pairs = corr._1.filter(_._3 == 1.0).map(f => (f._1, f._2)).toIndexedSeq)
   }
 }
@@ -44,7 +59,8 @@ case class IcpConfiguration(
     override val useLandmarkCorrespondence: Boolean = true,
     initialSigma: Double = 100.0,
     endSigma: Double = 1.0,
-    reverseCorrespondenceDirection: Boolean = false
+    reverseCorrespondenceDirection: Boolean = false,
+    correspondenceMethod: ICPCorrespondenceMethod = TriangularClosestPoint
 ) extends GingrConfig {
   val sigmaStep: Double = (initialSigma - endSigma) / maxIterations.toDouble
 }

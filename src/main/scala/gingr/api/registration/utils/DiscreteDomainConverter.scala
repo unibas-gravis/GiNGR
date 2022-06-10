@@ -18,9 +18,15 @@
 package gingr.api.registration.utils
 
 import breeze.linalg.DenseMatrix
-import scalismo.common.*
-import scalismo.geometry.*
-import scalismo.mesh.*
+import scalismo.common.{
+  DiscreteDomain,
+  UnstructuredPoints,
+  UnstructuredPointsDomain,
+  UnstructuredPointsDomain3D,
+  Vectorizer
+}
+import scalismo.geometry.{Point, _3D}
+import scalismo.mesh.{TetrahedralMesh, TetrahedralMesh3D, TriangleMesh, TriangleMesh3D}
 
 trait DiscreteDomainConverter[DDomain[_3D] <: DiscreteDomain[_3D]] {
   def denseMatrixToDomain(

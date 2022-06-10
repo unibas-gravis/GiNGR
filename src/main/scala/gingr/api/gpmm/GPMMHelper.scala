@@ -21,7 +21,7 @@ import breeze.linalg.sum
 import scalismo.common.DiscreteField.ScalarMeshField
 import scalismo.common._
 import scalismo.common.interpolation.NearestNeighborInterpolator
-import scalismo.geometry.{EuclideanVector, _1D, _2D, _3D}
+import scalismo.geometry.{EuclideanVector, _3D}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, MatrixValuedPDKernel}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, PointDistributionModel}

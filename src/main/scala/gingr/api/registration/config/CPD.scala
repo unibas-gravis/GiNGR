@@ -17,7 +17,6 @@
 
 package gingr.api.registration.config
 
-import gingr.api.*
 import gingr.api.registration.utils.PointSequenceConverter
 import breeze.linalg.{Axis, DenseMatrix, DenseVector, sum, tile}
 import gingr.api.{CorrespondencePairs, GeneralRegistrationState, GingrAlgorithm, GingrConfig, GingrRegistrationState}
@@ -26,7 +25,7 @@ import scalismo.geometry.Point.Point3DVectorizer
 import scalismo.geometry.{Point, _3D}
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 
-import scala.collection.parallel.CollectionConverters.*
+import scala.collection.parallel.CollectionConverters.ImmutableSeqIsParallelizable
 
 object CPDCorrespondence {
   val vectorizer: Point.Point3DVectorizer.type = Point3DVectorizer

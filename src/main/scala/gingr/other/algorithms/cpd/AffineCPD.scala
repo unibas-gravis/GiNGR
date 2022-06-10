@@ -17,10 +17,9 @@
 
 package gingr.other.algorithms.cpd
 
-import gingr.api.registration.utils.PointSequenceConverter
 import breeze.linalg.{Axis, DenseMatrix, DenseVector, InjectNumericOps, diag, inv, sum, trace}
-import scalismo.common.*
-import scalismo.geometry.{NDSpace, Point, _3D}
+import scalismo.common.Vectorizer
+import scalismo.geometry.{Point, _3D}
 
 /*
  Implementation of Point Set Registration: Coherent Point Drift (CPD) - Affine transformation algorithm
