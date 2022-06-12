@@ -67,7 +67,7 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Algorithm <: Gin
 )(implicit stateHandler: StateHandler[State, Config], rnd: Random) {
 
   def createInitialState(model: PointDistributionModel[_3D, TriangleMesh], target: TriangleMesh[_3D]): State = {
-    val generalState =
+    val generalState: GeneralRegistrationState =
       if (modelLandmarks.nonEmpty && targetLandmarks.nonEmpty)
         GeneralRegistrationState(model, modelLandmarks.get, target, targetLandmarks.get, transform)
       else
@@ -97,6 +97,8 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Algorithm <: Gin
         fit = ModelFittingParameters.modelInstanceShapePoseScale(decimatedModel, initState.general.modelParameters)
       )
     )
+    stateHandler.initialize(initState.general, config)
+
   }
 
   def run(state: State = initialState, probabilistic: Boolean = false, randomMixture: Double = 0.5): State = {

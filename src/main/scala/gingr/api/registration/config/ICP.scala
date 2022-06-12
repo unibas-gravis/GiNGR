@@ -95,6 +95,6 @@ class IcpRegistration(
   // possibility to override the update function, or just use the base class method?
   override def updateSigma2(current: IcpRegistrationState): Double = {
     val newSigma = current.general.sigma2 - current.config.sigmaStep
-    newSigma
+    math.max(newSigma, current.config.endSigma)
   }
 }
