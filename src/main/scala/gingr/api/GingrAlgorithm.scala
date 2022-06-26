@@ -95,42 +95,46 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State]] {
   }
 
   def update(current: State, probabilistic: Boolean)(implicit rnd: Random): State = {
-    val posterior            = cashedPosterior(current)
-    val shapeproposal        = if (!probabilistic) posterior.mean else posterior.sample()
-    val transformedModelInit = current.general.model.transform(current.general.modelParameters.rigidTransform)
+    try {
+      val posterior            = cashedPosterior(current)
+      val shapeproposal        = if (!probabilistic) posterior.mean else posterior.sample()
+      val transformedModelInit = current.general.model.transform(current.general.modelParameters.rigidTransform)
 
-    val newCoefficients          = transformedModelInit.coefficients(shapeproposal)
-    val currentShapeCoefficients = current.general.modelParameters.shape.parameters
-    val newShapeCoefficients =
-      currentShapeCoefficients + (newCoefficients - currentShapeCoefficients) * current.general.stepLength
+      val newCoefficients          = transformedModelInit.coefficients(shapeproposal)
+      val currentShapeCoefficients = current.general.modelParameters.shape.parameters
+      val newShapeCoefficients =
+        currentShapeCoefficients + (newCoefficients - currentShapeCoefficients) * current.general.stepLength
 
-    val newshape = transformedModelInit.instance(newShapeCoefficients)
+      val newshape = transformedModelInit.instance(newShapeCoefficients)
 
-    // Compute alignment to non-aligned fit to avoid adding together transformations afterward
-    val currentFitNotAligned =
-      current.general.fit
-        .transform(current.general.modelParameters.rigidTransform.inverse)
-        .transform(current.general.modelParameters.scaleTransform.inverse)
+      // Compute alignment to non-aligned fit to avoid adding together transformations afterward
+      val currentFitNotAligned =
+        current.general.fit
+          .transform(current.general.modelParameters.rigidTransform.inverse)
+          .transform(current.general.modelParameters.scaleTransform.inverse)
 
-    // If global transform is set, then extract rigid part from non-rigid to be explained by global pose parameters
-    val globalTransform: TranslationAfterScalingAfterRotation[_3D] = current.general.globalTransformation match {
-      case SimilarityTransforms => estimateSimilarityTransform(currentFitNotAligned, newshape)
-      case RigidTransforms      => estimateRigidTransform(currentFitNotAligned, newshape)
-      case _                    => TranslationAfterScalingAfterRotationSpace3D(Point(0, 0, 0)).identityTransformation
+      // If global transform is set, then extract rigid part from non-rigid to be explained by global pose parameters
+      val globalTransform: TranslationAfterScalingAfterRotation[_3D] = current.general.globalTransformation match {
+        case SimilarityTransforms => estimateSimilarityTransform(currentFitNotAligned, newshape)
+        case RigidTransforms      => estimateRigidTransform(currentFitNotAligned, newshape)
+        case _                    => TranslationAfterScalingAfterRotationSpace3D(Point(0, 0, 0)).identityTransformation
+      }
+      val newGlobalAlignment: TranslationAfterRotation[_3D] =
+        TranslationAfterRotation(globalTransform.translation, globalTransform.rotation)
+      val transformedModel = current.general.model.transform(newGlobalAlignment)
+      val alpha            = transformedModel.coefficients(newshape)
+
+      val general = current.general
+        .updateTranslation(newGlobalAlignment.translation.t)
+        .updateRotation(newGlobalAlignment.rotation)
+        .updateScaling(ScaleParameter(globalTransform.scaling.s))
+        .updateShapeParameters(ShapeParameters(alpha))
+      val newState  = current.updateGeneral(general)
+      val newSigma2 = updateSigma2(newState)
+      newState.updateGeneral(newState.general.updateSigma2(newSigma2))
+    } catch {
+      case _: Throwable => current
     }
-    val newGlobalAlignment: TranslationAfterRotation[_3D] =
-      TranslationAfterRotation(globalTransform.translation, globalTransform.rotation)
-    val transformedModel = current.general.model.transform(newGlobalAlignment)
-    val alpha            = transformedModel.coefficients(newshape)
-
-    val general = current.general
-      .updateTranslation(newGlobalAlignment.translation.t)
-      .updateRotation(newGlobalAlignment.rotation)
-      .updateScaling(ScaleParameter(globalTransform.scaling.s))
-      .updateShapeParameters(ShapeParameters(alpha))
-    val newState  = current.updateGeneral(general)
-    val newSigma2 = updateSigma2(newState)
-    newState.updateGeneral(newState.general.updateSigma2(newSigma2))
   }
 
   def estimateRigidTransform(
