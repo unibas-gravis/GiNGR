@@ -2,10 +2,10 @@
 //> using lib "ch.unibas.cs.gravis::gingr:0.1.0-SNAPSHOT"
 //> using lib "ch.unibas.cs.gravis::scalismo-ui:0.91.0"
 
-import api.ModelFittingParameters
-import api.helper.{LogHelper, PosteriorHelper}
-import api.sampling.loggers.JSONStateLogger
-import apps.DemoDatasetLoader
+import gingr.api.ModelFittingParameters
+import gingr.api.helper.{LogHelper, PosteriorHelper}
+import gingr.api.sampling.loggers.JSONStateLogger
+import gingr.simple.DemoDatasetLoader
 import scalismo.ui.api.ScalismoUI
 import java.awt.Color
 import java.io.File

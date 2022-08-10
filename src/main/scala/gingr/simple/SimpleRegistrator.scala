@@ -35,6 +35,7 @@ import gingr.api.sampling.loggers.JSONStateLogger
 import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.geometry.{Landmark, _3D}
 import scalismo.mesh.TriangleMesh
+import scalismo.sampling.loggers.ChainStateLogger
 import scalismo.statisticalmodel.PointDistributionModel
 import scalismo.ui.api.{
   PointDistributionModelViewControlsTriangleMesh3D,
@@ -101,7 +102,12 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Algorithm <: Gin
 
   }
 
-  def run(state: State = initialState, probabilistic: Boolean = false, randomMixture: Double = 0.5): State = {
+  def run(
+      state: State = initialState,
+      probabilistic: Boolean = false,
+      randomMixture: Double = 0.5,
+      callback: Option[ChainStateLogger[State]] = None
+  ): State = {
     modelView.shapeModelTransformationView.shapeTransformationView.coefficients =
       state.general.modelParameters.shape.parameters
     modelView.shapeModelTransformationView.poseTransformationView.transformation =
@@ -113,7 +119,7 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Algorithm <: Gin
       evaluatedPoints = evaluatedPoints
     )
     val jsonLogger   = if (probabilistic) Some(JSONStateLogger(evaluator, jsonFile)) else None
-    val visualLogger = CallBackFunctions.visualLogger(jsonLogger, modelView)
+    val visualLogger = if (callback.isDefined) callback.get else CallBackFunctions.visualLogger(jsonLogger, modelView)
 
     val finalState = algorithm.run(
       initialState = state,
@@ -135,10 +141,11 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Algorithm <: Gin
       targetPoints: Int,
       state: Option[State] = None,
       probabilistic: Boolean = false,
-      randomMixture: Double = 0.5
+      randomMixture: Double = 0.5,
+      callback: Option[ChainStateLogger[State]] = None
   ): State = {
     val initState = decimateState(state, modelPoints, targetPoints)
-    run(initState, probabilistic, randomMixture)
+    run(initState, probabilistic, randomMixture, callback)
   }
 
 }

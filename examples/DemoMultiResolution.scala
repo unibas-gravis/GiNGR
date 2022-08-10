@@ -2,8 +2,8 @@
 //> using lib "ch.unibas.cs.gravis::gingr:0.1.0-SNAPSHOT"
 //> using lib "ch.unibas.cs.gravis::scalismo-ui:0.91.0"
 
-import api.GeneralRegistrationState
-import api.registration.config._
+import gingr.api.GeneralRegistrationState
+import gingr.api.registration.config._
 import apps.DemoDatasetLoader
 import scalismo.geometry.{EuclideanVector, Point, _3D}
 import scalismo.mesh.TriangleMesh
@@ -11,9 +11,7 @@ import scalismo.statisticalmodel.PointDistributionModel
 import scalismo.transformations.{Rotation, Translation, TranslationAfterRotation}
 import scalismo.utils.Random.implicits.randomGenerator
 
-@main def hello() =
-  scalismo.initialize()
-
+@main def main() =
   def fit(model: PointDistributionModel[_3D, TriangleMesh], target: TriangleMesh[_3D], initCPD: Int, mediumCPD: Int, finalICP: Int): GeneralRegistrationState = {
     val configCPD = CpdConfiguration(maxIterations = 50, threshold = 1e-10, lambda = 1.0)
     val algorithmCPD = new CpdRegistration()

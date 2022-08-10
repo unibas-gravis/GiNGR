@@ -2,14 +2,11 @@
 //> using lib "ch.unibas.cs.gravis::gingr:0.1.0-SNAPSHOT"
 //> using lib "ch.unibas.cs.gravis::scalismo-ui:0.91.0"
 
-import api.NoTransforms
-import apps.DemoDatasetLoader
+import gingr.api.NoTransforms
+import gingr.simple.DemoDatasetLoader
 import java.io.File
 
-
-@main def hello() =
-  scalismo.initialize()
-
+@main def main() =
   val (model, _) = DemoDatasetLoader.femur.modelGauss()
   val (target, _) = DemoDatasetLoader.femur.target()
 

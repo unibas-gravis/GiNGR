@@ -50,3 +50,9 @@ lazy val root = (project in file("."))
       case _ => { println(scalaBinaryVersion.value); Seq() }
     })
   )
+//  .enablePlugins(GitVersioning)
+//  .settings(
+//    git.baseVersion := "develop",
+//    git.useGitDescribe := false,
+//    useJGit
+//  )

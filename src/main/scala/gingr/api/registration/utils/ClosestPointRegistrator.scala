@@ -37,7 +37,9 @@ trait ClosestPointRegistrator[DDomain[_3D] <: DiscreteDomain[_3D]] {
   ): (Seq[(PointId, Point[_3D], Double)], Double) = {
     val corr = closestPointCorrespondence(target, template)
     val inverted = corr._1.map { case (id, p, w) =>
-      (template.pointSet.findClosestPoint(p).id, target.pointSet.point(id), w)
+      val templateId  = template.pointSet.findClosestPoint(p).id
+      val targetPoint = target.pointSet.point(id)
+      (templateId, targetPoint, w)
     }
     (inverted, corr._2)
   }

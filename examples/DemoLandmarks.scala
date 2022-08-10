@@ -2,9 +2,9 @@
 //> using lib "ch.unibas.cs.gravis::gingr:0.1.0-SNAPSHOT"
 //> using lib "ch.unibas.cs.gravis::scalismo-ui:0.91.0"
 
-import apps.DemoDatasetLoader
+import gingr.simple.DemoDatasetLoader
 
-@main def hello() =
+@main def main() =
   val (model, modelLandmarks) = DemoDatasetLoader.armadillo.modelGauss(Some(10000))
   val (target, targetLandmarks) = DemoDatasetLoader.armadillo.target()
 
