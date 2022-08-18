@@ -102,21 +102,17 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State]] {
 
       val newCoefficients          = transformedModelInit.coefficients(shapeproposal)
       val currentShapeCoefficients = current.general.modelParameters.shape.parameters
-      val newShapeCoefficients =
+      val newCoefficientsCombined =
         currentShapeCoefficients + (newCoefficients - currentShapeCoefficients) * current.general.stepLength
 
-      val newshape = transformedModelInit.instance(newShapeCoefficients)
+      val newshape = transformedModelInit.instance(newCoefficientsCombined)
 
-      // Compute alignment to non-aligned fit to avoid adding together transformations afterward
-      val currentFitNotAligned =
-        current.general.fit
-          .transform(current.general.modelParameters.rigidTransform.inverse)
-          .transform(current.general.modelParameters.scaleTransform.inverse)
+      val currentFitNoTransform = current.general.model.instance(current.general.modelParameters.shape.parameters)
 
       // If global transform is set, then extract rigid part from non-rigid to be explained by global pose parameters
       val globalTransform: TranslationAfterScalingAfterRotation[_3D] = current.general.globalTransformation match {
-        case SimilarityTransforms => estimateSimilarityTransform(currentFitNotAligned, newshape)
-        case RigidTransforms      => estimateRigidTransform(currentFitNotAligned, newshape)
+        case SimilarityTransforms => estimateSimilarityTransform(currentFitNoTransform, newshape)
+        case RigidTransforms      => estimateRigidTransform(currentFitNoTransform, newshape)
         case _                    => TranslationAfterScalingAfterRotationSpace3D(Point(0, 0, 0)).identityTransformation
       }
       val newGlobalAlignment: TranslationAfterRotation[_3D] =
