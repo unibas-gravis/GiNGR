@@ -90,11 +90,18 @@ class IcpRegistration(
     override val getUncertainty: (PointId, IcpRegistrationState) => MultivariateNormalDistribution =
       (id: PointId, state: IcpRegistrationState) =>
         MultivariateNormalDistribution(DenseVector.zeros[Double](3), DenseMatrix.eye[Double](3) * state.general.sigma2)
-) extends GingrAlgorithm[IcpRegistrationState] {
+) extends GingrAlgorithm[IcpRegistrationState, IcpConfiguration] {
   def name = "ICP"
   // possibility to override the update function, or just use the base class method?
   override def updateSigma2(current: IcpRegistrationState): Double = {
     val newSigma = current.general.sigma2 - current.config.sigmaStep
     math.max(newSigma, current.config.endSigma)
+  }
+
+  override def initializeState(
+      general: GeneralRegistrationState,
+      config: IcpConfiguration
+  ): IcpRegistrationState = {
+    IcpRegistrationState(general, config)
   }
 }

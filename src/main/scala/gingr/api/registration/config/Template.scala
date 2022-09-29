@@ -46,9 +46,16 @@ object TemplateRegistrationState {
 class TemplateRegistration(
     override val getCorrespondence: TemplateRegistrationState => CorrespondencePairs =
       (state: TemplateRegistrationState) => CorrespondencePairs.empty()
-) extends GingrAlgorithm[TemplateRegistrationState] {
+) extends GingrAlgorithm[TemplateRegistrationState, TemplateConfiguration] {
   def name = "Template"
   override val getUncertainty: (PointId, TemplateRegistrationState) => MultivariateNormalDistribution =
     (id: PointId, state: TemplateRegistrationState) =>
       MultivariateNormalDistribution(DenseVector.zeros[Double](3), DenseMatrix.eye[Double](3))
+
+  override def initializeState(
+      general: GeneralRegistrationState,
+      config: TemplateConfiguration
+  ): TemplateRegistrationState = {
+    TemplateRegistrationState(general, config)
+  }
 }

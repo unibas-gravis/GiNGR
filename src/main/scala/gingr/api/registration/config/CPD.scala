@@ -125,7 +125,7 @@ class CpdRegistration(
           DenseMatrix.eye[Double](3) * state.general.sigma2 * state.config.lambda * P1inv(id.id)
         )
       }
-) extends GingrAlgorithm[CpdRegistrationState] {
+) extends GingrAlgorithm[CpdRegistrationState, CpdConfiguration] {
   def name = "CPD"
 
   // possibility to override the update function, or just use the base class method?
@@ -143,5 +143,12 @@ class CpdRegistration(
     val trPXY: Double = sum(TY *:* (P * X))
     val sigma2        = (xPx - 2 * trPXY + yPy) / (Np * 3.0)
     sigma2
+  }
+
+  override def initializeState(
+      general: GeneralRegistrationState,
+      config: CpdConfiguration
+  ): CpdRegistrationState = {
+    CpdRegistrationState(general, config)
   }
 }
