@@ -37,34 +37,6 @@ case class GeneralRegistrationState(
     override val generatedBy: String = ""
 ) extends RegistrationState[GeneralRegistrationState] {
 
-  /** Updates the current state with the new fit.
-    *
-    * @param next
-    *   The newly calculated shape / fit.
-    */
-  override def updateFit(next: TriangleMesh[_3D]): GeneralRegistrationState = this.copy(fit = next)
-  override private[api] def updateTranslation(next: EuclideanVector[_3D]): GeneralRegistrationState = {
-    this.copy(modelParameters = this.modelParameters.copy(pose = this.modelParameters.pose.copy(translation = next)))
-  }
-  override private[api] def updateRotation(next: EulerRotation): GeneralRegistrationState = {
-    this.copy(modelParameters = this.modelParameters.copy(pose = this.modelParameters.pose.copy(rotation = next)))
-  }
-  override private[api] def updateRotation(next: Rotation[_3D]): GeneralRegistrationState = {
-    val angles   = RotationSpace3D.rotMatrixToEulerAngles(next.rotationMatrix)
-    val newEuler = EulerRotation(EulerAngles(angles._1, angles._2, angles._3), next.center)
-    this.copy(modelParameters = this.modelParameters.copy(pose = this.modelParameters.pose.copy(rotation = newEuler)))
-  }
-  override private[api] def updateScaling(next: ScaleParameter): GeneralRegistrationState = {
-    this.copy(modelParameters = this.modelParameters.copy(scale = next))
-  }
-  override private[api] def updateShapeParameters(next: ShapeParameters): GeneralRegistrationState = {
-    this.copy(modelParameters = this.modelParameters.copy(shape = next))
-  }
-  override private[api] def updateModelParameters(next: ModelFittingParameters): GeneralRegistrationState =
-    this.copy(modelParameters = next)
-  override private[api] def updateSigma2(next: Double): GeneralRegistrationState      = this.copy(sigma2 = next)
-  override private[api] def updateGeneratedBy(next: String): GeneralRegistrationState = this.copy(generatedBy = next)
-
   lazy val landmarkCorrespondences: IndexedSeq[(PointId, Point[_3D], MultivariateNormalDistribution)] = {
     if (modelLandmarks.nonEmpty && targetLandmarks.nonEmpty) {
       val m             = modelLandmarks.get
@@ -85,33 +57,60 @@ case class GeneralRegistrationState(
       IndexedSeq()
     }
   }
+
+  /** Updates the current state with the new fit.
+    *
+    * @param next
+    *   The newly calculated shape / fit.
+    */
+  override def updateFit(next: TriangleMesh[_3D]): GeneralRegistrationState = this.copy(fit = next)
+
+  override private[api] def updateTranslation(next: EuclideanVector[_3D]): GeneralRegistrationState = {
+    this.copy(modelParameters = this.modelParameters.copy(pose = this.modelParameters.pose.copy(translation = next)))
+  }
+
+  override private[api] def updateRotation(next: EulerRotation): GeneralRegistrationState = {
+    this.copy(modelParameters = this.modelParameters.copy(pose = this.modelParameters.pose.copy(rotation = next)))
+  }
+
+  override private[api] def updateRotation(next: Rotation[_3D]): GeneralRegistrationState = {
+    val angles   = RotationSpace3D.rotMatrixToEulerAngles(next.rotationMatrix)
+    val newEuler = EulerRotation(EulerAngles(angles._1, angles._2, angles._3), next.center)
+    this.copy(modelParameters = this.modelParameters.copy(pose = this.modelParameters.pose.copy(rotation = newEuler)))
+  }
+
+  override private[api] def updateScaling(next: ScaleParameter): GeneralRegistrationState = {
+    this.copy(modelParameters = this.modelParameters.copy(scale = next))
+  }
+
+  override private[api] def updateShapeParameters(next: ShapeParameters): GeneralRegistrationState = {
+    this.copy(modelParameters = this.modelParameters.copy(shape = next))
+  }
+
+  override private[api] def updateModelParameters(next: ModelFittingParameters): GeneralRegistrationState =
+    this.copy(modelParameters = next)
+
+  override private[api] def updateSigma2(next: Double): GeneralRegistrationState = this.copy(sigma2 = next)
+
+  override private[api] def updateGeneratedBy(next: String): GeneralRegistrationState = this.copy(generatedBy = next)
 }
 
 object GeneralRegistrationState {
-//  def apply(reference: TriangleMesh[_3D], target: TriangleMesh[_3D]): GeneralRegistrationState = {
-//    val model: PointDistributionModel[_3D, TriangleMesh] = ???
-//    apply(model, target, RigidTransforms)
-//  }
-
-  def apply(model: PointDistributionModel[_3D, TriangleMesh], target: TriangleMesh[_3D]): GeneralRegistrationState = {
-    apply(model, target, RigidTransforms)
+  def apply(
+      model: PointDistributionModel[_3D, TriangleMesh],
+      target: TriangleMesh[_3D],
+      modelTranform: Option[RotationAfterTranslation[_3D]]
+  ): GeneralRegistrationState = {
+    apply(model, target, RigidTransforms, modelTranform)
   }
 
   def apply(
       model: PointDistributionModel[_3D, TriangleMesh],
       target: TriangleMesh[_3D],
-      transform: GlobalTranformationType
+      transform: GlobalTranformationType,
+      modelTranform: Option[RotationAfterTranslation[_3D]]
   ): GeneralRegistrationState = {
-    apply(model, Seq(), target, Seq(), transform)
-  }
-
-  def apply(
-      model: PointDistributionModel[_3D, TriangleMesh],
-      modelLandmarks: Seq[Landmark[_3D]],
-      target: TriangleMesh[_3D],
-      targetLandmarks: Seq[Landmark[_3D]]
-  ): GeneralRegistrationState = {
-    apply(model, modelLandmarks, target, targetLandmarks, RigidTransforms)
+    apply(model, Seq(), target, Seq(), transform, modelTranform)
   }
 
   def apply(
@@ -119,16 +118,40 @@ object GeneralRegistrationState {
       modelLandmarks: Seq[Landmark[_3D]],
       target: TriangleMesh[_3D],
       targetLandmarks: Seq[Landmark[_3D]],
-      transform: GlobalTranformationType
+      modelTranform: Option[RotationAfterTranslation[_3D]]
   ): GeneralRegistrationState = {
-    val modelPars = ModelFittingParameters(
-      scale = ScaleParameter(1.0),
-      pose = PoseParameters(
-        translation = EuclideanVector.zeros[_3D],
-        rotation = EulerRotation(
+    apply(model, modelLandmarks, target, targetLandmarks, RigidTransforms, modelTranform)
+  }
+
+  def apply(
+      model: PointDistributionModel[_3D, TriangleMesh],
+      modelLandmarks: Seq[Landmark[_3D]],
+      target: TriangleMesh[_3D],
+      targetLandmarks: Seq[Landmark[_3D]],
+      transform: GlobalTranformationType,
+      modelTranform: Option[RotationAfterTranslation[_3D]]
+  ): GeneralRegistrationState = {
+    val (t, r) = if (modelTranform.isDefined) {
+      val initialAngles = RotationSpace3D.rotMatrixToEulerAngles(modelTranform.get.rotation.rotationMatrix)
+      (
+        modelTranform.get.translation.t,
+        EulerRotation(EulerAngles(initialAngles._1, initialAngles._2, initialAngles._3), Point(0, 0, 0))
+      )
+    } else {
+      (
+        EuclideanVector.zeros[_3D],
+        EulerRotation(
           EulerAngles(0.0, 0.0, 0.0),
           Point(0, 0, 0)
         )
+      )
+    }
+
+    val modelPars = ModelFittingParameters(
+      scale = ScaleParameter(1.0),
+      pose = PoseParameters(
+        translation = t,
+        rotation = r
       ),
       shape = ShapeParameters(DenseVector.zeros[Double](model.rank))
     )

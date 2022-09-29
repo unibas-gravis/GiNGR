@@ -14,6 +14,7 @@ import gingr.api.sampling.evaluators.{EvaluationMode, ModelToTargetEvaluation}
 import scalismo.geometry.{Landmark, _3D}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.PointDistributionModel
+import scalismo.transformations.RotationAfterTranslation
 import scalismo.utils.Random
 
 import java.io.File
@@ -21,6 +22,7 @@ import java.io.File
 class Interface(
     model: PointDistributionModel[_3D, TriangleMesh],
     target: TriangleMesh[_3D],
+    initialModelTransform: Option[RotationAfterTranslation[_3D]],
     modelLandmarks: Option[Seq[Landmark[_3D]]] = None,
     targetLandmarks: Option[Seq[Landmark[_3D]]] = None,
     transform: GlobalTranformationType = RigidTransforms,
@@ -33,35 +35,38 @@ class Interface(
   def CPD(config: CpdConfiguration): SimpleRegistrator[CpdRegistrationState, CpdConfiguration, CpdRegistration] = {
     val algorithm = new CpdRegistration()
     new SimpleRegistrator[CpdRegistrationState, CpdConfiguration, CpdRegistration](
-      model,
-      target,
-      modelLandmarks,
-      targetLandmarks,
-      algorithm,
-      config,
-      transform,
-      evaluatorUncertainty,
-      evaluatedPoints,
-      evaluationMode,
-      jsonFile
+      algorithm = algorithm,
+      config = config,
+      model = model,
+      target = target,
+      initialModelTransform = initialModelTransform,
+      modelLandmarks = modelLandmarks,
+      targetLandmarks = targetLandmarks,
+      globalTransformationType = transform,
+      evaluationMode = evaluationMode,
+      evaluatorUncertainty = evaluatorUncertainty,
+      evaluatedPoints = evaluatedPoints,
+      jsonFile = jsonFile
     )
   }
 
   def ICP(config: IcpConfiguration): SimpleRegistrator[IcpRegistrationState, IcpConfiguration, IcpRegistration] = {
     val algorithm = new IcpRegistration()
     new SimpleRegistrator[IcpRegistrationState, IcpConfiguration, IcpRegistration](
-      model,
-      target,
-      modelLandmarks,
-      targetLandmarks,
-      algorithm,
-      config,
-      transform,
-      evaluatorUncertainty,
-      evaluatedPoints,
-      evaluationMode,
-      jsonFile
+      algorithm = algorithm,
+      config = config,
+      model = model,
+      target = target,
+      initialModelTransform = initialModelTransform,
+      modelLandmarks = modelLandmarks,
+      targetLandmarks = targetLandmarks,
+      globalTransformationType = transform,
+      evaluationMode = evaluationMode,
+      evaluatorUncertainty = evaluatorUncertainty,
+      evaluatedPoints = evaluatedPoints,
+      jsonFile = jsonFile
     )
+
   }
 
 }

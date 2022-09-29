@@ -36,6 +36,7 @@ import scalismo.geometry.{Landmark, _3D}
 import scalismo.mesh.TriangleMesh
 import scalismo.sampling.loggers.ChainStateLogger
 import scalismo.statisticalmodel.PointDistributionModel
+import scalismo.transformations.RotationAfterTranslation
 import scalismo.utils.Random
 
 import java.io.File
@@ -44,20 +45,21 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
   State,
   Config
 ]](
-    model: PointDistributionModel[_3D, TriangleMesh],
-    target: TriangleMesh[_3D],
-    modelLandmarks: Option[Seq[Landmark[_3D]]] = None,
-    targetLandmarks: Option[Seq[Landmark[_3D]]] = None,
     algorithm: Algorithm,
     config: Config,
-    transform: GlobalTranformationType = RigidTransforms,
+    model: PointDistributionModel[_3D, TriangleMesh],
+    target: TriangleMesh[_3D],
+    initialModelTransform: Option[RotationAfterTranslation[_3D]] = None,
+    modelLandmarks: Option[Seq[Landmark[_3D]]] = None,
+    targetLandmarks: Option[Seq[Landmark[_3D]]] = None,
+    globalTransformationType: GlobalTranformationType = RigidTransforms,
+    evaluationMode: EvaluationMode = ModelToTargetEvaluation,
     evaluatorUncertainty: Double = 1.0,
     evaluatedPoints: Option[Int] = None,
-    evaluationMode: EvaluationMode = ModelToTargetEvaluation,
     jsonFile: Option[File] = None
 )(implicit rnd: Random) {
 
-  lazy val initialState: State = createInitialState(model, target)
+  lazy val initialState: State = createInitialState(model, target, initialModelTransform)
 
   def runDecimated(
       modelPoints: Int,
@@ -75,7 +77,7 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
     val newRef          = model.reference.operations.decimate(modelPoints)
     val decimatedModel  = model.newReference(newRef, NearestNeighborInterpolator())
     val decimatedTarget = target.operations.decimate(targetPoints)
-    val initState       = state.getOrElse(createInitialState(decimatedModel, decimatedTarget))
+    val initState       = state.getOrElse(createInitialState(decimatedModel, decimatedTarget, initialModelTransform))
     initState.updateGeneral(
       initState.general.copy(
         model = decimatedModel,
@@ -86,12 +88,23 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
     algorithm.initializeState(initState.general, config)
   }
 
-  def createInitialState(model: PointDistributionModel[_3D, TriangleMesh], target: TriangleMesh[_3D]): State = {
+  def createInitialState(
+      model: PointDistributionModel[_3D, TriangleMesh],
+      target: TriangleMesh[_3D],
+      modelTranform: Option[RotationAfterTranslation[_3D]] = None
+  ): State = {
     val generalState: GeneralRegistrationState =
       if (modelLandmarks.nonEmpty && targetLandmarks.nonEmpty)
-        GeneralRegistrationState(model, modelLandmarks.get, target, targetLandmarks.get, transform)
+        GeneralRegistrationState(
+          model,
+          modelLandmarks.get,
+          target,
+          targetLandmarks.get,
+          globalTransformationType,
+          modelTranform
+        )
       else
-        GeneralRegistrationState(model, target, transform)
+        GeneralRegistrationState(model, target, globalTransformationType, modelTranform)
     algorithm.initializeState(generalState, config)
   }
 
