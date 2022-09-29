@@ -153,7 +153,6 @@ object ModelFittingParameters {
   }
 
   def load(file: File): ModelFittingParameters = {
-    println(s"Loading JSON file: ${file.toString}")
     val src  = Source.fromFile(file.toString)
     val data = src.mkString.parseJson.convertTo[ModelFittingParameters]
     src.close()
