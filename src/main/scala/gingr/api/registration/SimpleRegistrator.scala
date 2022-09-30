@@ -64,20 +64,26 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
   def runDecimated(
       modelPoints: Int,
       targetPoints: Int,
-      state: Option[State] = None,
+      generalState: Option[GeneralRegistrationState] = None,
       probabilistic: Boolean = false,
       randomMixture: Double = 0.5,
       callback: Option[ChainStateLogger[State]] = None
   ): State = {
-    val initState = decimateState(state, modelPoints, targetPoints)
-    run(initState, probabilistic, randomMixture, callback)
+    val initState = decimateState(generalState, modelPoints, targetPoints)
+    run(Option(initState), probabilistic, randomMixture, callback)
   }
 
-  private def decimateState(state: Option[State], modelPoints: Int, targetPoints: Int): State = {
+  private def decimateState(
+      generalState: Option[GeneralRegistrationState],
+      modelPoints: Int,
+      targetPoints: Int
+  ): GeneralRegistrationState = {
     val newRef          = model.reference.operations.decimate(modelPoints)
     val decimatedModel  = model.newReference(newRef, NearestNeighborInterpolator())
     val decimatedTarget = target.operations.decimate(targetPoints)
-    val initState       = state.getOrElse(createInitialState(decimatedModel, decimatedTarget, initialModelTransform))
+    val initState =
+      if (generalState.isDefined) algorithm.initializeState(generalState.get, config)
+      else createInitialState(decimatedModel, decimatedTarget, initialModelTransform)
     initState.updateGeneral(
       initState.general.copy(
         model = decimatedModel,
@@ -85,7 +91,7 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
         fit = ModelFittingParameters.modelInstanceShapePoseScale(decimatedModel, initState.general.modelParameters)
       )
     )
-    algorithm.initializeState(initState.general, config)
+    initState.general
   }
 
   def createInitialState(
@@ -109,11 +115,14 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
   }
 
   def run(
-      state: State = initialState,
+      generalState: Option[GeneralRegistrationState] = None,
       probabilistic: Boolean = false,
       randomMixture: Double = 0.5,
       callback: Option[ChainStateLogger[State]] = None
   ): State = {
+    val state =
+      if (generalState.isDefined) algorithm.initializeState(generalState.get, config)
+      else createInitialState(model, target, initialModelTransform)
     val evaluator: IndependentPoints[State] = IndependentPoints(
       state = state,
       uncertainty = evaluatorUncertainty,
