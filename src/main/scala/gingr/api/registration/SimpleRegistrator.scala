@@ -28,15 +28,14 @@ import gingr.api.{
   GingrRegistrationState,
   GlobalTranformationType,
   ModelFittingParameters,
-  ProbabilisticSettings,
-  RigidTransforms
+  ProbabilisticSettings
 }
 import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.geometry.{Landmark, _3D}
 import scalismo.mesh.TriangleMesh
 import scalismo.sampling.loggers.ChainStateLogger
 import scalismo.statisticalmodel.PointDistributionModel
-import scalismo.transformations.RotationAfterTranslation
+import scalismo.transformations.TranslationAfterRotation
 import scalismo.utils.Random
 
 import java.io.File
@@ -49,10 +48,10 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
     config: Config,
     model: PointDistributionModel[_3D, TriangleMesh],
     target: TriangleMesh[_3D],
-    initialModelTransform: Option[RotationAfterTranslation[_3D]] = None,
+    globalTransformationType: GlobalTranformationType,
+    initialModelTransform: Option[TranslationAfterRotation[_3D]] = None,
     modelLandmarks: Option[Seq[Landmark[_3D]]] = None,
     targetLandmarks: Option[Seq[Landmark[_3D]]] = None,
-    globalTransformationType: GlobalTranformationType = RigidTransforms,
     evaluationMode: EvaluationMode = ModelToTargetEvaluation,
     evaluatorUncertainty: Double = 1.0,
     evaluatedPoints: Option[Int] = None,
@@ -97,7 +96,7 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
   def createInitialState(
       model: PointDistributionModel[_3D, TriangleMesh],
       target: TriangleMesh[_3D],
-      modelTranform: Option[RotationAfterTranslation[_3D]] = None
+      modelTranform: Option[TranslationAfterRotation[_3D]] = None
   ): State = {
     val generalState: GeneralRegistrationState =
       if (modelLandmarks.nonEmpty && targetLandmarks.nonEmpty)

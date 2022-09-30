@@ -25,7 +25,6 @@ import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, PointDistributionModel}
 
 object GPMMHelper {
-  // Todo: use implicit to build any kind of model based on the pointSet
   private def maximumPointDistance(template: UnstructuredPoints[_3D]): Double = {
     val p = template.points.toSeq
     p.flatMap { p1 =>
@@ -69,12 +68,3 @@ object GPMMHelper {
     PointDistributionModel[_3D, TriangleMesh](template, lowRankGP)
   }
 }
-
-//object gpmmTest extends App {
-//  scalismo.initialize()
-//
-//  val template = MeshIO.readMesh(new File("data/femur_reference.stl")).get
-//  val gpmm = GPMMHelper.automaticGPMMfromTemplate(template)
-//    val ui = ScalismoUI()
-//    ui.show(gpmm, "model")
-//}

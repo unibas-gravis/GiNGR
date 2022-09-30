@@ -99,7 +99,7 @@ object GeneralRegistrationState {
   def apply(
       model: PointDistributionModel[_3D, TriangleMesh],
       target: TriangleMesh[_3D],
-      modelTranform: Option[RotationAfterTranslation[_3D]]
+      modelTranform: Option[TranslationAfterRotation[_3D]]
   ): GeneralRegistrationState = {
     apply(model, target, RigidTransforms, modelTranform)
   }
@@ -108,7 +108,7 @@ object GeneralRegistrationState {
       model: PointDistributionModel[_3D, TriangleMesh],
       target: TriangleMesh[_3D],
       transform: GlobalTranformationType,
-      modelTranform: Option[RotationAfterTranslation[_3D]]
+      modelTranform: Option[TranslationAfterRotation[_3D]]
   ): GeneralRegistrationState = {
     apply(model, Seq(), target, Seq(), transform, modelTranform)
   }
@@ -118,7 +118,7 @@ object GeneralRegistrationState {
       modelLandmarks: Seq[Landmark[_3D]],
       target: TriangleMesh[_3D],
       targetLandmarks: Seq[Landmark[_3D]],
-      modelTranform: Option[RotationAfterTranslation[_3D]]
+      modelTranform: Option[TranslationAfterRotation[_3D]]
   ): GeneralRegistrationState = {
     apply(model, modelLandmarks, target, targetLandmarks, RigidTransforms, modelTranform)
   }
@@ -129,7 +129,7 @@ object GeneralRegistrationState {
       target: TriangleMesh[_3D],
       targetLandmarks: Seq[Landmark[_3D]],
       transform: GlobalTranformationType,
-      modelTranform: Option[RotationAfterTranslation[_3D]]
+      modelTranform: Option[TranslationAfterRotation[_3D]]
   ): GeneralRegistrationState = {
     val (t, r) = if (modelTranform.isDefined) {
       val initialAngles = RotationSpace3D.rotMatrixToEulerAngles(modelTranform.get.rotation.rotationMatrix)

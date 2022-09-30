@@ -19,13 +19,13 @@ import scalismo.utils.Random
 
 import java.io.File
 
-class Interface(
+class GingrInterface(
     model: PointDistributionModel[_3D, TriangleMesh],
     target: TriangleMesh[_3D],
     initialModelTransform: Option[RotationAfterTranslation[_3D]],
     modelLandmarks: Option[Seq[Landmark[_3D]]] = None,
     targetLandmarks: Option[Seq[Landmark[_3D]]] = None,
-    transform: GlobalTranformationType = RigidTransforms,
+    globalTransformationType: GlobalTranformationType = RigidTransforms,
     evaluatorUncertainty: Double = 1.0,
     evaluatedPoints: Option[Int] = None,
     evaluationMode: EvaluationMode = ModelToTargetEvaluation,
@@ -39,10 +39,10 @@ class Interface(
       config = config,
       model = model,
       target = target,
+      globalTransformationType = globalTransformationType,
       initialModelTransform = initialModelTransform,
       modelLandmarks = modelLandmarks,
       targetLandmarks = targetLandmarks,
-      globalTransformationType = transform,
       evaluationMode = evaluationMode,
       evaluatorUncertainty = evaluatorUncertainty,
       evaluatedPoints = evaluatedPoints,
@@ -57,10 +57,10 @@ class Interface(
       config = config,
       model = model,
       target = target,
+      globalTransformationType = globalTransformationType,
       initialModelTransform = initialModelTransform,
       modelLandmarks = modelLandmarks,
       targetLandmarks = targetLandmarks,
-      globalTransformationType = transform,
       evaluationMode = evaluationMode,
       evaluatorUncertainty = evaluatorUncertainty,
       evaluatedPoints = evaluatedPoints,
