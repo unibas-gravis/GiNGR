@@ -9,20 +9,20 @@ import gingr.api.registration.config.{
   IcpRegistration,
   IcpRegistrationState
 }
-import gingr.api.{GlobalTranformationType, RigidTransforms}
 import gingr.api.sampling.evaluators.{EvaluationMode, ModelToTargetEvaluation}
+import gingr.api.{GlobalTranformationType, RigidTransforms}
 import scalismo.geometry.{Landmark, _3D}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.PointDistributionModel
-import scalismo.transformations.RotationAfterTranslation
+import scalismo.transformations.TranslationAfterRotation
 import scalismo.utils.Random
 
 import java.io.File
 
-class GingrInterface(
+case class GingrInterface(
     model: PointDistributionModel[_3D, TriangleMesh],
     target: TriangleMesh[_3D],
-    initialModelTransform: Option[RotationAfterTranslation[_3D]],
+    initialModelTransform: Option[TranslationAfterRotation[_3D]],
     modelLandmarks: Option[Seq[Landmark[_3D]]] = None,
     targetLandmarks: Option[Seq[Landmark[_3D]]] = None,
     globalTransformationType: GlobalTranformationType = RigidTransforms,
@@ -66,7 +66,5 @@ class GingrInterface(
       evaluatedPoints = evaluatedPoints,
       jsonFile = jsonFile
     )
-
   }
-
 }
