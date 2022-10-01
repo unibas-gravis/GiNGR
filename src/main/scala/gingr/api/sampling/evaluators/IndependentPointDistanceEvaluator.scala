@@ -17,8 +17,8 @@
 
 package gingr.api.sampling.evaluators
 
-import gingr.api.GingrRegistrationState
 import breeze.stats.distributions.ContinuousDistr
+import gingr.api.GingrRegistrationState
 import scalismo.common.PointId
 import scalismo.geometry.{Point, _3D}
 import scalismo.mesh.TriangleMesh3D

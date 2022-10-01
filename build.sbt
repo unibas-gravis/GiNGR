@@ -35,7 +35,7 @@ lazy val root = (project in file("."))
     },
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     libraryDependencies ++= Seq(
-      "ch.unibas.cs.gravis"        %% "scalismo-ui"   % "0.91.+",
+      "ch.unibas.cs.gravis"        %% "scalismo"      % "0.91.+",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.9.+"
     ),
     libraryDependencies ++= (scalaBinaryVersion.value match {

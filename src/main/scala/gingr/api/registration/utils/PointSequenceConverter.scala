@@ -19,8 +19,8 @@ package gingr.api.registration.utils
 
 import breeze.linalg.{CSCMatrix, DenseMatrix, DenseVector}
 import scalismo.common.{PointId, Vectorizer}
-import scalismo.geometry.{Point, Point3D, _3D}
 import scalismo.geometry.Point.Point3DVectorizer
+import scalismo.geometry.{Point, Point3D, _3D}
 
 import scala.collection.parallel.CollectionConverters.ImmutableSeqIsParallelizable
 

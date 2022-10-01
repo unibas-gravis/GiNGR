@@ -17,9 +17,9 @@
 
 package gingr.api.sampling.loggers
 
+import breeze.linalg.DenseVector
 import gingr.api._
 import gingr.api.sampling.Evaluator
-import breeze.linalg.DenseVector
 import scalismo.geometry.{EuclideanVector, Point}
 import scalismo.sampling.loggers.AcceptRejectLogger
 import scalismo.sampling.{DistributionEvaluator, ProposalGenerator}

@@ -16,8 +16,8 @@
  */
 
 package gingr.api.registration.config
-import gingr.api._
 import breeze.linalg.{DenseMatrix, DenseVector}
+import gingr.api._
 import scalismo.common.PointId
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 

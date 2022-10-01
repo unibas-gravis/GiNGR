@@ -17,12 +17,12 @@
 
 package gingr.api.registration.config
 
+import breeze.linalg.{DenseMatrix, DenseVector}
 import gingr.api.registration.utils.NonRigidClosestPointRegistrator.{
-  ClosestPointTriangleMesh3D,
   ClosestPointAlongNormalTriangleMesh3D,
+  ClosestPointTriangleMesh3D,
   ClosestPointTriangleMesh3DSimple
 }
-import breeze.linalg.{DenseMatrix, DenseVector}
 import gingr.api.{CorrespondencePairs, GeneralRegistrationState, GingrAlgorithm, GingrConfig, GingrRegistrationState}
 import scalismo.common.PointId
 import scalismo.statisticalmodel.MultivariateNormalDistribution

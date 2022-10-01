@@ -31,7 +31,6 @@ case class GingrInterface(
     evaluationMode: EvaluationMode = ModelToTargetEvaluation,
     jsonFile: Option[File] = None
 )(implicit rnd: Random) {
-
   def CPD(config: CpdConfiguration): SimpleRegistrator[CpdRegistrationState, CpdConfiguration, CpdRegistration] = {
     val algorithm = new CpdRegistration()
     new SimpleRegistrator[CpdRegistrationState, CpdConfiguration, CpdRegistration](

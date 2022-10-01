@@ -17,8 +17,8 @@
 
 package gingr.api.gpmm
 
-import gingr.api.gpmm.MatrixHelper.pinv
 import breeze.linalg.DenseMatrix
+import gingr.api.gpmm.MatrixHelper.pinv
 import scalismo.common.PointId
 import scalismo.geometry._3D
 import scalismo.mesh.TriangleMesh

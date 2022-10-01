@@ -17,9 +17,9 @@
 
 package gingr.api.sampling
 
+import breeze.stats.distributions.Rand.FixedSeed.randBasis
 import gingr.api.GingrRegistrationState
 import gingr.api.sampling.evaluators._
-import breeze.stats.distributions.Rand.FixedSeed.randBasis
 import scalismo.sampling.DistributionEvaluator
 import scalismo.sampling.evaluators.ProductEvaluator
 
