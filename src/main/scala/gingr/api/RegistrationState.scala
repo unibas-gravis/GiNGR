@@ -17,6 +17,7 @@
 
 package gingr.api
 
+import gingr.api.FittingStatuses.FittingStatus
 import scalismo.geometry.{EuclideanVector, Landmark, _3D}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.PointDistributionModel
@@ -28,11 +29,13 @@ trait RegistrationState[T] {
   def modelLandmarks: Option[Seq[Landmark[_3D]]]       // Landmarks on the model
   def target: TriangleMesh[_3D]                        // Target mesh
   def targetLandmarks: Option[Seq[Landmark[_3D]]]      // Landmarks on the target
-  def fit: TriangleMesh[_3D]                           // Current fit based on model parameters, global alignment and scaling
-  def sigma2: Double                                   // Global uncertainty parameter
-  def globalTransformation: GlobalTranformationType    // Type of global transformation (none, rigid, similarity)
-  def stepLength: Double                               // Step length of a single registration step (0.0 to 1.0)
-  def generatedBy: String                              // Name of generator that produced the State
+  def fit: TriangleMesh[_3D] // Current fit based on model parameters, global alignment and scaling
+  def sigma2: Double         // Global uncertainty parameter
+  def globalTransformation: GlobalTranformationType // Type of global transformation (none, rigid, similarity)
+  def stepLength: Double                            // Step length of a single registration step (0.0 to 1.0)
+  def generatedBy: String                           // Name of generator that produced the State
+  def iteration: Int
+  def status: FittingStatus // Status
 
   /** Updates the current state with the new fit.
     *
@@ -49,4 +52,6 @@ trait RegistrationState[T] {
   private[api] def updateModelParameters(next: ModelFittingParameters): T
   private[api] def updateSigma2(next: Double): T
   private[api] def updateGeneratedBy(next: String): T
+  private[api] def updateIteration(): T
+  private[api] def updateStatus(next: FittingStatus): T
 }

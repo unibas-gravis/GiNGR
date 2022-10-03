@@ -30,6 +30,6 @@ case class GeneratorWrapperDeterministic[State <: GingrRegistrationState[State]]
     newState.updateGeneral(newState.general.updateGeneratedBy(generatedBy))
   }
   override def logTransitionProbability(from: State, to: State): Double = {
-    0.0
+    Double.NegativeInfinity
   }
 }

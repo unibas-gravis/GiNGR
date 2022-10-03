@@ -65,7 +65,9 @@ trait GingrRegistrationState[State] {
 trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConfig] {
   val getCorrespondence: State => CorrespondencePairs
   val getUncertainty: (PointId, State) => MultivariateNormalDistribution
-  private val cashedPosterior = Memoize(computePosterior, 10)
+  private val cashedPosterior        = Memoize(computePosterior, 10)
+  private val retryCounterInitialize = 10
+  private var retryCounter           = 10
 
   def name: String
 
@@ -130,19 +132,29 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
       if (acceptRejectLogger.isDefined) mhChain.iterator(initialState, acceptRejectLogger.get).loggedWith(logs)
       else mhChain.iterator(initialState).loggedWith(logs)
 
+    var converged: Boolean = false
+    var error: Boolean     = false
     // we need to query if there is a next element, otherwise due to laziness the chain is not calculated
     var currentState: Option[GeneralRegistrationState] = None
     states
       .take(initialState.config.maxIterations)
       .dropWhile { state =>
         if (probabilisticSettings.isEmpty) {
-          val converged =
-            if (currentState.nonEmpty) state.config.converged(currentState.get, state.general, state.config.threshold)
+          converged = {
+            if (currentState.nonEmpty)
+              state.config.converged(currentState.get, state.general, state.config.threshold)
             else false
+          }
+          error = state.general.status == FittingStatuses.ModelFlexibilityError
           currentState = Some(state.general)
           if (converged) println(s"Registration converged")
-          !converged
-        } else true
+          if (error) println("Model flexibility error")
+          !converged && !error
+        } else {
+          error = state.general.status == FittingStatuses.ModelFlexibilityError
+          if (error) println("Model flexibility error")
+          !error
+        }
       }
       .hasNext
 
@@ -151,7 +163,14 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
       case Some(_) => bestSampleLogger.currentBestSample().get
       case _       => bestSampleLogger.currentSample().get
     }
-    fit
+    if (fit.general.status == FittingStatuses.None) {
+      fit.updateGeneral(
+        fit.general.updateStatus(if (converged) FittingStatuses.Converged else FittingStatuses.MaxIteration)
+      )
+    } else {
+      fit
+    }
+
   }
 
   def generatorCombined(
@@ -172,9 +191,18 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
   def update(current: State, probabilistic: Boolean)(implicit rnd: Random): State = {
     val posterior = cashedPosterior(current)
     if (posterior.isFailure) {
-      println("update, posterior failed!")
-      current
+      if (probabilistic) {
+        if (retryCounter == 0) {
+          current.updateGeneral(current.general.updateStatus(FittingStatuses.ModelFlexibilityError))
+        } else {
+          retryCounter -= 1
+          current
+        }
+      } else {
+        current.updateGeneral(current.general.updateStatus(FittingStatuses.ModelFlexibilityError))
+      }
     } else {
+      retryCounter = math.min(retryCounterInitialize, retryCounter + 1)
       val shapeproposal        = if (!probabilistic) posterior.get.mean else posterior.get.sample()
       val transformedModelInit = current.general.model.transform(current.general.modelParameters.rigidTransform)
 
@@ -203,6 +231,7 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
         .updateRotation(newGlobalAlignment.rotation)
         .updateScaling(ScaleParameter(globalTransform.scaling.s))
         .updateShapeParameters(ShapeParameters(alpha))
+        .updateIteration()
       val newState  = current.updateGeneral(general)
       val newSigma2 = updateSigma2(newState)
       newState.updateGeneral(newState.general.updateSigma2(newSigma2))

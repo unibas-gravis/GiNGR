@@ -18,6 +18,7 @@
 package gingr.api
 
 import breeze.linalg.{DenseMatrix, DenseVector}
+import gingr.api.FittingStatuses.FittingStatus
 import scalismo.common.PointId
 import scalismo.geometry.{EuclideanVector, Landmark, Point, _3D}
 import scalismo.mesh.TriangleMesh
@@ -34,7 +35,9 @@ case class GeneralRegistrationState(
     override val sigma2: Double = 1.0,
     override val globalTransformation: GlobalTranformationType = RigidTransforms,
     override val stepLength: Double = 1.0,
-    override val generatedBy: String = ""
+    override val generatedBy: String = "",
+    override val iteration: Int = 0,
+    override val status: FittingStatus = FittingStatuses.None
 ) extends RegistrationState[GeneralRegistrationState] {
 
   lazy val landmarkCorrespondences: IndexedSeq[(PointId, Point[_3D], MultivariateNormalDistribution)] = {
@@ -64,6 +67,8 @@ case class GeneralRegistrationState(
     *   The newly calculated shape / fit.
     */
   override def updateFit(next: TriangleMesh[_3D]): GeneralRegistrationState = this.copy(fit = next)
+  override def updateIteration(): GeneralRegistrationState                  = this.copy(iteration = this.iteration + 1)
+  override def updateStatus(next: FittingStatus): GeneralRegistrationState  = this.copy(status = next)
 
   override private[api] def updateTranslation(next: EuclideanVector[_3D]): GeneralRegistrationState = {
     this.copy(modelParameters = this.modelParameters.copy(pose = this.modelParameters.pose.copy(translation = next)))
@@ -93,6 +98,17 @@ case class GeneralRegistrationState(
   override private[api] def updateSigma2(next: Double): GeneralRegistrationState = this.copy(sigma2 = next)
 
   override private[api] def updateGeneratedBy(next: String): GeneralRegistrationState = this.copy(generatedBy = next)
+
+  def printStatus(): Unit = {
+    val txt = status match {
+      case FittingStatuses.None         => "Initial state - no iterations performed!"
+      case FittingStatuses.Converged    => s"Fitting converged after ${iteration} iterations!"
+      case FittingStatuses.MaxIteration => s"Fitting finished the MaxIterations (${iteration}) given!"
+      case FittingStatuses.ModelFlexibilityError =>
+        s"Model not flexible enough to compute posterior model - finished after ${iteration} iterations!"
+    }
+    println(txt)
+  }
 }
 
 object GeneralRegistrationState {
@@ -111,16 +127,6 @@ object GeneralRegistrationState {
       modelTranform: Option[TranslationAfterRotation[_3D]]
   ): GeneralRegistrationState = {
     apply(model, Seq(), target, Seq(), transform, modelTranform)
-  }
-
-  def apply(
-      model: PointDistributionModel[_3D, TriangleMesh],
-      modelLandmarks: Seq[Landmark[_3D]],
-      target: TriangleMesh[_3D],
-      targetLandmarks: Seq[Landmark[_3D]],
-      modelTranform: Option[TranslationAfterRotation[_3D]]
-  ): GeneralRegistrationState = {
-    apply(model, modelLandmarks, target, targetLandmarks, RigidTransforms, modelTranform)
   }
 
   def apply(
@@ -167,5 +173,15 @@ object GeneralRegistrationState {
         globalTransformation = transform
       )
     initial
+  }
+
+  def apply(
+      model: PointDistributionModel[_3D, TriangleMesh],
+      modelLandmarks: Seq[Landmark[_3D]],
+      target: TriangleMesh[_3D],
+      targetLandmarks: Seq[Landmark[_3D]],
+      modelTranform: Option[TranslationAfterRotation[_3D]]
+  ): GeneralRegistrationState = {
+    apply(model, modelLandmarks, target, targetLandmarks, RigidTransforms, modelTranform)
   }
 }

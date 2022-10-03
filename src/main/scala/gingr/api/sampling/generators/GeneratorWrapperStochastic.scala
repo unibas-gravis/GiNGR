@@ -39,17 +39,23 @@ case class GeneratorWrapperStochastic[State <: GingrRegistrationState[State]](
   override def logTransitionProbability(from: State, to: State): Double = {
     val posterior = cashedPosterior(from)
     if (posterior.isFailure) {
-      println("logTrans, posterior failed!")
-      0.0
+      Double.NegativeInfinity
     } else {
       val toMesh = if (from.general.stepLength != 1.0) {
         val compensatedTo =
           from.general.modelParameters.shape.parameters + ((to.general.modelParameters.shape.parameters - from.general.modelParameters.shape.parameters) / from.general.stepLength)
         from.general.model.instance(compensatedTo)
       } else from.general.fit
-      val projectedTo = posterior.get.coefficients(toMesh)
-      val logpdf      = posterior.get.gp.logpdf(projectedTo)
-      logpdf
+      try {
+        val projectedTo = posterior.get.coefficients(toMesh)
+        val logpdf      = posterior.get.gp.logpdf(projectedTo)
+        logpdf
+      } catch {
+        case _: Throwable => {
+          Double.NegativeInfinity
+        }
+      }
+
     }
   }
 }
