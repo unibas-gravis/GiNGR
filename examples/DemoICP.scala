@@ -1,15 +1,14 @@
 //> using scala "3"
 //> using lib "ch.unibas.cs.gravis::gingr:0.1.0-SNAPSHOT"
 //> using lib "ch.unibas.cs.gravis::scalismo-ui:0.91.2"
-import DemoDatasetLoader.*
-import CallBackFunctions.{visualLogger}
+import DemoHelper.DemoDatasetLoader
+import DemoHelper.CallBackFunctions.{visualLogger}
 import gingr.simple.GingrInterface
 import gingr.api.registration.config.IcpConfiguration
 import gingr.api.registration.config.IcpRegistrationState
-import gingr.api.NoTransforms
+import gingr.api.{NoTransforms, RigidTransforms}
 import scalismo.ui.api.ScalismoUI
 import scalismo.utils.Random.implicits._
-import java.io.File
 
 @main def DemoICP() =
   val (model, _) = DemoDatasetLoader.femur.modelGauss()
@@ -20,20 +19,16 @@ import java.io.File
   val modelView = ui.show(ui.createGroup("model"), model, "model")
   val logger = visualLogger[IcpRegistrationState](modelView = modelView)
 
-  // Run deterministic CPD
-  val gingrInterface = GingrInterface(model, target, initialModelTransform = None)
-  val icpDeterministicConfig = IcpConfiguration(maxIterations = 100)
-  val icp = gingrInterface.ICP(icpDeterministicConfig)
-  icp.runDecimated(modelPoints = 100, targetPoints = 100, callback = Option(logger))
+  // Run deterministic ICP
+  val configDet = IcpConfiguration(maxIterations = 100, initialSigma = 1.0, endSigma = 1.0)
+  val gingrInterface = GingrInterface(model, target, globalTransformationType = NoTransforms, initialModelTransform = None, evaluatorUncertainty = 2.0)
+  val icpDet = gingrInterface.ICP(configDet)
+  val bestDet = icpDet.runDecimated(modelPoints = 100, targetPoints = 100, callback = Option(logger))
+  ui.show(bestDet.general.fit, "bestDet")
 
-//   // Run probabilistic IPC
-//   val configProbabilistic = new DemoConfigurations(
-//     model,
-//     target,
-//     discretization = 200,
-//     maxIterations = 1000,
-//     probabilistic = true,
-//     transform = NoTransforms,
-//     jsonFile = Some(new File(DemoDatasetLoader.dataPath, "femur/targetFittingICP.json"))
-//   )
-//   configProbabilistic.ICP()
+  // Run probabilistic IPC
+  logger.reset
+  val configPro = IcpConfiguration(maxIterations = 1000, initialSigma = 1.0, endSigma = 1.0)
+  val icpPro = gingrInterface.ICP(configPro)
+  val bestPro = icpPro.runDecimated(modelPoints = 100, targetPoints = 100, callback = Option(logger), probabilistic = true)
+  ui.show(bestPro.general.fit, "fitPro")

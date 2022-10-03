@@ -40,6 +40,8 @@ import scalismo.transformations.{
 }
 import scalismo.utils.{Memoize, Random}
 
+import scala.util.Try
+
 case class ProbabilisticSettings[State <: GingrRegistrationState[State]](
     evaluators: Evaluator[State],
     randomMixture: Double = 0.5
@@ -168,9 +170,12 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
   }
 
   def update(current: State, probabilistic: Boolean)(implicit rnd: Random): State = {
-    try {
-      val posterior            = cashedPosterior(current)
-      val shapeproposal        = if (!probabilistic) posterior.mean else posterior.sample()
+    val posterior = cashedPosterior(current)
+    if (posterior.isFailure) {
+      println("update, posterior failed!")
+      current
+    } else {
+      val shapeproposal        = if (!probabilistic) posterior.get.mean else posterior.get.sample()
       val transformedModelInit = current.general.model.transform(current.general.modelParameters.rigidTransform)
 
       val newCoefficients          = transformedModelInit.coefficients(shapeproposal)
@@ -201,8 +206,6 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
       val newState  = current.updateGeneral(general)
       val newSigma2 = updateSigma2(newState)
       newState.updateGeneral(newState.general.updateSigma2(newSigma2))
-    } catch {
-      case _: Throwable => current
     }
   }
 
@@ -231,7 +234,7 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
     )
   }
 
-  private def computePosterior(current: State): PointDistributionModel[_3D, TriangleMesh] = {
+  private def computePosterior(current: State): Try[PointDistributionModel[_3D, TriangleMesh]] = {
     val correspondences = getCorrespondence(current)
     val correspondencesWithUncertainty = correspondences.pairs.map { pair =>
       val (pid, point) = pair
@@ -250,8 +253,10 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
       correspondencesWithUncertainty
     }
     // Need to realign model first
-    current.general.model
-      .transform(current.general.modelParameters.rigidTransform)
-      .posterior(observationsWithUncertainty)
+    Try(
+      current.general.model
+        .transform(current.general.modelParameters.rigidTransform)
+        .posterior(observationsWithUncertainty)
+    )
   }
 }

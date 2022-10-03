@@ -138,9 +138,10 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
         if (probabilistic) Some(ProbabilisticSettings[State](evaluator, randomMixture = randomMixture)) else None
     )
     val fit = ModelFittingParameters.modelInstanceShapePoseScale(model, finalState.general.modelParameters)
+    jsonLogger.foreach(_.printAcceptInfo())
     jsonLogger.foreach(_.writeLog())
     println("Final registration with full resolution meshes:")
     RegistrationComparison.evaluateReconstruction2GroundTruthBoundaryAware("", fit, target)
-    finalState
+    finalState.updateGeneral(finalState.general.updateFit(fit))
   }
 }
