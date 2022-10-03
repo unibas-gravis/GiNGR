@@ -11,6 +11,7 @@ import scalismo.statisticalmodel.PointDistributionModel
 import scalismo.transformations.{TranslationAfterRotation, TranslationAfterRotationSpace3D}
 import gingr.simple.{WhichKernel, SimpleTriangleModels3D, GaussKernel, GaussMixKernel, GaussDotKernel, GaussMirrorKernel, InvLapKernel, InvLapDotKernel}
 import java.io.File
+import scalismo.utils.Random.implicits._
 
 trait DataSetLoader:
   def name: String
@@ -121,8 +122,8 @@ object DemoDatasetLoader:
       (reference, Some(landmarks))
     override def target(offset: TranslationAfterRotation[_3D] = defaultTargetOffset): 
       (TriangleMesh[_3D], Option[Seq[Landmark[_3D]]]) =
-      val reference = MeshIO.readMesh(new File(path, "femur_target.stl")).get
-      val landmarks = LandmarkIO.readLandmarksJson3D(new File(path, "femur_target.json")).get
+      val reference = MeshIO.readMesh(new File(path, "femur_target.stl")).get.transform(offset)
+      val landmarks = LandmarkIO.readLandmarksJson3D(new File(path, "femur_target.json")).get.map(_.transform(offset))
       (reference, Some(landmarks))
 
 
@@ -139,8 +140,8 @@ object DemoDatasetLoader:
     }
     override def target(offset: TranslationAfterRotation[_3D] = defaultTargetOffset): 
       (TriangleMesh[_3D], Option[Seq[Landmark[_3D]]]) =
-      val reference = MeshIO.readMesh(new File(path, "armadillo_karate.ply")).get
-      val landmarks = LandmarkIO.readLandmarksJson3D(new File(path, "armadillo_karate.json")).get
+      val reference = MeshIO.readMesh(new File(path, "armadillo_karate.ply")).get.transform(offset)
+      val landmarks = LandmarkIO.readLandmarksJson3D(new File(path, "armadillo_karate.json")).get.map(_.transform(offset))
       (reference, Some(landmarks))
 
   case object bunny extends DataSetLoader:
@@ -155,6 +156,6 @@ object DemoDatasetLoader:
     }
     override def target(offset: TranslationAfterRotation[_3D] = defaultTargetOffset): 
       (TriangleMesh[_3D], Option[Seq[Landmark[_3D]]]) =
-      val reference = MeshIO.readMesh(new File(path, "target.ply")).get
+      val reference = MeshIO.readMesh(new File(path, "target.ply")).get.transform(offset)
       val landmarks = None
       (reference, landmarks)

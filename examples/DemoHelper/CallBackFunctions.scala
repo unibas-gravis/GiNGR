@@ -15,7 +15,7 @@ object CallBackFunctions:
     updateFrequency: Int = 10,
   ) extends ChainStateLogger[State] {
     var counter = 0
-    def reset = counter = 0
+    def reset() = counter = 0
     override def logState(sample: State): Unit = {
       counter += 1
       if (counter % updateFrequency == 0 && counter > 1) {
