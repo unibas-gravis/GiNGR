@@ -22,13 +22,15 @@ import gingr.api.sampling.IndependentPoints
 import gingr.api.sampling.evaluators.{EvaluationMode, ModelToTargetEvaluation}
 import gingr.api.sampling.loggers.JSONStateLogger
 import gingr.api.{
+  FittingStatuses,
   GeneralRegistrationState,
   GingrAlgorithm,
   GingrConfig,
   GingrRegistrationState,
   GlobalTranformationType,
   ModelFittingParameters,
-  ProbabilisticSettings
+  ProbabilisticSettings,
+  RigidTransforms
 }
 import scalismo.common.interpolation.NearestNeighborInterpolator
 import scalismo.geometry.{Landmark, _3D}
@@ -48,7 +50,6 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
     config: Config,
     model: PointDistributionModel[_3D, TriangleMesh],
     target: TriangleMesh[_3D],
-    globalTransformationType: GlobalTranformationType,
     initialModelTransform: Option[TranslationAfterRotation[_3D]] = None,
     modelLandmarks: Option[Seq[Landmark[_3D]]] = None,
     targetLandmarks: Option[Seq[Landmark[_3D]]] = None,
@@ -58,22 +59,31 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
     jsonFile: Option[File] = None
 )(implicit rnd: Random) {
 
-  lazy val initialState: State = createInitialState(model, target, initialModelTransform)
-
   def runDecimated(
       modelPoints: Int,
       targetPoints: Int,
       generalState: Option[GeneralRegistrationState] = None,
+      globalTransformation: GlobalTranformationType = RigidTransforms,
       probabilistic: Boolean = false,
       randomMixture: Double = 0.5,
       callback: Option[ChainStateLogger[State]] = None
   ): State = {
-    val initState = decimateState(generalState, modelPoints, targetPoints)
-    run(Option(initState), probabilistic, randomMixture, callback)
+    val initState = decimateState(generalState, globalTransformation, modelPoints, targetPoints)
+    run(Option(initState), globalTransformation, probabilistic, randomMixture, callback)
+  }
+
+  private def combineStates(generalState: GeneralRegistrationState): State = {
+    algorithm.initializeState(
+      generalState
+        .clearIteration()
+        .updateStatus(FittingStatuses.None),
+      config
+    )
   }
 
   private def decimateState(
       generalState: Option[GeneralRegistrationState],
+      globalTransformation: GlobalTranformationType,
       modelPoints: Int,
       targetPoints: Int
   ): GeneralRegistrationState = {
@@ -81,21 +91,23 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
     val decimatedModel  = model.newReference(newRef, NearestNeighborInterpolator())
     val decimatedTarget = target.operations.decimate(targetPoints)
     val initState =
-      if (generalState.isDefined) algorithm.initializeState(generalState.get, config)
-      else createInitialState(decimatedModel, decimatedTarget, initialModelTransform)
-    initState.updateGeneral(
-      initState.general.copy(
-        model = decimatedModel,
-        target = decimatedTarget,
-        fit = ModelFittingParameters.modelInstanceShapePoseScale(decimatedModel, initState.general.modelParameters)
+      if (generalState.isDefined) combineStates(generalState.get)
+      else createInitialState(decimatedModel, decimatedTarget, globalTransformation, initialModelTransform)
+    initState
+      .updateGeneral(
+        initState.general.copy(
+          model = decimatedModel,
+          target = decimatedTarget,
+          fit = ModelFittingParameters.modelInstanceShapePoseScale(decimatedModel, initState.general.modelParameters)
+        )
       )
-    )
-    initState.general
+      .general
   }
 
   def createInitialState(
       model: PointDistributionModel[_3D, TriangleMesh],
       target: TriangleMesh[_3D],
+      globalTransformation: GlobalTranformationType,
       modelTranform: Option[TranslationAfterRotation[_3D]] = None
   ): State = {
     val generalState: GeneralRegistrationState =
@@ -105,23 +117,24 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
           modelLandmarks.get,
           target,
           targetLandmarks.get,
-          globalTransformationType,
+          globalTransformation,
           modelTranform
         )
       else
-        GeneralRegistrationState(model, target, globalTransformationType, modelTranform)
+        GeneralRegistrationState(model, target, globalTransformation, modelTranform)
     algorithm.initializeState(generalState, config)
   }
 
   def run(
       generalState: Option[GeneralRegistrationState] = None,
+      globalTransformation: GlobalTranformationType = RigidTransforms,
       probabilistic: Boolean = false,
       randomMixture: Double = 0.5,
       callback: Option[ChainStateLogger[State]] = None
   ): State = {
     val state =
-      if (generalState.isDefined) algorithm.initializeState(generalState.get, config)
-      else createInitialState(model, target, initialModelTransform)
+      if (generalState.isDefined) combineStates(generalState.get)
+      else createInitialState(model, target, globalTransformation, initialModelTransform)
     val evaluator: IndependentPoints[State] = IndependentPoints(
       state = state,
       uncertainty = evaluatorUncertainty,
@@ -129,7 +142,6 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
       evaluatedPoints = evaluatedPoints
     )
     val jsonLogger = if (probabilistic) Some(JSONStateLogger(evaluator, jsonFile)) else None
-
     val finalState = algorithm.run(
       initialState = state,
       acceptRejectLogger = jsonLogger,

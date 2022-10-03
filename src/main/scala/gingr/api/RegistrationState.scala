@@ -53,5 +53,6 @@ trait RegistrationState[T] {
   private[api] def updateSigma2(next: Double): T
   private[api] def updateGeneratedBy(next: String): T
   private[api] def updateIteration(): T
+  private[api] def clearIteration(): T
   private[api] def updateStatus(next: FittingStatus): T
 }

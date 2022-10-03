@@ -36,7 +36,7 @@ case class GeneralRegistrationState(
     override val globalTransformation: GlobalTranformationType = RigidTransforms,
     override val stepLength: Double = 1.0,
     override val generatedBy: String = "",
-    override val iteration: Int = 1,
+    override val iteration: Int = 0,
     override val status: FittingStatus = FittingStatuses.None
 ) extends RegistrationState[GeneralRegistrationState] {
 
@@ -68,6 +68,7 @@ case class GeneralRegistrationState(
     */
   override def updateFit(next: TriangleMesh[_3D]): GeneralRegistrationState = this.copy(fit = next)
   override def updateIteration(): GeneralRegistrationState                  = this.copy(iteration = this.iteration + 1)
+  override def clearIteration(): GeneralRegistrationState                   = this.copy(iteration = 0)
   override def updateStatus(next: FittingStatus): GeneralRegistrationState  = this.copy(status = next)
 
   override private[api] def updateTranslation(next: EuclideanVector[_3D]): GeneralRegistrationState = {
@@ -102,11 +103,11 @@ case class GeneralRegistrationState(
   def printStatus(): Unit = {
     val txt = status match {
       case FittingStatuses.None      => "Initial state - no iterations performed!"
-      case FittingStatuses.Converged => s"Fitting converged after ${iteration} accepted iterations!"
+      case FittingStatuses.Converged => s"Fitting converged after ${iteration + 1} accepted iterations!"
       case FittingStatuses.MaxIteration =>
-        s"Fitting finished the MaxIterations with (${iteration}) accepted iterations!"
+        s"Fitting finished the MaxIterations with (${iteration + 1}) accepted iterations!"
       case FittingStatuses.ModelFlexibilityError =>
-        s"Model not flexible enough to compute posterior model - finished after ${iteration} accepted iterations!"
+        s"Model not flexible enough to compute posterior model - finished after ${iteration + 1} accepted iterations!"
     }
     println(txt)
   }

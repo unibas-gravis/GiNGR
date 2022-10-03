@@ -191,15 +191,19 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
   def update(current: State, probabilistic: Boolean)(implicit rnd: Random): State = {
     val posterior = cashedPosterior(current)
     if (posterior.isFailure) {
-      if (probabilistic) {
-        if (retryCounter == 0) {
-          current.updateGeneral(current.general.updateStatus(FittingStatuses.ModelFlexibilityError))
+      if (current.general.iteration > 0) {
+        if (probabilistic) {
+          if (retryCounter == 0) {
+            current.updateGeneral(current.general.updateStatus(FittingStatuses.ModelFlexibilityError))
+          } else {
+            retryCounter -= 1
+            current
+          }
         } else {
-          retryCounter -= 1
-          current
+          current.updateGeneral(current.general.updateStatus(FittingStatuses.ModelFlexibilityError))
         }
       } else {
-        current.updateGeneral(current.general.updateStatus(FittingStatuses.ModelFlexibilityError))
+        current
       }
     } else {
       retryCounter = math.min(retryCounterInitialize, retryCounter + 1)
@@ -269,9 +273,7 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
       val uncertainty  = getUncertainty(pid, current)
       (pid, point, uncertainty)
     }
-
     val observationsWithUncertainty = if (current.config.useLandmarkCorrespondence) {
-      // note: I would propose to remove the estimated correspondences for given landmarks
       val landmarksToUse = current.general.landmarkCorrespondences.map(_._1).toSet
       val filteredCorrespondencesWithUncertainty = correspondencesWithUncertainty.filter { case (pid, _, _) =>
         !landmarksToUse.contains(pid)
@@ -280,7 +282,6 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
     } else {
       correspondencesWithUncertainty
     }
-    // Need to realign model first
     Try(
       current.general.model
         .transform(current.general.modelParameters.rigidTransform)

@@ -23,8 +23,8 @@ import scalismo.sampling.loggers.ChainStateLogger
 
 object CallBackFunctions {
 
-  case class visualLogger[State <: GingrRegistrationState[State]](
-      jsonLogger: Option[JSONStateLogger[State]],
+  case class SimpleLogger[State <: GingrRegistrationState[State]](
+      jsonLogger: Option[JSONStateLogger[State]] = None,
       printUpdateFrequency: Int = 100
   ) extends ChainStateLogger[State] {
     var counter = 0
