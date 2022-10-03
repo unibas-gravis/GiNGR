@@ -231,7 +231,6 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
         .updateRotation(newGlobalAlignment.rotation)
         .updateScaling(ScaleParameter(globalTransform.scaling.s))
         .updateShapeParameters(ShapeParameters(alpha))
-        .updateIteration()
       val newState  = current.updateGeneral(general)
       val newSigma2 = updateSigma2(newState)
       newState.updateGeneral(newState.general.updateSigma2(newSigma2))

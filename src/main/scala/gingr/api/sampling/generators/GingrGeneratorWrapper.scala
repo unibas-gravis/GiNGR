@@ -31,6 +31,10 @@ trait GingrGeneratorWrapper[State <: GingrRegistrationState[State]]
       proposedState.general.model,
       proposedState.general.modelParameters
     )
-    proposedState.updateGeneral(proposedState.general.updateFit(fit))
+    proposedState.updateGeneral(
+      proposedState.general
+        .updateFit(fit)
+        .updateIteration()
+    )
   }
 }

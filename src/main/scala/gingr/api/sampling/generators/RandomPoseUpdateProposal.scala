@@ -43,7 +43,11 @@ case class GaussianAxisRotationProposal[State <: GingrRegistrationState[State]](
       case YawAxis   => rotParams.copy(psi = rotParams.psi + perturbationDistr.sample())
     }
     val newRotation = EulerRotation(newRotParams, theta.general.modelParameters.pose.rotation.center)
-    theta.updateGeneral(theta.general.updateRotation(newRotation).updateGeneratedBy(generatedBy))
+    theta.updateGeneral(
+      theta.general
+        .updateRotation(newRotation)
+        .updateGeneratedBy(generatedBy)
+    )
   }
 
   override def logTransitionProbability(from: State, to: State): Double = {
@@ -84,7 +88,11 @@ case class GaussianAxisTranslationProposal[State <: GingrRegistrationState[State
       case 1 => transParams.copy(y = transParams(axis) + perturbationDistr.sample())
       case 2 => transParams.copy(z = transParams(axis) + perturbationDistr.sample())
     }
-    theta.updateGeneral(theta.general.updateTranslation(newTransParams).updateGeneratedBy(generatedBy))
+    theta.updateGeneral(
+      theta.general
+        .updateTranslation(newTransParams)
+        .updateGeneratedBy(generatedBy)
+    )
   }
 
   override def logTransitionProbability(from: State, to: State): Double = {

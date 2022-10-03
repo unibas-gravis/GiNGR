@@ -36,7 +36,7 @@ case class GeneralRegistrationState(
     override val globalTransformation: GlobalTranformationType = RigidTransforms,
     override val stepLength: Double = 1.0,
     override val generatedBy: String = "",
-    override val iteration: Int = 0,
+    override val iteration: Int = 1,
     override val status: FittingStatus = FittingStatuses.None
 ) extends RegistrationState[GeneralRegistrationState] {
 
@@ -101,11 +101,12 @@ case class GeneralRegistrationState(
 
   def printStatus(): Unit = {
     val txt = status match {
-      case FittingStatuses.None         => "Initial state - no iterations performed!"
-      case FittingStatuses.Converged    => s"Fitting converged after ${iteration} iterations!"
-      case FittingStatuses.MaxIteration => s"Fitting finished the MaxIterations (${iteration}) given!"
+      case FittingStatuses.None      => "Initial state - no iterations performed!"
+      case FittingStatuses.Converged => s"Fitting converged after ${iteration} accepted iterations!"
+      case FittingStatuses.MaxIteration =>
+        s"Fitting finished the MaxIterations with (${iteration}) accepted iterations!"
       case FittingStatuses.ModelFlexibilityError =>
-        s"Model not flexible enough to compute posterior model - finished after ${iteration} iterations!"
+        s"Model not flexible enough to compute posterior model - finished after ${iteration} accepted iterations!"
     }
     println(txt)
   }

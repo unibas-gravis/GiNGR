@@ -27,7 +27,10 @@ case class GeneratorWrapperDeterministic[State <: GingrRegistrationState[State]]
     extends GingrGeneratorWrapper[State] {
   override def gingrPropose(current: State): State = {
     val newState = update(current, false)
-    newState.updateGeneral(newState.general.updateGeneratedBy(generatedBy))
+    newState.updateGeneral(
+      newState.general
+        .updateGeneratedBy(generatedBy)
+    )
   }
   override def logTransitionProbability(from: State, to: State): Double = {
     Double.NegativeInfinity
