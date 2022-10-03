@@ -20,15 +20,17 @@ import scalismo.utils.Random.implicits._
   val logger = visualLogger[CpdRegistrationState](modelView = modelView)
 
   // Run deterministic CPD
-  val configDet = CpdConfiguration(maxIterations = 100, lambda = 1.0)
-  val gingrInterface = GingrInterface(model, target, globalTransformationType = NoTransforms, initialModelTransform = None, evaluatorUncertainty = 2.0)
+  val gingrInterface = GingrInterface(model, target, evaluatorUncertainty = 2.0)
+  val configDet = CpdConfiguration(maxIterations = 100)
   val cpd = gingrInterface.CPD(configDet)
-  val bestDet = cpd.runDecimated(modelPoints = 100, targetPoints = 100, callback = Option(logger))
+  val bestDet = cpd.runDecimated(modelPoints = 100, targetPoints = 100, globalTransformation = NoTransforms, callback = Option(logger))
+  bestDet.general.printStatus()
   ui.show(bestDet.general.fit, "bestDet")
 
   // Run probabilistic CPD
-  logger.reset
-  val configPro = CpdConfiguration(maxIterations = 1000, lambda = 1.0)
+  logger.reset()
+  val configPro = CpdConfiguration(maxIterations = 100, lambda = 1.0)
   val cpdPro = gingrInterface.CPD(configPro)
-  val bestPro = cpdPro.runDecimated(modelPoints = 100, targetPoints = 100, callback = Option(logger), probabilistic = true)
+  val bestPro = cpdPro.runDecimated(modelPoints = 100, targetPoints = 100, globalTransformation = NoTransforms, callback = Option(logger), probabilistic = true)
+  bestPro.general.printStatus()
   ui.show(bestPro.general.fit, "fitPro")

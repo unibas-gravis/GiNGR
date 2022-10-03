@@ -9,6 +9,7 @@ import gingr.api.registration.config.IcpRegistrationState
 import gingr.api.{NoTransforms, RigidTransforms}
 import scalismo.ui.api.ScalismoUI
 import scalismo.utils.Random.implicits._
+import java.io.File
 
 @main def DemoICP() =
   val (model, _) = DemoDatasetLoader.femur.modelGauss()
@@ -20,15 +21,17 @@ import scalismo.utils.Random.implicits._
   val logger = visualLogger[IcpRegistrationState](modelView = modelView)
 
   // Run deterministic ICP
+  val gingrInterface = GingrInterface(model, target, evaluatorUncertainty = 2.0, jsonFile = Option(new File("../data/femur/targetFittingICP.json")))
   val configDet = IcpConfiguration(maxIterations = 100, initialSigma = 1.0, endSigma = 1.0)
-  val gingrInterface = GingrInterface(model, target, globalTransformationType = NoTransforms, initialModelTransform = None, evaluatorUncertainty = 2.0)
   val icpDet = gingrInterface.ICP(configDet)
-  val bestDet = icpDet.runDecimated(modelPoints = 100, targetPoints = 100, callback = Option(logger))
+  val bestDet = icpDet.runDecimated(modelPoints = 100, targetPoints = 100, globalTransformation = NoTransforms, callback = Option(logger))
+  bestDet.general.printStatus()
   ui.show(bestDet.general.fit, "bestDet")
 
   // Run probabilistic IPC
-  logger.reset
+  logger.reset()
   val configPro = IcpConfiguration(maxIterations = 1000, initialSigma = 1.0, endSigma = 1.0)
   val icpPro = gingrInterface.ICP(configPro)
-  val bestPro = icpPro.runDecimated(modelPoints = 100, targetPoints = 100, callback = Option(logger), probabilistic = true)
+  val bestPro = icpPro.runDecimated(modelPoints = 100, targetPoints = 100, globalTransformation = NoTransforms, callback = Option(logger), probabilistic = true)
+  bestPro.general.printStatus()
   ui.show(bestPro.general.fit, "fitPro")
