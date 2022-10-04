@@ -15,6 +15,7 @@ import java.io.File
   val (model, _) = DemoDatasetLoader.femur.modelGauss()
   val (target, _) = DemoDatasetLoader.femur.target()
 
+  // Choose file to visualize
   val jsonFile = new File("../data/femur/targetFittingICP.json")
   val fullLog = JSONStateLogger.loadLog(jsonFile)
 

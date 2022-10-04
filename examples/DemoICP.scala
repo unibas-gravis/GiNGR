@@ -20,8 +20,8 @@ import java.io.File
   val modelView = ui.show(ui.createGroup("model"), model, "model")
   val logger = visualLogger[IcpRegistrationState](modelView = modelView)
 
+  val gingrInterface = GingrInterface(model, target, evaluatorUncertainty = 5.0, jsonFile = Option(new File("../data/femur/targetFittingICP.json")))
   // Run deterministic ICP
-  val gingrInterface = GingrInterface(model, target, evaluatorUncertainty = 2.0, jsonFile = Option(new File("../data/femur/targetFittingICP.json")))
   val configDet = IcpConfiguration(maxIterations = 100, initialSigma = 1.0, endSigma = 1.0)
   val icpDet = gingrInterface.ICP(configDet)
   val bestDet = icpDet.runDecimated(modelPoints = 100, targetPoints = 100, globalTransformation = NoTransforms, callback = Option(logger))
