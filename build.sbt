@@ -1,8 +1,8 @@
 lazy val root = (project in file("."))
   .settings(
-    name := "GiNGR",
-    organization := "ch.unibas.cs.gravis",
-    scalaVersion := "3.1.0",
+    name          := "GiNGR",
+    organization  := "ch.unibas.cs.gravis",
+    scalaVersion  := "3.1.0",
     scalacOptions := Seq("-deprecation"),
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
     scmInfo := Some(
@@ -35,8 +35,7 @@ lazy val root = (project in file("."))
     },
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     libraryDependencies ++= Seq(
-      "ch.unibas.cs.gravis"        %% "scalismo"      % "0.91.+",
-      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.+"
+      "ch.unibas.cs.gravis" %% "scalismo" % "0.91.+"
     ),
     libraryDependencies ++= (scalaBinaryVersion.value match {
       case "3" =>
