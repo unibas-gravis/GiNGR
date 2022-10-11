@@ -50,13 +50,13 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
     config: Config,
     model: PointDistributionModel[_3D, TriangleMesh],
     target: TriangleMesh[_3D],
-    initialModelTransform: Option[TranslationAfterRotation[_3D]] = None,
+    initialModelParameterTransform: Option[TranslationAfterRotation[_3D]] = None,
     modelLandmarks: Option[Seq[Landmark[_3D]]] = None,
     targetLandmarks: Option[Seq[Landmark[_3D]]] = None,
     evaluationMode: EvaluationMode = ModelToTargetEvaluation,
     evaluatorUncertainty: Double = 1.0,
     evaluatedPoints: Option[Int] = None,
-    jsonFile: Option[File] = None
+    logFileFittingParameters: Option[File] = None
 )(implicit rnd: Random) {
 
   def runDecimated(
@@ -92,7 +92,7 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
     val decimatedTarget = target.operations.decimate(targetPoints)
     val initState =
       if (generalState.isDefined) combineStates(generalState.get)
-      else createInitialState(decimatedModel, decimatedTarget, globalTransformation, initialModelTransform)
+      else createInitialState(decimatedModel, decimatedTarget, globalTransformation, initialModelParameterTransform)
     initState
       .updateGeneral(
         initState.general.copy(
@@ -134,14 +134,14 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
   ): State = {
     val state =
       if (generalState.isDefined) combineStates(generalState.get)
-      else createInitialState(model, target, globalTransformation, initialModelTransform)
+      else createInitialState(model, target, globalTransformation, initialModelParameterTransform)
     val evaluator: IndependentPoints[State] = IndependentPoints(
       state = state,
       uncertainty = evaluatorUncertainty,
       mode = evaluationMode,
       evaluatedPoints = evaluatedPoints
     )
-    val jsonLogger = if (probabilistic) Some(JSONStateLogger(evaluator, jsonFile)) else None
+    val jsonLogger = if (probabilistic) Some(JSONStateLogger(evaluator, logFileFittingParameters)) else None
     val finalState = algorithm.run(
       initialState = state,
       acceptRejectLogger = jsonLogger,

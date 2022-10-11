@@ -21,13 +21,13 @@ import java.io.File
 case class GingrInterface(
     model: PointDistributionModel[_3D, TriangleMesh],
     target: TriangleMesh[_3D],
-    initialModelTransform: Option[TranslationAfterRotation[_3D]] = None,
+    initialModelParameterTransform: Option[TranslationAfterRotation[_3D]] = None,
     modelLandmarks: Option[Seq[Landmark[_3D]]] = None,
     targetLandmarks: Option[Seq[Landmark[_3D]]] = None,
     evaluatorUncertainty: Double = 1.0,
     evaluatedPoints: Option[Int] = None,
     evaluationMode: EvaluationMode = ModelToTargetEvaluation,
-    jsonFile: Option[File] = None
+    logFileFittingParameters: Option[File] = None
 )(implicit rnd: Random) {
   def CPD(config: CpdConfiguration): SimpleRegistrator[CpdRegistrationState, CpdConfiguration, CpdRegistration] = {
     val algorithm = new CpdRegistration()
@@ -36,13 +36,13 @@ case class GingrInterface(
       config = config,
       model = model,
       target = target,
-      initialModelTransform = initialModelTransform,
+      initialModelParameterTransform = initialModelParameterTransform,
       modelLandmarks = modelLandmarks,
       targetLandmarks = targetLandmarks,
       evaluationMode = evaluationMode,
       evaluatorUncertainty = evaluatorUncertainty,
       evaluatedPoints = evaluatedPoints,
-      jsonFile = jsonFile
+      logFileFittingParameters = logFileFittingParameters
     )
   }
 
@@ -53,13 +53,13 @@ case class GingrInterface(
       config = config,
       model = model,
       target = target,
-      initialModelTransform = initialModelTransform,
+      initialModelParameterTransform = initialModelParameterTransform,
       modelLandmarks = modelLandmarks,
       targetLandmarks = targetLandmarks,
       evaluationMode = evaluationMode,
       evaluatorUncertainty = evaluatorUncertainty,
       evaluatedPoints = evaluatedPoints,
-      jsonFile = jsonFile
+      logFileFittingParameters = logFileFittingParameters
     )
   }
 }
