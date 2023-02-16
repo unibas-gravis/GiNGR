@@ -26,6 +26,18 @@ This framework contains a general library to input these 3 properties.
 The core part of the GiNGR framework is found in `gingr/api/GingrAlgorithm` with the `update` function performing one iteration of GiNGR update.
 Different pre-implemented configuration files can be found in `gingr/api/registration/config` for CPD and ICP.
 
+## Installation
+Install GiNGR to your local repo by `sbt publishLocal`.
+
+To run the examples, we make use of the VSCODE IDE. For installation help, please see https://scalismo.org/docs/Setup/vscode.
+
+After installing VSCODE:
+
+ - Go to the examples folder: `cd examples`
+ - Setup Code IDE with `scala-cli setup-ide .`
+ - Open the IDE with `code .`
+ - Now run the individual examples from the "run" menu.
+
 ## General use
 To use GiNGR, one need to specify the deformation model to use in form of a GPMM model as well as the correspondence estimation function and the uncertainty update.
 ### Define the prior model
