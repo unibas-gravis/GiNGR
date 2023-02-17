@@ -27,7 +27,22 @@ The core part of the GiNGR framework is found in `gingr/api/GingrAlgorithm` with
 Different pre-implemented configuration files can be found in `gingr/api/registration/config` for CPD and ICP.
 
 ## Installation
-Install GiNGR to your local repo by `sbt publishLocal`.
+To use the GiNGR framework, you can make use of the maven snapshot by including the follow in your Scala 3 script:
+
+```
+//> using repository "https://oss.sonatype.org/content/repositories/snapshots"
+//> using lib "ch.unibas.cs.gravis::gingr:0.1.0-SNAPSHOT"
+```
+
+If using SBT, then add the following to your `build.sbt`:
+
+```
+resolvers +=
+  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+libraryDependencies += "ch.unibas.cs.gravis" %% "gingr" % "0.1.0-SNAPSHOT"
+```
+
+Or you can install GiNGR to your local repo (_.ivy2_) by running `sbt publishLocal`.
 
 To run the examples, we make use of the VSCODE IDE. For installation help, please see https://scalismo.org/docs/Setup/vscode.
 
