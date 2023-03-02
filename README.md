@@ -26,6 +26,33 @@ This framework contains a general library to input these 3 properties.
 The core part of the GiNGR framework is found in `gingr/api/GingrAlgorithm` with the `update` function performing one iteration of GiNGR update.
 Different pre-implemented configuration files can be found in `gingr/api/registration/config` for CPD and ICP.
 
+## Installation
+To use the GiNGR framework, you can make use of the maven snapshot by including the follow in your Scala 3 script:
+
+```
+//> using repository "https://oss.sonatype.org/content/repositories/snapshots"
+//> using lib "ch.unibas.cs.gravis::gingr:0.1.0-SNAPSHOT"
+```
+
+If using SBT, then add the following to your `build.sbt`:
+
+```
+resolvers +=
+  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+libraryDependencies += "ch.unibas.cs.gravis" %% "gingr" % "0.1.0-SNAPSHOT"
+```
+
+Or you can install GiNGR to your local repo (_.ivy2_) by running `sbt publishLocal`.
+
+To run the examples, we make use of the VSCODE IDE. For installation help, please see https://scalismo.org/docs/Setup/vscode.
+
+After installing VSCODE:
+
+ - Go to the examples folder: `cd examples`
+ - Setup Code IDE with `scala-cli setup-ide .`
+ - Open the IDE with `code .`
+ - Now run the individual examples from the "run" menu.
+
 ## General use
 To use GiNGR, one need to specify the deformation model to use in form of a GPMM model as well as the correspondence estimation function and the uncertainty update.
 ### Define the prior model
