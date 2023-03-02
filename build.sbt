@@ -8,7 +8,22 @@ lazy val root = (project in file("."))
     scmInfo := Some(
       ScmInfo(url("https://github.com/unibas-gravis/GiNGR"), "git@github.com:unibas-gravis/GiNGR.git")
     ),
+    developers := List(
+      Developer("madsendennis", "madsendennis", "dennis.madsen@unibas.ch", url("https://github.com/madsendennis"))
+    ),
+    publishMavenStyle := true,
+    publishTo := Some(
+      if (isSnapshot.value)
+        Opts.resolver.sonatypeSnapshots
+      else
+        Opts.resolver.sonatypeStaging
+    ),
     crossScalaVersions := Seq("2.13.6", "3.1.0"),
+    resolvers ++= Seq(
+      Resolver.jcenterRepo,
+      Resolver.sonatypeRepo("releases"),
+      Resolver.sonatypeRepo("snapshots")
+    ),
     scalacOptions ++= {
       Seq(
         "-encoding",

@@ -1,4 +1,5 @@
 //> using scala "3"
+//> using repository "https://oss.sonatype.org/content/repositories/snapshots"
 //> using lib "ch.unibas.cs.gravis::gingr:0.1.0-SNAPSHOT"
 //> using lib "ch.unibas.cs.gravis::scalismo-ui:0.91.2"
 import DemoHelper.DemoDatasetLoader

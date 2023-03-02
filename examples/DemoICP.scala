@@ -1,4 +1,5 @@
 //> using scala "3"
+//> using repository "https://oss.sonatype.org/content/repositories/snapshots"
 //> using lib "ch.unibas.cs.gravis::gingr:0.1.0-SNAPSHOT"
 //> using lib "ch.unibas.cs.gravis::scalismo-ui:0.91.2"
 import DemoHelper.DemoDatasetLoader
@@ -20,7 +21,7 @@ import java.io.File
   val modelView = ui.show(ui.createGroup("model"), model, "model")
   val logger = visualLogger[IcpRegistrationState](modelView = modelView)
 
-  val gingrInterface = GingrInterface(model, target, evaluatorUncertainty = 5.0, jsonFile = Option(new File("../data/femur/targetFittingICP.json")))
+  val gingrInterface = GingrInterface(model, target, evaluatorUncertainty = 5.0, logFileFittingParameters = Option(new File("../data/femur/targetFittingICP.json")))
   // Run deterministic ICP
   val configDet = IcpConfiguration(maxIterations = 100, initialSigma = 1.0, endSigma = 1.0)
   val icpDet = gingrInterface.ICP(configDet)

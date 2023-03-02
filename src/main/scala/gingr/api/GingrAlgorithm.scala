@@ -210,34 +210,45 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
       val shapeproposal        = if (!probabilistic) posterior.get.mean else posterior.get.sample()
       val transformedModelInit = current.general.model.transform(current.general.modelParameters.rigidTransform)
 
-      val newCoefficients          = transformedModelInit.coefficients(shapeproposal)
-      val currentShapeCoefficients = current.general.modelParameters.shape.parameters
-      val newCoefficientsCombined =
-        currentShapeCoefficients + (newCoefficients - currentShapeCoefficients) * current.general.stepLength
+      val newCoefficients = Try(
+        transformedModelInit.coefficients(shapeproposal)
+      )
+      if (newCoefficients.isSuccess) {
+        val currentShapeCoefficients = current.general.modelParameters.shape.parameters
+        val newCoefficientsCombined =
+          currentShapeCoefficients + (newCoefficients.get - currentShapeCoefficients) * current.general.stepLength
 
-      val newshape = transformedModelInit.instance(newCoefficientsCombined)
+        val newshape = transformedModelInit.instance(newCoefficientsCombined)
 
-      val currentFitNoTransform = current.general.model.instance(current.general.modelParameters.shape.parameters)
+        val currentFitNoTransform = current.general.model.instance(current.general.modelParameters.shape.parameters)
 
-      // If global transform is set, then extract rigid part from non-rigid to be explained by global pose parameters
-      val globalTransform: TranslationAfterScalingAfterRotation[_3D] = current.general.globalTransformation match {
-        case SimilarityTransforms => estimateSimilarityTransform(currentFitNoTransform, newshape)
-        case RigidTransforms      => estimateRigidTransform(currentFitNoTransform, newshape)
-        case _                    => TranslationAfterScalingAfterRotationSpace3D(Point(0, 0, 0)).identityTransformation
+        // If global transform is set, then extract rigid part from non-rigid to be explained by global pose parameters
+        val globalTransform: TranslationAfterScalingAfterRotation[_3D] = current.general.globalTransformation match {
+          case SimilarityTransforms => estimateSimilarityTransform(currentFitNoTransform, newshape)
+          case RigidTransforms      => estimateRigidTransform(currentFitNoTransform, newshape)
+          case _ => TranslationAfterScalingAfterRotationSpace3D(Point(0, 0, 0)).identityTransformation
+        }
+        val newGlobalAlignment: TranslationAfterRotation[_3D] =
+          TranslationAfterRotation(globalTransform.translation, globalTransform.rotation)
+        val transformedModel = current.general.model.transform(newGlobalAlignment)
+        val alpha = Try(
+          transformedModel.coefficients(newshape)
+        )
+        if (alpha.isSuccess) {
+          val general = current.general
+            .updateTranslation(newGlobalAlignment.translation.t)
+            .updateRotation(newGlobalAlignment.rotation)
+            .updateScaling(ScaleParameter(globalTransform.scaling.s))
+            .updateShapeParameters(ShapeParameters(alpha.get))
+          val newState  = current.updateGeneral(general)
+          val newSigma2 = updateSigma2(newState)
+          newState.updateGeneral(newState.general.updateSigma2(newSigma2))
+        } else {
+          current.updateGeneral(current.general.updateStatus(FittingStatuses.ModelFlexibilityError))
+        }
+      } else {
+        current.updateGeneral(current.general.updateStatus(FittingStatuses.ModelFlexibilityError))
       }
-      val newGlobalAlignment: TranslationAfterRotation[_3D] =
-        TranslationAfterRotation(globalTransform.translation, globalTransform.rotation)
-      val transformedModel = current.general.model.transform(newGlobalAlignment)
-      val alpha            = transformedModel.coefficients(newshape)
-
-      val general = current.general
-        .updateTranslation(newGlobalAlignment.translation.t)
-        .updateRotation(newGlobalAlignment.rotation)
-        .updateScaling(ScaleParameter(globalTransform.scaling.s))
-        .updateShapeParameters(ShapeParameters(alpha))
-      val newState  = current.updateGeneral(general)
-      val newSigma2 = updateSigma2(newState)
-      newState.updateGeneral(newState.general.updateSigma2(newSigma2))
     }
   }
 
