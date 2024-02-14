@@ -57,20 +57,27 @@ private[cpd] class RigidCPD(
   def Registration(max_iteration: Int, tolerance: Double = 0.001): Seq[Point[_3D]] = {
     val sigmaInit = initializeGaussianKernel(templatePoints, targetPoints)
 
-    val fit = (0 until max_iteration).foldLeft((cpd.template, sigmaInit)) { (it, i) =>
-      val currentSigma2 = it._2
+    var fit = (cpd.template, sigmaInit)
+    var i = 0
+    var converged = false
+
+    while (i < max_iteration && !converged) {
+      val currentSigma2 = fit._2
       println(s"CPD, iteration: ${i}, variance: ${currentSigma2}")
-      val iter      = Iteration(target, it._1, it._2)
-      val TY        = iter._1
+      val iter = Iteration(target, fit._1, fit._2)
+      val TY = iter._1
       val newSigma2 = iter._2
-      val diff      = abs(newSigma2 - currentSigma2)
+      val diff = abs(newSigma2 - currentSigma2)
       if (diff < tolerance) {
         println("Converged")
-        return PointSequenceConverter.toPointSequence(TY)(vectorizer)
+        fit = (TY, newSigma2)
+        converged = true
       } else {
-        iter
+        fit = (TY, newSigma2)
+        i += 1
       }
     }
+
     PointSequenceConverter.toPointSequence(fit._1)(vectorizer)
   }
 

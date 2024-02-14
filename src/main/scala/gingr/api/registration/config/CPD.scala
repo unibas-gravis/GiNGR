@@ -16,7 +16,6 @@
  */
 
 package gingr.api.registration.config
-
 import breeze.linalg.{Axis, DenseMatrix, DenseVector, sum, tile}
 import gingr.api.registration.utils.PointSequenceConverter
 import gingr.api.{CorrespondencePairs, GeneralRegistrationState, GingrAlgorithm, GingrConfig, GingrRegistrationState}
@@ -34,11 +33,13 @@ object CPDCorrespondence {
     val refPoints = state.general.fit.pointSet.points.toSeq
     val tarPoints = state.general.target.pointSet.points.toSeq
     val P         = state.P
-    val P1inv     = 1.0 / sum(P, Axis._1)
+    val Psum = sum(P, Axis._1)
+    val P1inv = Psum.map(p => 1.0 / p)
 
     val deform = refPoints.zipWithIndex.par.map { case (y, i) =>
       val xscale = tarPoints.zipWithIndex.map { case (x, j) =>
-        P1inv(i) * P(i, j) * x.toBreezeVector
+        val tmp = P1inv(i) * P(i, j)
+        x.toBreezeVector.map(p => tmp * p)
       }
       vectorizer.unvectorize(sum(xscale) - y.toBreezeVector).toVector
     }
@@ -119,7 +120,7 @@ class CpdRegistration(
     override val getUncertainty: (PointId, CpdRegistrationState) => MultivariateNormalDistribution =
       (id: PointId, state: CpdRegistrationState) => {
         val P     = state.P
-        val P1inv = 1.0 / sum(P, Axis._1)
+        val P1inv = sum(P, Axis._1).map(p => 1.0 / p)
         MultivariateNormalDistribution(
           DenseVector.zeros[Double](3),
           DenseMatrix.eye[Double](3) * state.general.sigma2 * state.config.lambda * P1inv(id.id)

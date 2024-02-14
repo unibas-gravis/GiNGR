@@ -59,7 +59,7 @@ class BCPD(
   val dim: Int                        = vectorizer.dim        // dimension
   val G: DenseMatrix[Double]          = initializeKernelMatrixG(templatePoints, kernel)
   val Ginv: DenseMatrix[Double]       = pinv(G)
-  val GinvLambda: DenseMatrix[Double] = lambda * Ginv
+  val GinvLambda: DenseMatrix[Double] = Ginv.*(lambda)
   val X: DenseVector[Double]          = PointSequenceConverter.toVector(targetPoints)
   val Y: DenseVector[Double]          = PointSequenceConverter.toVector(templatePoints)
 
@@ -119,29 +119,37 @@ class BCPD(
       alpha = DenseVector.ones[Double](M) / M.toDouble
     )
 
-    val fit = (0 until max_iteration).foldLeft((templatePoints, simParsInit)) { (it, i) =>
-      val currentPars = it._2
+    var fit = (templatePoints, simParsInit)
+    var i = 0
+    var converged = false
+
+    while (i < max_iteration && !converged) {
+      val currentPars = fit._2
       println(s"CPD, iteration: ${i}, variance: ${currentPars.sigma2}")
-      val iter    = Iteration(it._1, it._2)
-      val TY      = iter._1
+      val iter = Iteration(fit._1, fit._2)
+      val TY = iter._1
       val newPars = iter._2
-      val diff    = abs(newPars.sigma2 - currentPars.sigma2)
+      val diff = math.abs(newPars.sigma2 - currentPars.sigma2)
+      
       if (diff < tolerance) {
         println("Converged")
         printTransformation(iter._2)
-        return TY
+        converged = true
       } else {
-        iter
+        fit = iter
+        i += 1
       }
     }
+
     printTransformation(fit._2)
     fit._1
   }
 
   // TranslationAfterScalingAfterRotation
   private def vectorTransform(v: DenseVector[Double], pars: similarityTransformationParameters): DenseVector[Double] = {
-    pars.s * (kron(DenseMatrix.eye[Double](M), pars.R) * v) +
+    val tmp = (kron(DenseMatrix.eye[Double](M), pars.R) * v) +
       (kron(DenseVector.ones[Double](M).toDenseMatrix, pars.t.toDenseMatrix).toDenseVector)
+    tmp.map(p => p * pars.s)
   }
 
   // RotationAfterScalingAfterTranslation
@@ -150,8 +158,9 @@ class BCPD(
       pars: similarityTransformationParameters
   ): DenseVector[Double] = {
     val sinv = 1.0 / pars.s
+    val tmp = (v + (kron(DenseVector.ones[Double](M).toDenseMatrix, pars.t.toDenseMatrix * (-1.0)).toDenseVector))
     (kron(DenseMatrix.eye[Double](M), pinv(pars.R))) *
-      (sinv * (v + (kron(DenseVector.ones[Double](M).toDenseMatrix, pars.t.toDenseMatrix * (-1.0)).toDenseVector)))
+      (tmp.map(p => p * sinv))
   }
 
   private def computeP(yPoints: Seq[Point[_3D]], pars: similarityTransformationParameters): DenseMatrix[Double] = {
@@ -159,7 +168,7 @@ class BCPD(
     (0 until M).map { m =>
       val mvnd =
         MultivariateNormalDistribution(vectorizer.vectorize(yPoints(m)), DenseMatrix.eye[Double](dim) * pars.sigma2)
-      val e = math.exp(-pars.s / (2 * pars.sigma2) * trace(pars.sigma(m, m) * DenseMatrix.eye[Double](dim)))
+      val e = math.exp(-pars.s / (2 * pars.sigma2) * trace(DenseMatrix.eye[Double](dim).*(pars.sigma(m, m))))
       (0 until N).map { n =>
         Phi(m, n) = mvnd.pdf(vectorizer.vectorize(targetPoints(n))) * e * pars.alpha(m)
       }
@@ -203,25 +212,25 @@ class BCPD(
     val SigmaInv    = GinvLambda + diag(v) * s2divsigma2
     val Sigma       = pinv(SigmaInv)
     val SigmaKron   = kron(Sigma, Dmat)
-    val vhat        = s2divsigma2 * SigmaKron * diag(vkron) * (xhatTinv - Y)
+    val vhat        = SigmaKron.*(s2divsigma2) * diag(vkron) * (xhatTinv - Y)
     val uhat        = Y + vhat
 
     val alpha = v.map(f => math.exp(digamma(k + f) - digamma(k * M + Nhat)))
 
     // Update Similarity transform
-    val xMean     = sum((0 until M).map(m => v(m) * xhat(m * dim until m * dim + dim))) / Nhat
-    val uMean     = sum((0 until M).map(m => v(m) * uhat(m * dim until m * dim + dim))) / Nhat
+    val xMean     = sum((0 until M).map(m => xhat(m * dim until m * dim + dim).*(v(m)))) / Nhat
+    val uMean     = sum((0 until M).map(m => uhat(m * dim until m * dim + dim).*(v(m)))) / Nhat
     val sigma2bar = sum((0 until M).map(m => v(m) * Sigma(m, m))) / Nhat
 
     val Sxu = sum((0 until M).map { m =>
       val xm = xhat(m * dim until m * dim + dim)
       val um = uhat(m * dim until m * dim + dim)
-      v(m) * (xm - xMean) * (um - uMean).t
+      (xm - xMean).*(v(m)) * (um - uMean).t
     }) / Nhat
 
     val Suu = sum((0 until M).map { m =>
       val um = uhat(m * dim until m * dim + dim)
-      v(m) * (um - uMean) * (um - uMean).t + DenseMatrix.eye[Double](dim) * sigma2bar
+      (um - uMean).*(v(m)) * (um - uMean).t + DenseMatrix.eye[Double](dim) * sigma2bar
     }) / Nhat
 
     val svd.SVD(phi, _, psiT) = svd(Sxu)
@@ -230,7 +239,7 @@ class BCPD(
 
     val R = phi * diag(diagphipsi) * psiT
     val s = trace(R * Sxu) / trace(Suu)
-    val t = xMean - s * R * uMean
+    val t = xMean -  R.*(s) * uMean
 
     val newYhat = vectorTransform(Y + vhat, pars)
 

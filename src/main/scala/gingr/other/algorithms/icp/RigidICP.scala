@@ -34,19 +34,26 @@ private[icp] class RigidICP(
   def Registration(max_iteration: Int, tolerance: Double = 0.001): UnstructuredPoints[_3D] = {
     val sigmaInit = 0.0
 
-    val fit = (0 until max_iteration).foldLeft((icp.templatePoints, sigmaInit)) { (it, i) =>
-      val iter     = Iteration(it._1, targetPoints)
+    var fit = (icp.templatePoints, sigmaInit)
+    var i = 0
+    var converged = false
+
+    while (i < max_iteration && !converged) {
+      val iter = Iteration(fit._1, targetPoints)
       val distance = iter._2
-      println(s"ICP, iteration: ${i}, distance: ${distance}")
-      val TY   = iter._1
-      val diff = abs(distance - it._2)
+      println(s"ICP, iteration: $i, distance: $distance")
+      val TY = iter._1
+      val diff = abs(distance - fit._2)
       if (diff < tolerance) {
         println("Converged")
-        return TY
+        fit = (TY, distance)
+        converged = true
       } else {
-        iter
+        fit = iter
       }
+      i += 1
     }
+
     fit._1
   }
 
