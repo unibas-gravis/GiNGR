@@ -18,7 +18,7 @@
 package gingr.api.registration.utils
 
 import scalismo.common.{DiscreteDomain, PointId, UnstructuredPointsDomain}
-import scalismo.geometry.{EuclideanVector, Point, _3D}
+import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.mesh.TriangleMesh
 
 trait ClosestPointRegistrator[DDomain[_3D] <: DiscreteDomain[_3D]] {
@@ -27,17 +27,17 @@ trait ClosestPointRegistrator[DDomain[_3D] <: DiscreteDomain[_3D]] {
            Additionally the average closest point distance is returned
    */
   def closestPointCorrespondence(
-      template: DDomain[_3D],
-      target: DDomain[_3D]
+    template: DDomain[_3D],
+    target: DDomain[_3D]
   ): (Seq[(PointId, Point[_3D], Double)], Double)
 
   def closestPointCorrespondenceReversal(
-      template: DDomain[_3D],
-      target: DDomain[_3D]
+    template: DDomain[_3D],
+    target: DDomain[_3D]
   ): (Seq[(PointId, Point[_3D], Double)], Double) = {
     val corr = closestPointCorrespondence(target, template)
     val inverted = corr._1.map { case (id, p, w) =>
-      val templateId  = template.pointSet.findClosestPoint(p).id
+      val templateId = template.pointSet.findClosestPoint(p).id
       val targetPoint = target.pointSet.point(id)
       (templateId, targetPoint, w)
     }
@@ -73,14 +73,14 @@ object NonRigidClosestPointRegistrator {
 
   object ClosestPointTriangleMesh3D extends ClosestPointRegistrator[TriangleMesh] {
     override def closestPointCorrespondence(
-        template: TriangleMesh[_3D],
-        target: TriangleMesh[_3D]
+      template: TriangleMesh[_3D],
+      target: TriangleMesh[_3D]
     ): (Seq[(PointId, Point[_3D], Double)], Double) = {
       var distance = 0.0
       val corr = template.pointSet.pointIds.toSeq.map { id =>
-        val p                     = template.pointSet.point(id)
+        val p = template.pointSet.point(id)
         val closestPointOnSurface = target.operations.closestPointOnSurface(p)
-        val closestPoint          = target.pointSet.findClosestPoint(closestPointOnSurface.point)
+        val closestPoint = target.pointSet.findClosestPoint(closestPointOnSurface.point)
         val w =
           if (isPointOnBoundary(closestPoint.id, target)) 0.0
           else if (
@@ -97,8 +97,8 @@ object NonRigidClosestPointRegistrator {
 
   object ClosestPointAlongNormalTriangleMesh3D extends ClosestPointRegistrator[TriangleMesh] {
     override def closestPointCorrespondence(
-        template: TriangleMesh[_3D],
-        target: TriangleMesh[_3D]
+      template: TriangleMesh[_3D],
+      target: TriangleMesh[_3D]
     ): (Seq[(PointId, Point[_3D], Double)], Double) = {
       var distance = 0.0
       val corr = template.pointSet.pointIds.toSeq.map { id =>
@@ -132,14 +132,14 @@ object NonRigidClosestPointRegistrator {
 
   object ClosestPointUnstructuredPointsDomain3D extends ClosestPointRegistrator[UnstructuredPointsDomain] {
     override def closestPointCorrespondence(
-        template: UnstructuredPointsDomain[_3D],
-        target: UnstructuredPointsDomain[_3D]
+      template: UnstructuredPointsDomain[_3D],
+      target: UnstructuredPointsDomain[_3D]
     ): (Seq[(PointId, Point[_3D], Double)], Double) = {
       var distance = 0.0
       val corr = template.pointSet.pointIds.toSeq.map { id =>
-        val p            = template.pointSet.point(id)
+        val p = template.pointSet.point(id)
         val closestPoint = target.pointSet.findClosestPoint(p)
-        val w            = 1.0
+        val w = 1.0
         distance += (p - closestPoint.point).norm
         (id, closestPoint.point, w)
       }
@@ -149,8 +149,8 @@ object NonRigidClosestPointRegistrator {
 
   object ClosestPointTriangleMesh3DSimple extends ClosestPointRegistrator[TriangleMesh] {
     override def closestPointCorrespondence(
-        template: TriangleMesh[_3D],
-        target: TriangleMesh[_3D]
+      template: TriangleMesh[_3D],
+      target: TriangleMesh[_3D]
     ): (Seq[(PointId, Point[_3D], Double)], Double) = {
       ClosestPointUnstructuredPointsDomain3D.closestPointCorrespondence(
         UnstructuredPointsDomain(template.pointSet),

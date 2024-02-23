@@ -10,7 +10,7 @@ import gingr.api.registration.config.{
   IcpRegistrationState
 }
 import gingr.api.sampling.evaluators.{EvaluationMode, ModelToTargetEvaluation}
-import scalismo.geometry.{Landmark, _3D}
+import scalismo.geometry.{_3D, Landmark}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.PointDistributionModel
 import scalismo.transformations.TranslationAfterRotation
@@ -19,15 +19,15 @@ import scalismo.utils.Random
 import java.io.File
 
 case class GingrInterface(
-    model: PointDistributionModel[_3D, TriangleMesh],
-    target: TriangleMesh[_3D],
-    initialModelParameterTransform: Option[TranslationAfterRotation[_3D]] = None,
-    modelLandmarks: Option[Seq[Landmark[_3D]]] = None,
-    targetLandmarks: Option[Seq[Landmark[_3D]]] = None,
-    evaluatorUncertainty: Double = 1.0,
-    evaluatedPoints: Option[Int] = None,
-    evaluationMode: EvaluationMode = ModelToTargetEvaluation,
-    logFileFittingParameters: Option[File] = None
+  model: PointDistributionModel[_3D, TriangleMesh],
+  target: TriangleMesh[_3D],
+  initialModelParameterTransform: Option[TranslationAfterRotation[_3D]] = None,
+  modelLandmarks: Option[Seq[Landmark[_3D]]] = None,
+  targetLandmarks: Option[Seq[Landmark[_3D]]] = None,
+  evaluatorUncertainty: Double = 1.0,
+  evaluatedPoints: Option[Int] = None,
+  evaluationMode: EvaluationMode = ModelToTargetEvaluation,
+  logFileFittingParameters: Option[File] = None
 )(implicit rnd: Random) {
   def CPD(config: CpdConfiguration): SimpleRegistrator[CpdRegistrationState, CpdConfiguration, CpdRegistration] = {
     val algorithm = new CpdRegistration()

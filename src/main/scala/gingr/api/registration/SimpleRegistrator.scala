@@ -33,7 +33,7 @@ import gingr.api.{
   RigidTransforms
 }
 import scalismo.common.interpolation.NearestNeighborInterpolator
-import scalismo.geometry.{Landmark, _3D}
+import scalismo.geometry.{_3D, Landmark}
 import scalismo.mesh.TriangleMesh
 import scalismo.sampling.loggers.ChainStateLogger
 import scalismo.statisticalmodel.PointDistributionModel
@@ -46,27 +46,27 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
   State,
   Config
 ]](
-    algorithm: Algorithm,
-    config: Config,
-    model: PointDistributionModel[_3D, TriangleMesh],
-    target: TriangleMesh[_3D],
-    initialModelParameterTransform: Option[TranslationAfterRotation[_3D]] = None,
-    modelLandmarks: Option[Seq[Landmark[_3D]]] = None,
-    targetLandmarks: Option[Seq[Landmark[_3D]]] = None,
-    evaluationMode: EvaluationMode = ModelToTargetEvaluation,
-    evaluatorUncertainty: Double = 1.0,
-    evaluatedPoints: Option[Int] = None,
-    logFileFittingParameters: Option[File] = None
+  algorithm: Algorithm,
+  config: Config,
+  model: PointDistributionModel[_3D, TriangleMesh],
+  target: TriangleMesh[_3D],
+  initialModelParameterTransform: Option[TranslationAfterRotation[_3D]] = None,
+  modelLandmarks: Option[Seq[Landmark[_3D]]] = None,
+  targetLandmarks: Option[Seq[Landmark[_3D]]] = None,
+  evaluationMode: EvaluationMode = ModelToTargetEvaluation,
+  evaluatorUncertainty: Double = 1.0,
+  evaluatedPoints: Option[Int] = None,
+  logFileFittingParameters: Option[File] = None
 )(implicit rnd: Random) {
 
   def runDecimated(
-      modelPoints: Int,
-      targetPoints: Int,
-      generalState: Option[GeneralRegistrationState] = None,
-      globalTransformation: GlobalTranformationType = RigidTransforms,
-      probabilistic: Boolean = false,
-      randomMixture: Double = 0.5,
-      callback: Option[ChainStateLogger[State]] = None
+    modelPoints: Int,
+    targetPoints: Int,
+    generalState: Option[GeneralRegistrationState] = None,
+    globalTransformation: GlobalTranformationType = RigidTransforms,
+    probabilistic: Boolean = false,
+    randomMixture: Double = 0.5,
+    callback: Option[ChainStateLogger[State]] = None
   ): State = {
     val initState = decimateState(generalState, globalTransformation, modelPoints, targetPoints)
     run(Option(initState), globalTransformation, probabilistic, randomMixture, callback)
@@ -82,13 +82,13 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
   }
 
   private def decimateState(
-      generalState: Option[GeneralRegistrationState],
-      globalTransformation: GlobalTranformationType,
-      modelPoints: Int,
-      targetPoints: Int
+    generalState: Option[GeneralRegistrationState],
+    globalTransformation: GlobalTranformationType,
+    modelPoints: Int,
+    targetPoints: Int
   ): GeneralRegistrationState = {
-    val newRef          = model.reference.operations.decimate(modelPoints)
-    val decimatedModel  = model.newReference(newRef, NearestNeighborInterpolator())
+    val newRef = model.reference.operations.decimate(modelPoints)
+    val decimatedModel = model.newReference(newRef, NearestNeighborInterpolator())
     val decimatedTarget = target.operations.decimate(targetPoints)
     val initState =
       if (generalState.isDefined) combineStates(generalState.get)
@@ -105,10 +105,10 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
   }
 
   def createInitialState(
-      model: PointDistributionModel[_3D, TriangleMesh],
-      target: TriangleMesh[_3D],
-      globalTransformation: GlobalTranformationType,
-      modelTranform: Option[TranslationAfterRotation[_3D]] = None
+    model: PointDistributionModel[_3D, TriangleMesh],
+    target: TriangleMesh[_3D],
+    globalTransformation: GlobalTranformationType,
+    modelTranform: Option[TranslationAfterRotation[_3D]] = None
   ): State = {
     val generalState: GeneralRegistrationState =
       if (modelLandmarks.nonEmpty && targetLandmarks.nonEmpty)
@@ -126,11 +126,11 @@ class SimpleRegistrator[State <: GingrRegistrationState[State], Config <: GingrC
   }
 
   def run(
-      generalState: Option[GeneralRegistrationState] = None,
-      globalTransformation: GlobalTranformationType = RigidTransforms,
-      probabilistic: Boolean = false,
-      randomMixture: Double = 0.5,
-      callback: Option[ChainStateLogger[State]] = None
+    generalState: Option[GeneralRegistrationState] = None,
+    globalTransformation: GlobalTranformationType = RigidTransforms,
+    probabilistic: Boolean = false,
+    randomMixture: Double = 0.5,
+    callback: Option[ChainStateLogger[State]] = None
   ): State = {
     val state =
       if (generalState.isDefined) combineStates(generalState.get)

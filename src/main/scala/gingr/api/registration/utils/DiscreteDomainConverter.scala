@@ -25,17 +25,17 @@ import scalismo.common.{
   UnstructuredPointsDomain3D,
   Vectorizer
 }
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{_3D, Point}
 import scalismo.mesh.{TetrahedralMesh, TetrahedralMesh3D, TriangleMesh, TriangleMesh3D}
 
 trait DiscreteDomainConverter[DDomain[_3D] <: DiscreteDomain[_3D]] {
   def denseMatrixToDomain(
-      mat: DenseMatrix[Double],
-      reference: DDomain[_3D]
+    mat: DenseMatrix[Double],
+    reference: DDomain[_3D]
   ): DDomain[_3D]
 
   def toMatrix(dc: DDomain[_3D])(implicit
-      vectorizer: Vectorizer[Point[_3D]]
+    vectorizer: Vectorizer[Point[_3D]]
   ): DenseMatrix[Double] = {
     PointSequenceConverter.toMatrix(dc.pointSet.points.toSeq)
   }
@@ -45,8 +45,8 @@ object DiscreteDomainConverter {
 
   implicit object denseMatrixToPointDomain3D extends DiscreteDomainConverter[UnstructuredPointsDomain] {
     override def denseMatrixToDomain(
-        mat: DenseMatrix[Double],
-        reference: UnstructuredPointsDomain[_3D]
+      mat: DenseMatrix[Double],
+      reference: UnstructuredPointsDomain[_3D]
     ): UnstructuredPointsDomain[_3D] = {
       UnstructuredPointsDomain3D(PointSequenceConverter.toPointSequence(mat).toIndexedSeq)
     }
@@ -63,8 +63,8 @@ object DiscreteDomainConverter {
 
   implicit object denseMatrixToTetrahedralMesh3D extends DiscreteDomainConverter[TetrahedralMesh] {
     override def denseMatrixToDomain(
-        mat: DenseMatrix[Double],
-        reference: TetrahedralMesh[_3D]
+      mat: DenseMatrix[Double],
+      reference: TetrahedralMesh[_3D]
     ): TetrahedralMesh[_3D] = {
       TetrahedralMesh3D(PointSequenceConverter.toPointSequence(mat).toIndexedSeq, reference.tetrahedralization)
     }

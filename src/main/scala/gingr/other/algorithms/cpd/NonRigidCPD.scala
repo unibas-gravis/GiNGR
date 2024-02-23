@@ -17,19 +17,19 @@
 
 package gingr.other.algorithms.cpd
 
-import breeze.linalg.{Axis, DenseMatrix, DenseVector, diag, inv, sum}
+import breeze.linalg.{diag, inv, sum, Axis, DenseMatrix, DenseVector}
 import scalismo.common.Vectorizer
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{_3D, Point}
 
 /*
  Implementation of Point Set Registration: Coherent Point Drift (CPD) - Non-Rigid algorithm
  Paper: https://arxiv.org/pdf/0905.2635.pdf
  */
 private[cpd] class NonRigidCPD(
-    override val targetPoints: Seq[Point[_3D]],
-    override val cpd: CPDFactory
+  override val targetPoints: Seq[Point[_3D]],
+  override val cpd: CPDFactory
 )(implicit
-    vectorizer: Vectorizer[Point[_3D]]
+  vectorizer: Vectorizer[Point[_3D]]
 ) extends RigidCPD(targetPoints, cpd) {
   import cpd._
 
@@ -43,27 +43,27 @@ private[cpd] class NonRigidCPD(
   }
 
   override def Maximization(
-      X: DenseMatrix[Double],
-      Y: DenseMatrix[Double],
-      P: DenseMatrix[Double],
-      sigma2: Double
+    X: DenseMatrix[Double],
+    Y: DenseMatrix[Double],
+    P: DenseMatrix[Double],
+    sigma2: Double
   ): (DenseMatrix[Double], Double) = {
     // Update transform
     val P1: DenseVector[Double] = sum(P, Axis._1)
-    val Pt1                     = sum(P, Axis._0)
-    val Np                      = sum(P1)
+    val Pt1 = sum(P, Axis._0)
+    val Np = sum(P1)
 
-    val myG       = G
+    val myG = G
     val diagP1inv = inv(diag(P1))
-    val PX        = P * X
-    
+    val PX = P * X
+
     val A: DenseMatrix[Double] = G + diagP1inv.*(lambda * sigma2)
     val B: DenseMatrix[Double] = diagP1inv * PX - Y
 
     val W = A \ B
     // Update Point Cloud
     val deform = myG * W
-    val TY     = Y + deform
+    val TY = Y + deform
 
     // Update variance
     /*

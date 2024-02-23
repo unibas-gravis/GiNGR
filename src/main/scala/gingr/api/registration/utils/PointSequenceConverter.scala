@@ -20,7 +20,7 @@ package gingr.api.registration.utils
 import breeze.linalg.{CSCMatrix, DenseMatrix, DenseVector}
 import scalismo.common.{PointId, Vectorizer}
 import scalismo.geometry.Point.Point3DVectorizer
-import scalismo.geometry.{Point, Point3D, _3D}
+import scalismo.geometry.{_3D, Point, Point3D}
 
 import scala.collection.parallel.CollectionConverters.ImmutableSeqIsParallelizable
 
@@ -29,7 +29,7 @@ object PointSequenceConverter {
 
   def toMatrix(points: Seq[Point[_3D]])(implicit vectorizer: Vectorizer[Point[_3D]]): DenseMatrix[Double] = {
     val dim: Int = vectorizer.dim
-    val m        = DenseMatrix.zeros[Double](points.length, dim)
+    val m = DenseMatrix.zeros[Double](points.length, dim)
     points.zipWithIndex.par.foreach { case (p, i) =>
       m(i, ::) := vectorizer.vectorize(p).t
     }
@@ -37,11 +37,11 @@ object PointSequenceConverter {
   }
 
   def toLMMatrix(points: Seq[Point[_3D]], pointIds: Seq[PointId], n: Int)(implicit
-      vectorizer: Vectorizer[Point[_3D]]
+    vectorizer: Vectorizer[Point[_3D]]
   ): CSCMatrix[Double] = {
-    val nPoints  = points.size
+    val nPoints = points.size
     val dim: Int = vectorizer.dim
-    val csc      = CSCMatrix.zeros[Double](nPoints, dim)
+    val csc = CSCMatrix.zeros[Double](nPoints, dim)
     points.zip(pointIds).zipWithIndex.foreach { case ((p, pid), i) =>
       val v = vectorizer.vectorize(p)
       for (j <- 0 until dim) {
@@ -75,7 +75,7 @@ object PointSequenceConverter {
   }
 
   def toPointSequence(
-      v: DenseVector[Double]
+    v: DenseVector[Double]
   )(implicit vectorizer: Vectorizer[Point[_3D]]): Seq[Point[_3D]] = {
     vectorTo3Dpoints(v)
   }

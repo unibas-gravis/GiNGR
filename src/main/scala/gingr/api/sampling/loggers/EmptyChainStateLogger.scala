@@ -27,16 +27,16 @@ case class EmptyChainStateLogger[State <: GingrRegistrationState[State]]() exten
 
 case class EmptyAcceptRejectLogger[State <: GingrRegistrationState[State]]() extends AcceptRejectLogger[State] {
   override def accept(
-      current: State,
-      sample: State,
-      generator: ProposalGenerator[State],
-      evaluator: DistributionEvaluator[State]
+    current: State,
+    sample: State,
+    generator: ProposalGenerator[State],
+    evaluator: DistributionEvaluator[State]
   ): Unit = {}
 
   override def reject(
-      current: State,
-      sample: State,
-      generator: ProposalGenerator[State],
-      evaluator: DistributionEvaluator[State]
+    current: State,
+    sample: State,
+    generator: ProposalGenerator[State],
+    evaluator: DistributionEvaluator[State]
   ): Unit = {}
 }

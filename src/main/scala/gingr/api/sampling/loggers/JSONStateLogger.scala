@@ -34,16 +34,16 @@ import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
 case class jsonLogFormat(
-    index: Int,
-    name: String,
-    logvalue: Map[String, Double],
-    status: Boolean,
-    modelParameters: Seq[Double],
-    translation: Seq[Double],
-    rotation: Seq[Double],
-    rotationCenter: Seq[Double],
-    scaling: Double,
-    datetime: String
+  index: Int,
+  name: String,
+  logvalue: Map[String, Double],
+  status: Boolean,
+  modelParameters: Seq[Double],
+  translation: Seq[Double],
+  rotation: Seq[Double],
+  rotationCenter: Seq[Double],
+  scaling: Double,
+  datetime: String
 )
 
 object JsonLoggerProtocol {
@@ -51,16 +51,16 @@ object JsonLoggerProtocol {
 }
 
 case class JSONStateLogger[State <: GingrRegistrationState[State]](
-    evaluators: Evaluator[State],
-    filePath: Option[File] = None
+  evaluators: Evaluator[State],
+  filePath: Option[File] = None
 ) extends AcceptRejectLogger[State] {
   import JsonLoggerProtocol._
 
-  private var numOfRejected: Int             = 0
-  private var numOfAccepted: Int             = 0
+  private var numOfRejected: Int = 0
+  private var numOfAccepted: Int = 0
   private var generatedBy: SortedSet[String] = SortedSet()
-  private val datetimeFormat                 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-  private val productEvaluator               = evaluators.productEvaluator()
+  private val datetimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+  private val productEvaluator = evaluators.productEvaluator()
 
   filePath.map { f =>
     if (f.getParentFile != null) {
@@ -99,10 +99,10 @@ case class JSONStateLogger[State <: GingrRegistrationState[State]](
   }
 
   override def accept(
-      current: State,
-      sample: State,
-      generator: ProposalGenerator[State],
-      evaluator: DistributionEvaluator[State]
+    current: State,
+    sample: State,
+    generator: ProposalGenerator[State],
+    evaluator: DistributionEvaluator[State]
   ): Unit = {
     val evalValue = mapEvaluators(sample)
     log += jsonLogFormat(
@@ -122,10 +122,10 @@ case class JSONStateLogger[State <: GingrRegistrationState[State]](
 
   // The rejected state will contain the same parameters as the previous accepted state, so no need to double store all the information
   override def reject(
-      current: State,
-      sample: State,
-      generator: ProposalGenerator[State],
-      evaluator: DistributionEvaluator[State]
+    current: State,
+    sample: State,
+    generator: ProposalGenerator[State],
+    evaluator: DistributionEvaluator[State]
   ): Unit = {
     val evalValue = mapEvaluators(sample)
     log += jsonLogFormat(
@@ -208,7 +208,7 @@ object JSONStateLogger {
 
   def loadLog(filePath: File): IndexedSeq[jsonLogFormat] = {
     println(s"Loading JSON log file: ${filePath.toString}")
-    val src  = Source.fromFile(filePath.toString)
+    val src = Source.fromFile(filePath.toString)
     val data = src.mkString.parseJson.convertTo[IndexedSeq[jsonLogFormat]]
     src.close()
     data

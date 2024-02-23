@@ -17,7 +17,7 @@
 
 package gingr.api.registration.utils
 
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{_3D, Point}
 import scalismo.transformations.{
   Rotation,
   Scaling,
@@ -28,9 +28,9 @@ import scalismo.transformations.{
 
 case class SimilarityTransformParameters(s: Scaling[_3D], t: Translation[_3D], R: Rotation[_3D]) {
   val simTransform: TranslationAfterScalingAfterRotation[_3D] = TranslationAfterScalingAfterRotation(t, s, R)
-  val rigidTransform: TranslationAfterRotation[_3D]           = TranslationAfterRotation(t, R)
-  val invSimTransform                                         = simTransform.inverse
-  val invRigidTransform                                       = rigidTransform.inverse
-  def transform(points: Seq[Point[_3D]]): Seq[Point[_3D]]     = points.map(simTransform)
-  def invTransform(points: Seq[Point[_3D]]): Seq[Point[_3D]]  = points.map(invSimTransform)
+  val rigidTransform: TranslationAfterRotation[_3D] = TranslationAfterRotation(t, R)
+  val invSimTransform = simTransform.inverse
+  val invRigidTransform = rigidTransform.inverse
+  def transform(points: Seq[Point[_3D]]): Seq[Point[_3D]] = points.map(simTransform)
+  def invTransform(points: Seq[Point[_3D]]): Seq[Point[_3D]] = points.map(invSimTransform)
 }

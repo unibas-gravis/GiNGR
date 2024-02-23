@@ -17,7 +17,7 @@
 
 package gingr.api.gpmm
 
-import breeze.linalg.{DenseMatrix, diag, svd}
+import breeze.linalg.{diag, svd, DenseMatrix}
 
 object MatrixHelper {
   def pinv(m: DenseMatrix[Double], precision: Double = 0.00001): DenseMatrix[Double] = {

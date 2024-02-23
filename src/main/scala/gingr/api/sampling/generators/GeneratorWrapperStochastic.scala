@@ -26,9 +26,9 @@ import scalismo.utils.{Memoize, Random}
 import scala.util.Try
 
 case class GeneratorWrapperStochastic[State <: GingrRegistrationState[State]](
-    update: (State, Boolean) => State,
-    cashedPosterior: Memoize[State, Try[PointDistributionModel[_3D, TriangleMesh]]],
-    generatedBy: String = "InformedProposal"
+  update: (State, Boolean) => State,
+  cashedPosterior: Memoize[State, Try[PointDistributionModel[_3D, TriangleMesh]]],
+  generatedBy: String = "InformedProposal"
 )(implicit rnd: Random)
     extends GingrGeneratorWrapper[State] {
   override def gingrPropose(current: State): State = {
@@ -51,7 +51,7 @@ case class GeneratorWrapperStochastic[State <: GingrRegistrationState[State]](
       } else from.general.fit
       try {
         val projectedTo = posterior.get.coefficients(toMesh)
-        val logpdf      = posterior.get.gp.logpdf(projectedTo)
+        val logpdf = posterior.get.gp.logpdf(projectedTo)
         logpdf
       } catch {
         case _: Throwable => {

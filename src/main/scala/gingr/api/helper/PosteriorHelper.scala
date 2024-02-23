@@ -17,20 +17,20 @@
 
 package gingr.api.helper
 
-import breeze.linalg.{DenseMatrix, DenseVector, trace}
+import breeze.linalg.{trace, DenseMatrix, DenseVector}
 import scalismo.common.DiscreteField.ScalarMeshField
 import scalismo.common.ScalarMeshField
 import scalismo.geometry._3D
 import scalismo.mesh.TriangleMesh
 
 object PosteriorHelper {
-  private val sampleDim  = 3
-  private val zeroVec    = DenseVector.zeros[Double](sampleDim)
+  private val sampleDim = 3
+  private val zeroVec = DenseVector.zeros[Double](sampleDim)
   private val zeroMatrix = DenseMatrix.zeros[Double](sampleDim, sampleDim)
 
   def computeDistanceMapFromMeshesTotal(
-      meshes: IndexedSeq[TriangleMesh[_3D]],
-      ref: TriangleMesh[_3D]
+    meshes: IndexedSeq[TriangleMesh[_3D]],
+    ref: TriangleMesh[_3D]
   ): ScalarMeshField[Double] = {
     val numSamples = meshes.length
 
@@ -42,8 +42,8 @@ object PosteriorHelper {
     }
 
     val variance = pointIdPointSeq.map { samples =>
-      val mean         = samples.foldLeft(zeroVec)((acc, s) => acc + s) * (1.0 / numSamples)
-      val cov          = samples.foldLeft(zeroMatrix)((acc, s) => acc + outer(s - mean, s - mean)) * (1.0 / (numSamples - 1))
+      val mean = samples.foldLeft(zeroVec)((acc, s) => acc + s) * (1.0 / numSamples)
+      val cov = samples.foldLeft(zeroMatrix)((acc, s) => acc + outer(s - mean, s - mean)) * (1.0 / (numSamples - 1))
       val sum_variance = trace(cov)
 
       (mean, cov, sum_variance)
@@ -53,9 +53,9 @@ object PosteriorHelper {
   }
 
   def computeDistanceMapFromMeshesNormal(
-      meshes: IndexedSeq[TriangleMesh[_3D]],
-      ref: TriangleMesh[_3D],
-      sumNormals: Boolean = true
+    meshes: IndexedSeq[TriangleMesh[_3D]],
+    ref: TriangleMesh[_3D],
+    sumNormals: Boolean = true
   ): ScalarMeshField[Double] = {
     val numSamples = meshes.length
 

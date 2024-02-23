@@ -18,7 +18,7 @@
 package gingr.api
 
 import breeze.linalg.DenseVector
-import scalismo.geometry.{EuclideanVector, Point, _3D}
+import scalismo.geometry.{_3D, EuclideanVector, Point}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.PointDistributionModel
 import scalismo.transformations._
@@ -37,7 +37,7 @@ case class EulerAngles(phi: Double, theta: Double, psi: Double) {
 }
 
 case class EulerRotation(angles: EulerAngles, center: Point[_3D]) {
-  def rotation: Rotation[_3D]         = Rotation(angles.phi, angles.theta, angles.psi, center)
+  def rotation: Rotation[_3D] = Rotation(angles.phi, angles.theta, angles.psi, center)
   def parameters: DenseVector[Double] = DenseVector.vertcat(angles.parameters, center.toBreezeVector)
 }
 
@@ -59,14 +59,14 @@ case class ModelFittingParameters(scale: ScaleParameter, pose: PoseParameters, s
 
   def rigidTransform: TranslationAfterRotation[_3D] = {
     val translation = Translation(pose.translation)
-    val rotation    = pose.rotation.rotation
+    val rotation = pose.rotation.rotation
     TranslationAfterRotation(translation, rotation)
   }
 
   def similarityTransform: TranslationAfterScalingAfterRotation[_3D] = {
     val translation = Translation(pose.translation)
-    val rotation    = pose.rotation.rotation
-    val scaling     = Scaling[_3D](scale.s)
+    val rotation = pose.rotation.rotation
+    val scaling = Scaling[_3D](scale.s)
     TranslationAfterScalingAfterRotation(translation, scaling, rotation)
   }
 
@@ -96,11 +96,11 @@ object ModelFittingParametersJson {
     }
   }
 
-  implicit val myJsonShapePars: RootJsonFormat[ShapeParameters]        = jsonFormat1(ShapeParameters.apply)
-  implicit val myJsonAngPars: RootJsonFormat[EulerAngles]              = jsonFormat3(EulerAngles.apply)
-  implicit val myJsonRotPars: RootJsonFormat[EulerRotation]            = jsonFormat2(EulerRotation.apply)
-  implicit val myJsonPosePars: RootJsonFormat[PoseParameters]          = jsonFormat2(PoseParameters.apply)
-  implicit val myJsonScalePars: RootJsonFormat[ScaleParameter]         = jsonFormat1(ScaleParameter.apply)
+  implicit val myJsonShapePars: RootJsonFormat[ShapeParameters] = jsonFormat1(ShapeParameters.apply)
+  implicit val myJsonAngPars: RootJsonFormat[EulerAngles] = jsonFormat3(EulerAngles.apply)
+  implicit val myJsonRotPars: RootJsonFormat[EulerRotation] = jsonFormat2(EulerRotation.apply)
+  implicit val myJsonPosePars: RootJsonFormat[PoseParameters] = jsonFormat2(PoseParameters.apply)
+  implicit val myJsonScalePars: RootJsonFormat[ScaleParameter] = jsonFormat1(ScaleParameter.apply)
   implicit val myJsonModelPars: RootJsonFormat[ModelFittingParameters] = jsonFormat3(ModelFittingParameters.apply)
 }
 
@@ -128,15 +128,15 @@ object ModelFittingParameters {
   }
 
   def modelInstanceShapePose(
-      model: PointDistributionModel[_3D, TriangleMesh],
-      pars: ModelFittingParameters
+    model: PointDistributionModel[_3D, TriangleMesh],
+    pars: ModelFittingParameters
   ): TriangleMesh[_3D] = {
     model.instance(pars.shape.parameters).transform(pars.rigidTransform)
   }
 
   def modelInstanceShapePoseScale(
-      model: PointDistributionModel[_3D, TriangleMesh],
-      pars: ModelFittingParameters
+    model: PointDistributionModel[_3D, TriangleMesh],
+    pars: ModelFittingParameters
   ): TriangleMesh[_3D] = {
     val instance = modelInstanceShapePose(model, pars)
     instance.transform(pars.scaleTransform)
@@ -153,7 +153,7 @@ object ModelFittingParameters {
   }
 
   def load(file: File): ModelFittingParameters = {
-    val src  = Source.fromFile(file.toString)
+    val src = Source.fromFile(file.toString)
     val data = src.mkString.parseJson.convertTo[ModelFittingParameters]
     src.close()
     data

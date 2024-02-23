@@ -18,7 +18,7 @@
 package gingr.other.utils
 
 import scalismo.common.UnstructuredPoints
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{_3D, Point}
 import scalismo.registration.LandmarkRegistration
 
 trait Registrator {

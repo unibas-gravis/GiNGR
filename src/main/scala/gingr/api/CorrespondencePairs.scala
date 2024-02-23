@@ -18,7 +18,7 @@
 package gingr.api
 
 import scalismo.common.PointId
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{_3D, Point}
 
 case class CorrespondencePairs(pairs: IndexedSeq[(PointId, Point[_3D])])
 

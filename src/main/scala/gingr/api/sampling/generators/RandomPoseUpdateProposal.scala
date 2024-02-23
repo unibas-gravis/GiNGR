@@ -28,9 +28,9 @@ case object PitchAxis extends RotationAxis
 case object YawAxis extends RotationAxis
 
 case class GaussianAxisRotationProposal[State <: GingrRegistrationState[State]](
-    sdevRot: Double,
-    axis: RotationAxis,
-    generatedBy: String = "RotationProposal"
+  sdevRot: Double,
+  axis: RotationAxis,
+  generatedBy: String = "RotationProposal"
 ) extends GingrGeneratorWrapper[State] {
 
   val perturbationDistr = new breeze.stats.distributions.Gaussian(0, sdevRot)
@@ -59,7 +59,7 @@ case class GaussianAxisRotationProposal[State <: GingrRegistrationState[State]](
       Double.NegativeInfinity
     } else {
       val rotParamsFrom = from.general.modelParameters.pose.rotation.angles
-      val rotParamsTo   = to.general.modelParameters.pose.rotation.angles
+      val rotParamsTo = to.general.modelParameters.pose.rotation.angles
       val residual = axis match {
         case RollAxis  => rotParamsTo.phi - rotParamsFrom.phi
         case PitchAxis => rotParamsTo.theta - rotParamsFrom.theta
@@ -71,9 +71,9 @@ case class GaussianAxisRotationProposal[State <: GingrRegistrationState[State]](
 }
 
 case class GaussianAxisTranslationProposal[State <: GingrRegistrationState[State]](
-    sdevTrans: Double,
-    axis: Int,
-    generatedBy: String = "TranslationProposal"
+  sdevTrans: Double,
+  axis: Int,
+  generatedBy: String = "TranslationProposal"
 ) extends GingrGeneratorWrapper[State] {
   require(axis < 3)
   val perturbationDistr = new breeze.stats.distributions.Gaussian(0, sdevTrans)

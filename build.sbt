@@ -37,6 +37,7 @@ lazy val root = (project in file("."))
     },
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     libraryDependencies ++= Seq(
+      "org.scalatest" %% "scalatest" % "3.2.18" % "test",
       "ch.unibas.cs.gravis" %% "scalismo" % "1.0.0",
       "io.spray" %% "spray-json" % "1.3.6",
     ),

@@ -18,10 +18,10 @@
 package gingr.other.algorithms.icp
 
 import gingr.api.registration.utils.{NonRigidClosestPointRegistrator, PointSequenceConverter}
-import breeze.linalg.{CSCMatrix, SparseVector, diag}
+import breeze.linalg.{diag, CSCMatrix, SparseVector}
 import gingr.other.utils.CSCHelper
 import scalismo.common.{DomainWarp, PointId, UnstructuredPoints, Vectorizer}
-import scalismo.geometry.{Landmark, Point, _3D}
+import scalismo.geometry.{_3D, Landmark, Point}
 import scalismo.mesh.{TriangleCell, TriangleMesh}
 
 /*
@@ -29,17 +29,17 @@ import scalismo.mesh.{TriangleCell, TriangleMesh}
  */
 
 abstract class NonRigidOptimalStepICP(
-    templateMesh: TriangleMesh[_3D],
-    targetMesh: TriangleMesh[_3D],
-    templateLandmarks: Seq[Landmark[_3D]],
-    targetLandmarks: Seq[Landmark[_3D]],
-    gamma: Double = 1.0
+  templateMesh: TriangleMesh[_3D],
+  targetMesh: TriangleMesh[_3D],
+  templateLandmarks: Seq[Landmark[_3D]],
+  targetLandmarks: Seq[Landmark[_3D]],
+  gamma: Double = 1.0
 )(implicit
-    vectorizer: Vectorizer[Point[_3D]],
-    warper: DomainWarp[_3D, TriangleMesh]
+  vectorizer: Vectorizer[Point[_3D]],
+  warper: DomainWarp[_3D, TriangleMesh]
 ) {
   require(gamma >= 0)
-  val n: Int   = templateMesh.pointSet.numberOfPoints // Number of nodes
+  val n: Int = templateMesh.pointSet.numberOfPoints // Number of nodes
   val dim: Int = vectorizer.dim
 
   private val commonLmNames = templateLandmarks.map(_.id) intersect targetLandmarks.map(_.id)
@@ -53,7 +53,7 @@ abstract class NonRigidOptimalStepICP(
       .map(lm => targetMesh.pointSet.findClosestPoint(lm.point).point)
   val UL: CSCMatrix[Double] = CSCHelper.DenseMatrix2CSCMatrix(PointSequenceConverter.toMatrix(lmPointsOnTarget))
 
-  private val edges   = trianglesToEdges(templateMesh.triangulation.triangles)
+  private val edges = trianglesToEdges(templateMesh.triangulation.triangles)
   val numOfEdges: Int = edges.length
 
   val M: CSCMatrix[Double] = InitializeMatrixM(edges)
@@ -84,22 +84,22 @@ abstract class NonRigidOptimalStepICP(
   }
 
   def Registration(
-      max_iteration: Int,
-      tolerance: Double = 0.001,
-      alpha: Seq[Double] = defaultAlpha,
-      beta: Seq[Double] = defaultBeta
+    max_iteration: Int,
+    tolerance: Double = 0.001,
+    alpha: Seq[Double] = defaultAlpha,
+    beta: Seq[Double] = defaultBeta
   ): TriangleMesh[_3D] = {
     require(alpha.length == beta.length)
 
     val fit = (alpha.zip(beta)).zipWithIndex.foldLeft(templateMesh) { (temp, config) =>
       val (a, b) = config._1
-      val j      = config._2
+      val j = config._2
 
       var innerFit = (temp, Double.PositiveInfinity)
       var i = 0
       while (i < max_iteration && innerFit._2 >= tolerance) {
-        val iter    = Iteration(innerFit._1, targetMesh, a, b)
-        val TY      = iter._1
+        val iter = Iteration(innerFit._1, targetMesh, a, b)
+        val TY = iter._1
         val newDist = iter._2
         println(
           s"ICP, iteration: ${j * max_iteration + i}/${max_iteration * alpha.length}, alpha: ${a}, beta: ${b}, average distance to target: ${newDist}"
@@ -117,21 +117,21 @@ abstract class NonRigidOptimalStepICP(
   }
 
   def getClosestPoints(
-      template: TriangleMesh[_3D],
-      target: TriangleMesh[_3D]
+    template: TriangleMesh[_3D],
+    target: TriangleMesh[_3D]
   ): (Seq[Point[_3D]], Seq[Double], Double) = {
     val (corr, dist) =
       NonRigidClosestPointRegistrator.ClosestPointTriangleMesh3D.closestPointCorrespondence(template, target)
     val cp = corr.map(_._2)
-    val w  = corr.map(_._3)
+    val w = corr.map(_._3)
     (cp, w, dist)
   }
 
   def Iteration(
-      template: TriangleMesh[_3D],
-      target: TriangleMesh[_3D],
-      alpha: Double,
-      beta: Double
+    template: TriangleMesh[_3D],
+    target: TriangleMesh[_3D],
+    alpha: Double,
+    beta: Double
   ): (TriangleMesh[_3D], Double, IndexedSeq[Point[_3D]])
 }
 
@@ -139,22 +139,22 @@ abstract class NonRigidOptimalStepICP(
  Implementation of "N-ICP-T" from the paper: "Optimal Step Nonrigid ICP Algorithms for Surface Registration"
  */
 class NonRigidOptimalStepICP_T(
-    templateMesh: TriangleMesh[_3D],
-    targetMesh: TriangleMesh[_3D],
-    templateLandmarks: Seq[Landmark[_3D]],
-    targetLandmarks: Seq[Landmark[_3D]],
-    gamma: Double = 1.0
+  templateMesh: TriangleMesh[_3D],
+  targetMesh: TriangleMesh[_3D],
+  templateLandmarks: Seq[Landmark[_3D]],
+  targetLandmarks: Seq[Landmark[_3D]],
+  gamma: Double = 1.0
 )(implicit
-    vectorizer: Vectorizer[Point[_3D]],
-    warper: DomainWarp[_3D, TriangleMesh]
+  vectorizer: Vectorizer[Point[_3D]],
+  warper: DomainWarp[_3D, TriangleMesh]
 ) extends NonRigidOptimalStepICP(templateMesh, targetMesh, templateLandmarks, targetLandmarks, gamma) {
   val B1: CSCMatrix[Double] = CSCMatrix.zeros[Double](numOfEdges, dim)
 
   override def Iteration(
-      template: TriangleMesh[_3D],
-      target: TriangleMesh[_3D],
-      alpha: Double,
-      beta: Double
+    template: TriangleMesh[_3D],
+    target: TriangleMesh[_3D],
+    alpha: Double,
+    beta: Double
   ): (TriangleMesh[_3D], Double, IndexedSeq[Point[_3D]]) = {
     require(alpha >= 0.0)
     require(beta >= 0.0)
@@ -164,11 +164,11 @@ class NonRigidOptimalStepICP_T(
     val W = diag(SparseVector(w: _*))
 
     val lmPointsOnTemplate = lmIdsOnTemplate.map(id => template.pointSet.point(id))
-    val VL                 = CSCHelper.DenseMatrix2CSCMatrix(PointSequenceConverter.toMatrix(lmPointsOnTemplate))
+    val VL = CSCHelper.DenseMatrix2CSCMatrix(PointSequenceConverter.toMatrix(lmPointsOnTemplate))
 
     val U = CSCHelper.DenseMatrix2CSCMatrix(PointSequenceConverter.toMatrix(cp))
     // N-ICP-T
-    val V                     = CSCHelper.DenseMatrix2CSCMatrix(PointSequenceConverter.toMatrix(template.pointSet.points.toSeq))
+    val V = CSCHelper.DenseMatrix2CSCMatrix(PointSequenceConverter.toMatrix(template.pointSet.points.toSeq))
     val A1: CSCMatrix[Double] = M * alpha
     val A2: CSCMatrix[Double] = W * CSCHelper.eye(template.pointSet.numberOfPoints)
     val A3: CSCMatrix[Double] = CSCMatrix.zeros[Double](lmPointsOnTemplate.length, M.cols)
@@ -195,17 +195,17 @@ class NonRigidOptimalStepICP_T(
  */
 
 class NonRigidOptimalStepICP_A(
-    templateMesh: TriangleMesh[_3D],
-    targetMesh: TriangleMesh[_3D],
-    templateLandmarks: Seq[Landmark[_3D]],
-    targetLandmarks: Seq[Landmark[_3D]],
-    gamma: Double = 1.0
+  templateMesh: TriangleMesh[_3D],
+  targetMesh: TriangleMesh[_3D],
+  templateLandmarks: Seq[Landmark[_3D]],
+  targetLandmarks: Seq[Landmark[_3D]],
+  gamma: Double = 1.0
 )(implicit
-    vectorizer: Vectorizer[Point[_3D]],
-    warper: DomainWarp[_3D, TriangleMesh]
+  vectorizer: Vectorizer[Point[_3D]],
+  warper: DomainWarp[_3D, TriangleMesh]
 ) extends NonRigidOptimalStepICP(templateMesh, targetMesh, templateLandmarks, targetLandmarks, gamma) {
 
-  private val G                         = diag(SparseVector(1, 1, 1, gamma))
+  private val G = diag(SparseVector(1, 1, 1, gamma))
   private val kronMG: CSCMatrix[Double] = CSCHelper.kroneckerProduct(M, G)
 
   val B1: CSCMatrix[Double] = CSCMatrix.zeros[Double](4 * numOfEdges, dim)
@@ -228,7 +228,7 @@ class NonRigidOptimalStepICP_A(
   }
 
   private def ComputeMatrixDL(template: TriangleMesh[_3D]): CSCMatrix[Double] = {
-    val nPoints              = lmIdsOnTemplate.length
+    val nPoints = lmIdsOnTemplate.length
     val D: CSCMatrix[Double] = CSCMatrix.zeros[Double](nPoints, 4 * n)
     lmIdsOnTemplate.zipWithIndex.foreach { case (id, i) =>
       val p = template.pointSet.point(id).toArray :+ 1.0
@@ -241,10 +241,10 @@ class NonRigidOptimalStepICP_A(
   }
 
   override def Iteration(
-      template: TriangleMesh[_3D],
-      target: TriangleMesh[_3D],
-      alpha: Double,
-      beta: Double
+    template: TriangleMesh[_3D],
+    target: TriangleMesh[_3D],
+    alpha: Double,
+    beta: Double
   ): (TriangleMesh[_3D], Double, IndexedSeq[Point[_3D]]) = {
     require(alpha >= 0.0)
     require(beta >= 0.0)

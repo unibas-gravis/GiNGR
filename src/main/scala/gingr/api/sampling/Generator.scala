@@ -26,10 +26,10 @@ import scalismo.utils.Random
 class Generator[State <: GingrRegistrationState[State]](implicit rnd: Random) {
 
   val defaultTranslation = 0.1
-  val defaultRotation    = 0.01
+  val defaultRotation = 0.01
 
   def RandomShape(
-      steps: Seq[Double] = Seq(1.0, 0.1, 0.01)
+    steps: Seq[Double] = Seq(1.0, 0.1, 0.01)
   ): ProposalGenerator[State] with TransitionProbability[State] = {
     val gen = steps.map { d =>
       (1.0 / steps.length.toDouble, RandomShapeUpdateProposal[State](d, generatedBy = s"RandomShape-${d}"))
@@ -38,9 +38,9 @@ class Generator[State <: GingrRegistrationState[State]](implicit rnd: Random) {
   }
 
   def RandomRotation(
-      rotYaw: Double = defaultRotation,
-      rotPitch: Double = defaultRotation,
-      rotRoll: Double = defaultRotation
+    rotYaw: Double = defaultRotation,
+    rotPitch: Double = defaultRotation,
+    rotRoll: Double = defaultRotation
   ): ProposalGenerator[State] with TransitionProbability[State] = {
     MixtureProposal(
       0.5 *: GaussianAxisRotationProposal[State](rotYaw, YawAxis, generatedBy = s"RotationYaw-${rotYaw}") +
@@ -50,9 +50,9 @@ class Generator[State <: GingrRegistrationState[State]](implicit rnd: Random) {
   }
 
   def RandomTranslation(
-      transX: Double = defaultTranslation,
-      transY: Double = defaultTranslation,
-      transZ: Double = defaultTranslation
+    transX: Double = defaultTranslation,
+    transY: Double = defaultTranslation,
+    transZ: Double = defaultTranslation
   ): ProposalGenerator[State] with TransitionProbability[State] = {
     MixtureProposal(
       0.5 *: GaussianAxisTranslationProposal[State](transX, 0, generatedBy = s"TranslationX-${transX}") +
@@ -62,12 +62,12 @@ class Generator[State <: GingrRegistrationState[State]](implicit rnd: Random) {
   }
 
   def RandomPose(
-      rotYaw: Double = defaultRotation,
-      rotPitch: Double = defaultRotation,
-      rotRoll: Double = defaultRotation,
-      transX: Double = defaultTranslation,
-      transY: Double = defaultTranslation,
-      transZ: Double = defaultTranslation
+    rotYaw: Double = defaultRotation,
+    rotPitch: Double = defaultRotation,
+    rotRoll: Double = defaultRotation,
+    transX: Double = defaultTranslation,
+    transY: Double = defaultTranslation,
+    transZ: Double = defaultTranslation
   ): ProposalGenerator[State] with TransitionProbability[State] = {
     MixtureProposal(
       0.5 *: RandomRotation(rotYaw, rotPitch, rotRoll) +

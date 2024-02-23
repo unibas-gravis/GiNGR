@@ -19,21 +19,21 @@ package gingr.other.algorithms
 
 import gingr.other.algorithms.cpd.BCPD
 import scalismo.common.{DiscreteDomain, DiscreteField, DomainWarp, Vectorizer}
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{_3D, Point}
 import scalismo.kernels.PDKernel
 
 class BCPDRegistration[DDomain[_3D] <: DiscreteDomain[_3D]](
-    template: DDomain[_3D],
-    target: DDomain[_3D],
-    w: Double = 0,         // Outlier, [0,1]
-    lambda: Double = 2.0,  // Noise scaling, R+
-    gamma: Double = 1.0,   // Initial noise scaling, R+
-    k: Double = 1.0,       // Dirichlet distribution parameter
-    kernel: PDKernel[_3D], // Positive semi-def kernel
-    max_iterations: Int = 100
+  template: DDomain[_3D],
+  target: DDomain[_3D],
+  w: Double = 0, // Outlier, [0,1]
+  lambda: Double = 2.0, // Noise scaling, R+
+  gamma: Double = 1.0, // Initial noise scaling, R+
+  k: Double = 1.0, // Dirichlet distribution parameter
+  kernel: PDKernel[_3D], // Positive semi-def kernel
+  max_iterations: Int = 100
 )(implicit
-    warper: DomainWarp[_3D, DDomain],
-    vectorizer: Vectorizer[Point[_3D]]
+  warper: DomainWarp[_3D, DDomain],
+  vectorizer: Vectorizer[Point[_3D]]
 ) {
   val cpd = new BCPD(template.pointSet.points.toSeq, target.pointSet.points.toSeq, w, lambda, gamma, k, kernel)
 
