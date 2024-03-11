@@ -25,7 +25,7 @@ import scalismo.mesh.TriangleMesh
 
 case class LaplacianHelper(template: TriangleMesh[_3D]) {
   private val n = template.pointSet.numberOfPoints
-  val m         = DenseMatrix.zeros[Double](n, n)
+  val m = DenseMatrix.zeros[Double](n, n)
 
   def deg(i: Int): Int = template.triangulation.adjacentPointsForPoint(PointId(i)).length // get degree of i
   def adj(i: Int, j: Int): Boolean =

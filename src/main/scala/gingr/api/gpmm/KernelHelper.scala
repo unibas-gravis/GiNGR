@@ -19,21 +19,21 @@ package gingr.api.gpmm
 
 import breeze.linalg.DenseMatrix
 import scalismo.common.{Domain, EuclideanSpace}
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{_3D, Point}
 import scalismo.kernels.{DiagonalKernel, MatrixValuedPDKernel, PDKernel}
 import scalismo.mesh.TriangleMesh
 
 object KernelHelper {
   def symmetrizeKernel(kernel: PDKernel[_3D]): MatrixValuedPDKernel[_3D] = {
     val xmirrored = xMirroredKernel3D(kernel)
-    val k1        = DiagonalKernel(kernel, 3)
-    val k2        = DiagonalKernel(xmirrored * -1f, xmirrored, xmirrored)
+    val k1 = DiagonalKernel(kernel, 3)
+    val k2 = DiagonalKernel(xmirrored * -1f, xmirrored, xmirrored)
     k1 + k2
   }
 }
 
 case class xMirroredKernel3D(kernel: PDKernel[_3D]) extends PDKernel[_3D] {
-  override def domain: Domain[_3D]                     = kernel.domain
+  override def domain: Domain[_3D] = kernel.domain
   override def k(x: Point[_3D], y: Point[_3D]): Double = kernel(Point(x(0) * -1.0, x(1), x(2)), y)
 }
 
@@ -67,7 +67,7 @@ case class RationalQuadratic(beta: Double) extends PDKernel[_3D] {
   override def domain: EuclideanSpace[_3D] = EuclideanSpace[_3D]
 
   override def k(x: Point[_3D], y: Point[_3D]): Double = {
-    val r  = x - y
+    val r = x - y
     val nn = r.norm2
     1 - (nn / (nn + beta2))
   }

@@ -20,7 +20,7 @@ package gingr.api.sampling.evaluators
 import breeze.stats.distributions.ContinuousDistr
 import gingr.api.GingrRegistrationState
 import scalismo.common.PointId
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{_3D, Point}
 import scalismo.mesh.TriangleMesh3D
 import scalismo.sampling.DistributionEvaluator
 
@@ -33,15 +33,15 @@ case object TargetToModelEvaluation extends EvaluationMode
 case object SymmetricEvaluation extends EvaluationMode
 
 case class IndependentPointDistanceEvaluator[State <: GingrRegistrationState[State]](
-    sample: State,
-    likelihoodModel: ContinuousDistr[Double],
-    evaluationMode: EvaluationMode,
-    numberOfPointsForComparison: Option[Int]
+  sample: State,
+  likelihoodModel: ContinuousDistr[Double],
+  evaluationMode: EvaluationMode,
+  numberOfPointsForComparison: Option[Int]
 ) extends DistributionEvaluator[State]
     with EvaluationCaching[State] {
 
   private val instance = sample.general.fit
-  private val target   = sample.general.target
+  private val target = sample.general.target
 
   private val (instanceDecimated, targetDecimated) = numberOfPointsForComparison match {
     case Some(num) => (instance.operations.decimate(num), target.operations.decimate(num))
@@ -49,7 +49,7 @@ case class IndependentPointDistanceEvaluator[State <: GingrRegistrationState[Sta
   }
 
   private val randomPointsOnTarget: IndexedSeq[Point[_3D]] = targetDecimated.pointSet.points.toIndexedSeq
-  private val randomPointIdsOnModel: IndexedSeq[PointId]   = instanceDecimated.pointSet.pointIds.toIndexedSeq
+  private val randomPointIdsOnModel: IndexedSeq[PointId] = instanceDecimated.pointSet.pointIds.toIndexedSeq
 
   def distModelToTarget(modelSample: TriangleMesh3D): Double = {
     val pointsOnSample = randomPointIdsOnModel.map(modelSample.pointSet.point)

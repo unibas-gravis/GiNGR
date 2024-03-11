@@ -39,10 +39,10 @@ case class AcceptAll[State <: GingrRegistrationState[State]]() extends Evaluator
 }
 
 case class IndependentPoints[State <: GingrRegistrationState[State]](
-    state: State,
-    uncertainty: Double,
-    mode: EvaluationMode = ModelToTargetEvaluation,
-    evaluatedPoints: Option[Int] = None
+  state: State,
+  uncertainty: Double,
+  mode: EvaluationMode = ModelToTargetEvaluation,
+  evaluatedPoints: Option[Int] = None
 ) extends Evaluator[State] {
   private val likelihoodModel = breeze.stats.distributions.Gaussian(0, uncertainty)
 

@@ -22,7 +22,7 @@ import gingr.api.sampling.generators.{GeneratorWrapperDeterministic, GeneratorWr
 import gingr.api.sampling.loggers.BestAndCurrentSampleLogger
 import gingr.api.sampling.{AcceptAll, Evaluator, Generator}
 import scalismo.common.PointId
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{_3D, Point}
 import scalismo.mesh.TriangleMesh
 import scalismo.registration.LandmarkRegistration
 import scalismo.sampling.algorithms.MetropolisHastings
@@ -43,8 +43,8 @@ import scalismo.utils.{Memoize, Random}
 import scala.util.Try
 
 case class ProbabilisticSettings[State <: GingrRegistrationState[State]](
-    evaluators: Evaluator[State],
-    randomMixture: Double = 0.5
+  evaluators: Evaluator[State],
+  randomMixture: Double = 0.5
 ) {
   require(randomMixture >= 0.0 && randomMixture <= 1.0)
 }
@@ -65,26 +65,26 @@ trait GingrRegistrationState[State] {
 trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConfig] {
   val getCorrespondence: State => CorrespondencePairs
   val getUncertainty: (PointId, State) => MultivariateNormalDistribution
-  private val cashedPosterior        = Memoize(computePosterior, 10)
+  private val cashedPosterior = Memoize(computePosterior, 10)
   private val retryCounterInitialize = 10
-  private var retryCounter           = 10
+  private var retryCounter = 10
 
   def name: String
 
   def initializeState(general: GeneralRegistrationState, config: config): State
 
   def estimateRigidTransform(
-      current: TriangleMesh[_3D],
-      update: IndexedSeq[(PointId, Point[_3D])]
+    current: TriangleMesh[_3D],
+    update: IndexedSeq[(PointId, Point[_3D])]
   ): TranslationAfterScalingAfterRotation[_3D] = {
     val pairs = update.map(f => (current.pointSet.point(f._1), f._2))
-    val t     = LandmarkRegistration.rigid3DLandmarkRegistration(pairs, Point(0, 0, 0))
+    val t = LandmarkRegistration.rigid3DLandmarkRegistration(pairs, Point(0, 0, 0))
     TranslationAfterScalingAfterRotation(t.translation, Scaling(1.0), t.rotation)
   }
 
   def estimateSimilarityTransform(
-      current: TriangleMesh[_3D],
-      update: IndexedSeq[(PointId, Point[_3D])]
+    current: TriangleMesh[_3D],
+    update: IndexedSeq[(PointId, Point[_3D])]
   ): TranslationAfterScalingAfterRotation[_3D] = {
     val pairs = update.map(f => (current.pointSet.point(f._1), f._2))
     LandmarkRegistration.similarity3DLandmarkRegistration(pairs, Point(0, 0, 0))
@@ -94,34 +94,35 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
     model.instance(state.modelParameters.shape.parameters).transform(state.modelParameters.similarityTransform)
   }
 
-  /** Runs the actual registration with the provided configuration through the passed parameters.
-    *
-    * @param initialState
-    *   State from which the registration is started.
-    * @param callBackLogger
-    *   Logger to provide call back functionality to user after each iteration
-    * @param acceptRejectLogger
-    *   Logger to use for advanced file logging
-    * @param probabilisticSettings
-    *   Evaluator to be used if probabilistic registration is set
-    * @param generators
-    *   Pass in external generators to use
-    * @param rnd
-    *   Implicit random number generator.
-    * @return
-    *   Returns the best sample of the chain given the evaluator..
-    */
+  /**
+   * Runs the actual registration with the provided configuration through the passed parameters.
+   *
+   * @param initialState
+   *   State from which the registration is started.
+   * @param callBackLogger
+   *   Logger to provide call back functionality to user after each iteration
+   * @param acceptRejectLogger
+   *   Logger to use for advanced file logging
+   * @param probabilisticSettings
+   *   Evaluator to be used if probabilistic registration is set
+   * @param generators
+   *   Pass in external generators to use
+   * @param rnd
+   *   Implicit random number generator.
+   * @return
+   *   Returns the best sample of the chain given the evaluator..
+   */
   def run(
-      initialState: State,
-      acceptRejectLogger: Option[AcceptRejectLogger[State]],
-      callBackLogger: Option[ChainStateLogger[State]],
-      probabilisticSettings: Option[ProbabilisticSettings[State]],
-      generators: Option[ProposalGenerator[State] with TransitionProbability[State]] = None
+    initialState: State,
+    acceptRejectLogger: Option[AcceptRejectLogger[State]],
+    callBackLogger: Option[ChainStateLogger[State]],
+    probabilisticSettings: Option[ProbabilisticSettings[State]],
+    generators: Option[ProposalGenerator[State] with TransitionProbability[State]] = None
   )(implicit rnd: Random): State = {
-    val evaluator             = probabilisticSettings.getOrElse(ProbabilisticSettings(AcceptAll(), randomMixture = 0.0))
+    val evaluator = probabilisticSettings.getOrElse(ProbabilisticSettings(AcceptAll(), randomMixture = 0.0))
     val registrationEvaluator = EvaluatorWrapper(probabilisticSettings.nonEmpty, evaluator.evaluators)
     val registrationGenerator = generatorCombined(probabilisticSettings, generators)
-    val bestSampleLogger      = BestAndCurrentSampleLogger[State](registrationEvaluator)
+    val bestSampleLogger = BestAndCurrentSampleLogger[State](registrationEvaluator)
     val logs =
       if (callBackLogger.isDefined) ChainStateLoggerContainer(Seq(callBackLogger.get, bestSampleLogger))
       else bestSampleLogger
@@ -133,7 +134,7 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
       else mhChain.iterator(initialState).loggedWith(logs)
 
     var converged: Boolean = false
-    var error: Boolean     = false
+    var error: Boolean = false
     // we need to query if there is a next element, otherwise due to laziness the chain is not calculated
     var currentState: Option[GeneralRegistrationState] = None
     states
@@ -174,8 +175,8 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
   }
 
   def generatorCombined(
-      probabilisticSettings: Option[ProbabilisticSettings[State]],
-      mixing: Option[ProposalGenerator[State] with TransitionProbability[State]]
+    probabilisticSettings: Option[ProbabilisticSettings[State]],
+    mixing: Option[ProposalGenerator[State] with TransitionProbability[State]]
   )(implicit rnd: Random): ProposalGenerator[State] with TransitionProbability[State] = {
     probabilisticSettings match {
       case Some(setting) =>
@@ -207,7 +208,7 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
       }
     } else {
       retryCounter = math.min(retryCounterInitialize, retryCounter + 1)
-      val shapeproposal        = if (!probabilistic) posterior.get.mean else posterior.get.sample()
+      val shapeproposal = if (!probabilistic) posterior.get.mean else posterior.get.sample()
       val transformedModelInit = current.general.model.transform(current.general.modelParameters.rigidTransform)
 
       val newCoefficients = Try(
@@ -240,7 +241,7 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
             .updateRotation(newGlobalAlignment.rotation)
             .updateScaling(ScaleParameter(globalTransform.scaling.s))
             .updateShapeParameters(ShapeParameters(alpha.get))
-          val newState  = current.updateGeneral(general)
+          val newState = current.updateGeneral(general)
           val newSigma2 = updateSigma2(newState)
           newState.updateGeneral(newState.general.updateSigma2(newSigma2))
         } else {
@@ -257,8 +258,8 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
   }
 
   def estimateRigidTransform(
-      current: TriangleMesh[_3D],
-      update: TriangleMesh[_3D]
+    current: TriangleMesh[_3D],
+    update: TriangleMesh[_3D]
   ): TranslationAfterScalingAfterRotation[_3D] = {
     val t = LandmarkRegistration.rigid3DLandmarkRegistration(
       current.pointSet.points.toSeq.zip(update.pointSet.points.toSeq),
@@ -268,8 +269,8 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
   }
 
   def estimateSimilarityTransform(
-      current: TriangleMesh[_3D],
-      update: TriangleMesh[_3D]
+    current: TriangleMesh[_3D],
+    update: TriangleMesh[_3D]
   ): TranslationAfterScalingAfterRotation[_3D] = {
     LandmarkRegistration.similarity3DLandmarkRegistration(
       current.pointSet.points.toSeq.zip(update.pointSet.points.toSeq),
@@ -281,7 +282,7 @@ trait GingrAlgorithm[State <: GingrRegistrationState[State], config <: GingrConf
     val correspondences = getCorrespondence(current)
     val correspondencesWithUncertainty = correspondences.pairs.map { pair =>
       val (pid, point) = pair
-      val uncertainty  = getUncertainty(pid, current)
+      val uncertainty = getUncertainty(pid, current)
       (pid, point, uncertainty)
     }
     val observationsWithUncertainty = if (current.config.useLandmarkCorrespondence) {

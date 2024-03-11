@@ -38,8 +38,8 @@ object CSCHelper {
     require(matrices.forall(m => m.cols == matrices(0).cols), "Not all matrices have the same number of columns")
     val numRows = matrices.foldLeft(0)(_ + _.rows)
     val numCols = matrices(0).cols
-    val res     = CSCMatrix.zeros[Double](numRows, numCols)
-    var offset  = 0
+    val res = CSCMatrix.zeros[Double](numRows, numCols)
+    var offset = 0
     for (m <- matrices) {
       var i = 0
       while (i < m.cols) {

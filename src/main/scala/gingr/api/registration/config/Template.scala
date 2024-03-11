@@ -22,11 +22,10 @@ import scalismo.common.PointId
 import scalismo.statisticalmodel.MultivariateNormalDistribution
 
 case class TemplateConfiguration(
-    override val maxIterations: Int = 1,
-    override val threshold: Double = 1e-5,
-    override val converged: (GeneralRegistrationState, GeneralRegistrationState, Double) => Boolean =
-      (_, _, _) => false,
-    override val useLandmarkCorrespondence: Boolean = true
+  override val maxIterations: Int = 1,
+  override val threshold: Double = 1e-5,
+  override val converged: (GeneralRegistrationState, GeneralRegistrationState, Double) => Boolean = (_, _, _) => false,
+  override val useLandmarkCorrespondence: Boolean = true
 ) extends GingrConfig {}
 
 case class TemplateRegistrationState(general: GeneralRegistrationState, config: TemplateConfiguration)
@@ -44,8 +43,8 @@ object TemplateRegistrationState {
 }
 
 class TemplateRegistration(
-    override val getCorrespondence: TemplateRegistrationState => CorrespondencePairs =
-      (state: TemplateRegistrationState) => CorrespondencePairs.empty()
+  override val getCorrespondence: TemplateRegistrationState => CorrespondencePairs =
+    (state: TemplateRegistrationState) => CorrespondencePairs.empty()
 ) extends GingrAlgorithm[TemplateRegistrationState, TemplateConfiguration] {
   def name = "Template"
   override val getUncertainty: (PointId, TemplateRegistrationState) => MultivariateNormalDistribution =
@@ -53,8 +52,8 @@ class TemplateRegistration(
       MultivariateNormalDistribution(DenseVector.zeros[Double](3), DenseMatrix.eye[Double](3))
 
   override def initializeState(
-      general: GeneralRegistrationState,
-      config: TemplateConfiguration
+    general: GeneralRegistrationState,
+    config: TemplateConfiguration
   ): TemplateRegistrationState = {
     TemplateRegistrationState(general, config)
   }

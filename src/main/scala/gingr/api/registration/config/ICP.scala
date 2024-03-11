@@ -29,9 +29,9 @@ import scalismo.statisticalmodel.MultivariateNormalDistribution
 
 sealed trait ICPCorrespondenceMethod
 
-case object TriangularClosestPoint  extends ICPCorrespondenceMethod
+case object TriangularClosestPoint extends ICPCorrespondenceMethod
 case object AlongNormalClosestPoint extends ICPCorrespondenceMethod
-case object PointcloudClosestPoint  extends ICPCorrespondenceMethod
+case object PointcloudClosestPoint extends ICPCorrespondenceMethod
 
 object ICPCorrespondence {
   def estimate[T](state: IcpRegistrationState): CorrespondencePairs = {
@@ -52,15 +52,15 @@ object ICPCorrespondence {
 }
 
 case class IcpConfiguration(
-    override val maxIterations: Int = 100,
-    override val threshold: Double = 1e-10,
-    override val converged: (GeneralRegistrationState, GeneralRegistrationState, Double) => Boolean =
-      (last: GeneralRegistrationState, current: GeneralRegistrationState, threshold: Double) => false,
-    override val useLandmarkCorrespondence: Boolean = true,
-    initialSigma: Double = 100.0,
-    endSigma: Double = 1.0,
-    reverseCorrespondenceDirection: Boolean = false,
-    correspondenceMethod: ICPCorrespondenceMethod = TriangularClosestPoint
+  override val maxIterations: Int = 100,
+  override val threshold: Double = 1e-10,
+  override val converged: (GeneralRegistrationState, GeneralRegistrationState, Double) => Boolean =
+    (last: GeneralRegistrationState, current: GeneralRegistrationState, threshold: Double) => false,
+  override val useLandmarkCorrespondence: Boolean = true,
+  initialSigma: Double = 100.0,
+  endSigma: Double = 1.0,
+  reverseCorrespondenceDirection: Boolean = false,
+  correspondenceMethod: ICPCorrespondenceMethod = TriangularClosestPoint
 ) extends GingrConfig {
   val sigmaStep: Double = (initialSigma - endSigma) / maxIterations.toDouble
 }
@@ -85,11 +85,11 @@ object IcpRegistrationState {
 }
 
 class IcpRegistration(
-    override val getCorrespondence: IcpRegistrationState => CorrespondencePairs = (state: IcpRegistrationState) =>
-      ICPCorrespondence.estimate(state),
-    override val getUncertainty: (PointId, IcpRegistrationState) => MultivariateNormalDistribution =
-      (id: PointId, state: IcpRegistrationState) =>
-        MultivariateNormalDistribution(DenseVector.zeros[Double](3), DenseMatrix.eye[Double](3) * state.general.sigma2)
+  override val getCorrespondence: IcpRegistrationState => CorrespondencePairs = (state: IcpRegistrationState) =>
+    ICPCorrespondence.estimate(state),
+  override val getUncertainty: (PointId, IcpRegistrationState) => MultivariateNormalDistribution =
+    (id: PointId, state: IcpRegistrationState) =>
+      MultivariateNormalDistribution(DenseVector.zeros[Double](3), DenseMatrix.eye[Double](3) * state.general.sigma2)
 ) extends GingrAlgorithm[IcpRegistrationState, IcpConfiguration] {
   def name = "ICP"
   // possibility to override the update function, or just use the base class method?
@@ -99,8 +99,8 @@ class IcpRegistration(
   }
 
   override def initializeState(
-      general: GeneralRegistrationState,
-      config: IcpConfiguration
+    general: GeneralRegistrationState,
+    config: IcpConfiguration
   ): IcpRegistrationState = {
     IcpRegistrationState(general, config)
   }

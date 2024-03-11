@@ -21,8 +21,8 @@ import gingr.api.{GingrRegistrationState, ShapeParameters}
 import scalismo.utils.Random
 
 case class RandomShapeUpdateProposal[State <: GingrRegistrationState[State]](
-    stdev: Double,
-    generatedBy: String = "RandomShapeUpdateProposal"
+  stdev: Double,
+  generatedBy: String = "RandomShapeUpdateProposal"
 )(implicit random: Random)
     extends GingrGeneratorWrapper[State] {
 

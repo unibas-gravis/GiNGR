@@ -20,5 +20,5 @@ package gingr.api
 sealed trait GlobalTranformationType
 
 case object SimilarityTransforms extends GlobalTranformationType
-case object RigidTransforms      extends GlobalTranformationType
-case object NoTransforms         extends GlobalTranformationType
+case object RigidTransforms extends GlobalTranformationType
+case object NoTransforms extends GlobalTranformationType

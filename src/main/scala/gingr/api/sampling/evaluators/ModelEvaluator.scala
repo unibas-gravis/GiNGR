@@ -17,7 +17,7 @@
 
 package gingr.api.sampling.evaluators
 
-import breeze.linalg.{DenseVector, diag}
+import breeze.linalg.{diag, DenseVector}
 import gingr.api.GingrRegistrationState
 import scalismo.sampling.DistributionEvaluator
 import scalismo.statisticalmodel.MultivariateNormalDistribution

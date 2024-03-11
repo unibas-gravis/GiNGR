@@ -18,30 +18,31 @@
 package gingr.api
 
 import gingr.api.FittingStatuses.FittingStatus
-import scalismo.geometry.{EuclideanVector, Landmark, _3D}
+import scalismo.geometry.{_3D, EuclideanVector, Landmark}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.PointDistributionModel
 import scalismo.transformations.Rotation
 
 trait RegistrationState[T] {
   def model: PointDistributionModel[_3D, TriangleMesh] // Prior statistical mesh model
-  def modelParameters: ModelFittingParameters          // parameters of the current fitting state in the model
-  def modelLandmarks: Option[Seq[Landmark[_3D]]]       // Landmarks on the model
-  def target: TriangleMesh[_3D]                        // Target mesh
-  def targetLandmarks: Option[Seq[Landmark[_3D]]]      // Landmarks on the target
+  def modelParameters: ModelFittingParameters // parameters of the current fitting state in the model
+  def modelLandmarks: Option[Seq[Landmark[_3D]]] // Landmarks on the model
+  def target: TriangleMesh[_3D] // Target mesh
+  def targetLandmarks: Option[Seq[Landmark[_3D]]] // Landmarks on the target
   def fit: TriangleMesh[_3D] // Current fit based on model parameters, global alignment and scaling
-  def sigma2: Double         // Global uncertainty parameter
+  def sigma2: Double // Global uncertainty parameter
   def globalTransformation: GlobalTranformationType // Type of global transformation (none, rigid, similarity)
-  def stepLength: Double                            // Step length of a single registration step (0.0 to 1.0)
-  def generatedBy: String                           // Name of generator that produced the State
+  def stepLength: Double // Step length of a single registration step (0.0 to 1.0)
+  def generatedBy: String // Name of generator that produced the State
   def iteration: Int
   def status: FittingStatus // Status
 
-  /** Updates the current state with the new fit.
-    *
-    * @param next
-    *   The newly calculated shape / fit.
-    */
+  /**
+   * Updates the current state with the new fit.
+   *
+   * @param next
+   *   The newly calculated shape / fit.
+   */
   private[api] def updateFit(next: TriangleMesh[_3D]): T
 //  private[api] def updateAlignment(next: TranslationAfterRotation[_3D]): T
   private[api] def updateTranslation(next: EuclideanVector[_3D]): T

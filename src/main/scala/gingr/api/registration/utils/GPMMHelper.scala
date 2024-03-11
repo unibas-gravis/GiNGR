@@ -19,7 +19,7 @@ package gingr.api.registration.utils
 
 import scalismo.common.UnstructuredPoints
 import scalismo.common.interpolation.TriangleMeshInterpolator3D
-import scalismo.geometry.{EuclideanVector, _3D}
+import scalismo.geometry.{_3D, EuclideanVector}
 import scalismo.kernels.{DiagonalKernel, GaussianKernel}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.{GaussianProcess, LowRankGaussianProcess, PointDistributionModel}
@@ -37,18 +37,18 @@ object GPMMHelper {
   }
 
   def automaticGPMMfromTemplate(
-      template: TriangleMesh[_3D],
-      relativeTolerance: Double = 0.1
+    template: TriangleMesh[_3D],
+    relativeTolerance: Double = 0.1
   ): PointDistributionModel[_3D, TriangleMesh] = {
     println("Constructing GPMM from template")
     val maxDist = maximumPointDistance(template.pointSet)
     val minDist = minimumPointDistance(template.pointSet)
-    val sigma1  = maxDist / 4
-    val sigma2  = maxDist / 8
-    val sigma3  = minDist * 5
-    val scale1  = sigma1 / 2
-    val scale2  = sigma2 / 2
-    val scale3  = sigma3 / 2
+    val sigma1 = maxDist / 4
+    val sigma2 = maxDist / 8
+    val sigma3 = minDist * 5
+    val scale1 = sigma1 / 2
+    val scale2 = sigma2 / 2
+    val scale3 = sigma3 / 2
 
     println(s"Maximum distance: ${maxDist}, minimum distance: ${minDist}")
     val k = DiagonalKernel(GaussianKernel[_3D](sigma1) * scale1, 3) +
