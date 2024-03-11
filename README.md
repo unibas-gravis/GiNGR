@@ -51,7 +51,7 @@ After installing VSCODE:
  - Go to the examples folder: `cd examples`
  - Setup Code IDE with `scala-cli setup-ide .`
  - Open the IDE with `code .`
- - Now run the individual examples from the "run" menu.
+ - Now run the individual examples
 
 ## General use
 To use GiNGR, one need to specify the deformation model to use in form of a GPMM model as well as the correspondence estimation function and the uncertainty update.
@@ -81,7 +81,7 @@ First CPD is used on a very coarse mesh (100 vertices), then CPD is used on a me
 
 
 ## Implementation of existing algorithms
-In the GiNGR code base, the basic implementations of existing algorithms can also be found for comparison. The algoriths are found under `gingr/other/algorithms`
+In the GiNGR code base, the basic implementations of existing algorithms can also be found for comparison. The algorithms are found under `gingr/other/algorithms`
 ### CPD: Coherent Point Drift (only Naïve version)
 Implementation of the CPD algorithm from https://arxiv.org/pdf/0905.2635.pdf
 ### BCPD: Bayesian Coherent Point Drift (only Naïve version)

@@ -1,6 +1,3 @@
-//> using scala "3"
-//> using lib "ch.unibas.cs.gravis::gingr:0.1.0-SNAPSHOT"
-//> using lib "ch.unibas.cs.gravis::scalismo:0.91.2"
 package DemoHelper
 
 import scalismo.common.interpolation.TriangleMeshInterpolator3D
@@ -47,7 +44,7 @@ trait DataSetLoader:
   ): (PointDistributionModel[_3D, TriangleMesh], Option[Seq[Landmark[_3D]]]) =
     val (ref, lm) = reference(decimate)
     val decstring = if (decimate.nonEmpty) decimate.get.toString else "full"
-    val modelFile = new File(path, s"${name}_dec-${decstring}_${kernelSelect.name}_${kernelSelect.printpars}.h5")
+    val modelFile = new File(path, s"${name}_dec-${decstring}_${kernelSelect.name}_${kernelSelect.printpars}.h5.json")
     val mdec = StatisticalModelIO.readStatisticalTriangleMeshModel3D(modelFile).getOrElse {
       println(s"Model file does not exist, creating: ${modelFile}")
       val m = SimpleTriangleModels3D.create(ref, kernelSelect, relativeTolerance = relativeTolerance)
@@ -109,8 +106,7 @@ trait DataSetLoader:
 
 
 object DemoDatasetLoader:
-  scalismo.initialize()
-  val dataPath = new File("../data")
+  val dataPath = new File("data")
   case object femur extends DataSetLoader:
     override def name: String        = "femur"
     override def path: File          = new File(dataPath, name)

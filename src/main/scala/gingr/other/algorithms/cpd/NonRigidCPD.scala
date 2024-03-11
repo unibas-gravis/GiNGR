@@ -56,8 +56,8 @@ private[cpd] class NonRigidCPD(
     val myG       = G
     val diagP1inv = inv(diag(P1))
     val PX        = P * X
-
-    val A: DenseMatrix[Double] = G + lambda * sigma2 * diagP1inv
+    
+    val A: DenseMatrix[Double] = G + diagP1inv.*(lambda * sigma2)
     val B: DenseMatrix[Double] = diagP1inv * PX - Y
 
     val W = A \ B

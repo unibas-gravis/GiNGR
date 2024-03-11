@@ -95,19 +95,21 @@ abstract class NonRigidOptimalStepICP(
       val (a, b) = config._1
       val j      = config._2
 
-      val innerFit = (0 until max_iteration).foldLeft((temp, Double.PositiveInfinity)) { (it, i) =>
-        val iter    = Iteration(it._1, targetMesh, a, b)
+      var innerFit = (temp, Double.PositiveInfinity)
+      var i = 0
+      while (i < max_iteration && innerFit._2 >= tolerance) {
+        val iter    = Iteration(innerFit._1, targetMesh, a, b)
         val TY      = iter._1
         val newDist = iter._2
         println(
           s"ICP, iteration: ${j * max_iteration + i}/${max_iteration * alpha.length}, alpha: ${a}, beta: ${b}, average distance to target: ${newDist}"
         )
+        innerFit = (TY, newDist)
         if (newDist < tolerance) {
           println("Converged")
-          return TY
-        } else {
-          (iter._1, iter._2)
+          innerFit = (TY, newDist)
         }
+        i += 1
       }
       innerFit._1
     }
