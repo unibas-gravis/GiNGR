@@ -132,7 +132,6 @@ class BCPD(
       val TY = iter._1
       val newPars = iter._2
       val diff = math.abs(newPars.sigma2 - currentPars.sigma2)
-
       if (diff < tolerance) {
         println("Converged")
         printTransformation(iter._2)
