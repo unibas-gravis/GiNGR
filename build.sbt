@@ -2,8 +2,8 @@ ThisBuild / scalaVersion := "3.3.1"
 
 lazy val root = (project in file("."))
   .settings(
-    name          := "GiNGR",
-    organization  := "ch.unibas.cs.gravis",
+    name := "GiNGR",
+    organization := "ch.unibas.cs.gravis",
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
     scmInfo := Some(
       ScmInfo(url("https://github.com/unibas-gravis/GiNGR"), "git@github.com:unibas-gravis/GiNGR.git")
@@ -20,8 +20,7 @@ lazy val root = (project in file("."))
     ),
     resolvers ++= Seq(
       Resolver.jcenterRepo,
-      Resolver.sonatypeRepo("releases"),
-      Resolver.sonatypeRepo("snapshots")
+      Resolver.sonatypeRepo("releases")
     ),
     scalacOptions ++= {
       Seq(
@@ -36,7 +35,7 @@ lazy val root = (project in file("."))
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "3.2.18" % "test",
-      "ch.unibas.cs.gravis" %% "scalismo" % "1.0.0",
-      "io.spray" %% "spray-json" % "1.3.6",
-    ),
+      "ch.unibas.cs.gravis" %% "scalismo" % "1.0-RC1",
+      "io.spray" %% "spray-json" % "1.3.6"
+    )
   )
