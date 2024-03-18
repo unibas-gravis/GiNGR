@@ -1,8 +1,10 @@
 ThisBuild / scalaVersion := "3.3.1"
+ThisBuild / version := "1.0-RC1"
 
 lazy val root = (project in file("."))
   .settings(
     name := "GiNGR",
+    homepage := Some(url("https://github.com/unibas-gravis/GiNGR")),
     organization := "ch.unibas.cs.gravis",
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
     scmInfo := Some(
