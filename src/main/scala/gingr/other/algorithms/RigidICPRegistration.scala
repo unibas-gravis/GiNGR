@@ -20,15 +20,15 @@ package gingr.other.algorithms
 import gingr.other.algorithms.icp.ICPFactory
 import gingr.other.utils.Registrator
 import scalismo.common.{DiscreteDomain, DiscreteField, DomainWarp, UnstructuredPoints, Vectorizer}
-import scalismo.geometry.{Point, _3D}
+import scalismo.geometry.{_3D, Point}
 
 class RigidICPRegistration[DDomain[_3D] <: DiscreteDomain[_3D]](
-    template: DDomain[_3D],
-    max_iterations: Int = 100
+  template: DDomain[_3D],
+  max_iterations: Int = 100
 )(implicit
-    warper: DomainWarp[_3D, DDomain],
-    vectorizer: Vectorizer[Point[_3D]],
-    registration: Registrator
+  warper: DomainWarp[_3D, DDomain],
+  vectorizer: Vectorizer[Point[_3D]],
+  registration: Registrator
 ) {
   val icp = new ICPFactory(UnstructuredPoints(template.pointSet.points.toIndexedSeq))
 
@@ -36,7 +36,7 @@ class RigidICPRegistration[DDomain[_3D] <: DiscreteDomain[_3D]](
 
   def register(target: DDomain[_3D]): DDomain[_3D] = {
     val registrationTask = registrationMethod(UnstructuredPoints(target.pointSet.points.toIndexedSeq))
-    val registration     = registrationTask.Registration(max_iterations)
+    val registration = registrationTask.Registration(max_iterations)
     val warpField = DiscreteField(
       target,
       target.pointSet.points.toIndexedSeq.zip(registration.points.toIndexedSeq).map { case (a, b) => b - a }

@@ -27,36 +27,36 @@ sealed trait WhichKernel {
   val printpars: String
 }
 case class InvLapKernel(scaling: Double) extends WhichKernel {
-  override val name: String      = "InvLap"
+  override val name: String = "InvLap"
   override val printpars: String = scaling.toString
 }
 case class InvLapDotKernel(scaling: Double, gamma: Double) extends WhichKernel {
-  override val name: String      = "InvLapDot"
+  override val name: String = "InvLapDot"
   override val printpars: String = scaling.toString + "_" + gamma.toString
 }
 case class GaussKernel(scaling: Double, sigma: Double) extends WhichKernel {
-  override val name: String      = "Gauss"
+  override val name: String = "Gauss"
   override val printpars: String = scaling.toString + "_" + sigma.toString
 }
 case class GaussMixKernel() extends WhichKernel {
-  override val name: String      = "GaussMix"
+  override val name: String = "GaussMix"
   override val printpars: String = ""
 }
 case class GaussDotKernel(scaling: Double, sigma: Double) extends WhichKernel {
-  override val name: String      = "GaussDot"
+  override val name: String = "GaussDot"
   override val printpars: String = scaling.toString + "_" + sigma.toString
 }
 case class GaussMirrorKernel(scaling: Double, sigma: Double) extends WhichKernel {
-  override val name: String      = "GaussMirror"
+  override val name: String = "GaussMirror"
   override val printpars: String = scaling.toString + "_" + sigma.toString
 }
 
 object SimpleTriangleModels3D {
 
   def create(
-      reference: TriangleMesh[_3D],
-      kernelSelect: WhichKernel,
-      relativeTolerance: Double = 0.01
+    reference: TriangleMesh[_3D],
+    kernelSelect: WhichKernel,
+    relativeTolerance: Double = 0.01
   ): PointDistributionModel[_3D, TriangleMesh] = {
     val model = kernelSelect match {
       case InvLapKernel(s) =>

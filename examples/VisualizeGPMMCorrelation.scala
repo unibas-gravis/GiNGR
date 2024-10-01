@@ -1,6 +1,3 @@
-//> using scala "3"
-//> using lib "ch.unibas.cs.gravis::gingr:0.1.0-SNAPSHOT"
-//> using lib "ch.unibas.cs.gravis::scalismo-ui:0.91.2"
 import DemoHelper.DemoDatasetLoader
 import DemoHelper.CallBackFunctions.{visualLogger}
 import gingr.api.gpmm.GPMMTriangleMesh3D

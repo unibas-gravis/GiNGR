@@ -20,30 +20,30 @@ package gingr.api
 import breeze.linalg.{DenseMatrix, DenseVector}
 import gingr.api.FittingStatuses.FittingStatus
 import scalismo.common.PointId
-import scalismo.geometry.{EuclideanVector, Landmark, Point, _3D}
+import scalismo.geometry.{_3D, EuclideanVector, Landmark, Point}
 import scalismo.mesh.TriangleMesh
 import scalismo.statisticalmodel.{MultivariateNormalDistribution, PointDistributionModel}
 import scalismo.transformations._
 
 case class GeneralRegistrationState(
-    override val model: PointDistributionModel[_3D, TriangleMesh],
-    override val modelParameters: ModelFittingParameters,
-    override val modelLandmarks: Option[Seq[Landmark[_3D]]] = None,
-    override val target: TriangleMesh[_3D],
-    override val targetLandmarks: Option[Seq[Landmark[_3D]]] = None,
-    override val fit: TriangleMesh[_3D],
-    override val sigma2: Double = 1.0,
-    override val globalTransformation: GlobalTranformationType = RigidTransforms,
-    override val stepLength: Double = 1.0,
-    override val generatedBy: String = "",
-    override val iteration: Int = 0,
-    override val status: FittingStatus = FittingStatuses.None
+  override val model: PointDistributionModel[_3D, TriangleMesh],
+  override val modelParameters: ModelFittingParameters,
+  override val modelLandmarks: Option[Seq[Landmark[_3D]]] = None,
+  override val target: TriangleMesh[_3D],
+  override val targetLandmarks: Option[Seq[Landmark[_3D]]] = None,
+  override val fit: TriangleMesh[_3D],
+  override val sigma2: Double = 1.0,
+  override val globalTransformation: GlobalTranformationType = RigidTransforms,
+  override val stepLength: Double = 1.0,
+  override val generatedBy: String = "",
+  override val iteration: Int = 0,
+  override val status: FittingStatus = FittingStatuses.None
 ) extends RegistrationState[GeneralRegistrationState] {
 
   lazy val landmarkCorrespondences: IndexedSeq[(PointId, Point[_3D], MultivariateNormalDistribution)] = {
     if (modelLandmarks.nonEmpty && targetLandmarks.nonEmpty) {
-      val m             = modelLandmarks.get
-      val t             = targetLandmarks.get
+      val m = modelLandmarks.get
+      val t = targetLandmarks.get
       val commonLmNames = m.map(_.id) intersect t.map(_.id)
       commonLmNames.map { name =>
         val mPoint = m.find(_.id == name).get
@@ -61,15 +61,16 @@ case class GeneralRegistrationState(
     }
   }
 
-  /** Updates the current state with the new fit.
-    *
-    * @param next
-    *   The newly calculated shape / fit.
-    */
+  /**
+   * Updates the current state with the new fit.
+   *
+   * @param next
+   *   The newly calculated shape / fit.
+   */
   override def updateFit(next: TriangleMesh[_3D]): GeneralRegistrationState = this.copy(fit = next)
-  override def updateIteration(): GeneralRegistrationState                  = this.copy(iteration = this.iteration + 1)
-  override def clearIteration(): GeneralRegistrationState                   = this.copy(iteration = 0)
-  override def updateStatus(next: FittingStatus): GeneralRegistrationState  = this.copy(status = next)
+  override def updateIteration(): GeneralRegistrationState = this.copy(iteration = this.iteration + 1)
+  override def clearIteration(): GeneralRegistrationState = this.copy(iteration = 0)
+  override def updateStatus(next: FittingStatus): GeneralRegistrationState = this.copy(status = next)
 
   override private[api] def updateTranslation(next: EuclideanVector[_3D]): GeneralRegistrationState = {
     this.copy(modelParameters = this.modelParameters.copy(pose = this.modelParameters.pose.copy(translation = next)))
@@ -80,7 +81,7 @@ case class GeneralRegistrationState(
   }
 
   override private[api] def updateRotation(next: Rotation[_3D]): GeneralRegistrationState = {
-    val angles   = RotationSpace3D.rotMatrixToEulerAngles(next.rotationMatrix)
+    val angles = RotationSpace3D.rotMatrixToEulerAngles(next.rotationMatrix)
     val newEuler = EulerRotation(EulerAngles(angles._1, angles._2, angles._3), next.center)
     this.copy(modelParameters = this.modelParameters.copy(pose = this.modelParameters.pose.copy(rotation = newEuler)))
   }
@@ -115,29 +116,29 @@ case class GeneralRegistrationState(
 
 object GeneralRegistrationState {
   def apply(
-      model: PointDistributionModel[_3D, TriangleMesh],
-      target: TriangleMesh[_3D],
-      modelTranform: Option[TranslationAfterRotation[_3D]]
+    model: PointDistributionModel[_3D, TriangleMesh],
+    target: TriangleMesh[_3D],
+    modelTranform: Option[TranslationAfterRotation[_3D]]
   ): GeneralRegistrationState = {
     apply(model, target, RigidTransforms, modelTranform)
   }
 
   def apply(
-      model: PointDistributionModel[_3D, TriangleMesh],
-      target: TriangleMesh[_3D],
-      transform: GlobalTranformationType,
-      modelTranform: Option[TranslationAfterRotation[_3D]]
+    model: PointDistributionModel[_3D, TriangleMesh],
+    target: TriangleMesh[_3D],
+    transform: GlobalTranformationType,
+    modelTranform: Option[TranslationAfterRotation[_3D]]
   ): GeneralRegistrationState = {
     apply(model, Seq(), target, Seq(), transform, modelTranform)
   }
 
   def apply(
-      model: PointDistributionModel[_3D, TriangleMesh],
-      modelLandmarks: Seq[Landmark[_3D]],
-      target: TriangleMesh[_3D],
-      targetLandmarks: Seq[Landmark[_3D]],
-      transform: GlobalTranformationType,
-      modelTranform: Option[TranslationAfterRotation[_3D]]
+    model: PointDistributionModel[_3D, TriangleMesh],
+    modelLandmarks: Seq[Landmark[_3D]],
+    target: TriangleMesh[_3D],
+    targetLandmarks: Seq[Landmark[_3D]],
+    transform: GlobalTranformationType,
+    modelTranform: Option[TranslationAfterRotation[_3D]]
   ): GeneralRegistrationState = {
     val (t, r) = if (modelTranform.isDefined) {
       val initialAngles = RotationSpace3D.rotMatrixToEulerAngles(modelTranform.get.rotation.rotationMatrix)
@@ -178,11 +179,11 @@ object GeneralRegistrationState {
   }
 
   def apply(
-      model: PointDistributionModel[_3D, TriangleMesh],
-      modelLandmarks: Seq[Landmark[_3D]],
-      target: TriangleMesh[_3D],
-      targetLandmarks: Seq[Landmark[_3D]],
-      modelTranform: Option[TranslationAfterRotation[_3D]]
+    model: PointDistributionModel[_3D, TriangleMesh],
+    modelLandmarks: Seq[Landmark[_3D]],
+    target: TriangleMesh[_3D],
+    targetLandmarks: Seq[Landmark[_3D]],
+    modelTranform: Option[TranslationAfterRotation[_3D]]
   ): GeneralRegistrationState = {
     apply(model, modelLandmarks, target, targetLandmarks, RigidTransforms, modelTranform)
   }

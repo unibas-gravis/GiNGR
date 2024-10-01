@@ -1,3 +1,7 @@
+*.tasty
+*.h5
+*.h5.json
+
 # bloop and metals
 .bloop
 .bsp
